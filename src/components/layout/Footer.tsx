@@ -1,0 +1,107 @@
+import React from 'react';
+import { LanguageCode } from '../../types';
+import { translations } from '../../lib/translations';
+import { FileText, Mail, ShieldCheck, Heart, Sparkles, Shield } from 'lucide-react';
+
+interface FooterProps {
+  lang?: LanguageCode;
+  onNavigate?: (view: 'landing' | 'dashboard' | 'builder' | 'admin') => void;
+}
+
+export const Footer: React.FC<FooterProps> = ({ lang = 'fr', onNavigate }) => {
+  const t = translations[lang] || translations.fr;
+
+  return (
+    <footer className="bg-slate-900 text-slate-400 text-xs border-t border-slate-800">
+      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12">
+        <div className="grid grid-cols-1 md:grid-cols-4 gap-8 mb-12">
+          {/* Brand Col */}
+          <div className="space-y-4 md:col-span-1">
+            <div className="flex items-center gap-2 text-white font-black text-lg">
+              <div className="w-8 h-8 rounded-lg bg-blue-600 flex items-center justify-center text-white">
+                <FileText className="w-4 h-4" />
+              </div>
+              <span>CV EN LIGNE</span>
+            </div>
+            <p className="text-xs text-slate-400 leading-relaxed">
+              La plateforme intelligente pour transformer vos informations en un CV professionnel, moderne et percutant prêt pour l'embauche.
+            </p>
+            <div className="flex items-center gap-2 text-[11px] text-emerald-400">
+              <ShieldCheck className="w-4 h-4" />
+              <span>Conforme ATS & Protection des données</span>
+            </div>
+          </div>
+
+          {/* Quick links */}
+          <div>
+            <h4 className="font-bold text-white uppercase tracking-wider text-xs mb-4">Navigation</h4>
+            <ul className="space-y-2 text-xs">
+              <li>
+                <a href="#templates-section" className="hover:text-white transition-colors">Nos 5 Modèles de CV</a>
+              </li>
+              <li>
+                <a href="#workflow-section" className="hover:text-white transition-colors">Comment ça marche</a>
+              </li>
+              <li>
+                <a href="#pricing-section" className="hover:text-white transition-colors">Tarif Unique (2,00 $)</a>
+              </li>
+              <li>
+                <a href="#faq-section" className="hover:text-white transition-colors">Questions Fréquentes</a>
+              </li>
+            </ul>
+          </div>
+
+          {/* Features */}
+          <div>
+            <h4 className="font-bold text-white uppercase tracking-wider text-xs mb-4">Fonctionnalités Clés</h4>
+            <ul className="space-y-2 text-xs">
+              <li className="flex items-center gap-1.5">
+                <Sparkles className="w-3.5 h-3.5 text-blue-400" />
+                <span>Optimisation IA des missions</span>
+              </li>
+              <li>Accroche professionnelle assistée</li>
+              <li>Générateur de lettre de motivation</li>
+              <li>Export PDF A4 Haute Définition</li>
+              <li>Traduction FR, EN et Arabe RTL</li>
+            </ul>
+          </div>
+
+          {/* Contact & Support */}
+          <div>
+            <h4 className="font-bold text-white uppercase tracking-wider text-xs mb-4">Support & Contact</h4>
+            <p className="text-xs text-slate-400 mb-3">
+              Une question ou besoin d'assistance ? Notre équipe dédiée est à votre écoute.
+            </p>
+            <a
+              href="mailto:lahcengelmim@gmail.com"
+              className="inline-flex items-center gap-2 px-3 py-2 bg-slate-800 hover:bg-slate-700 text-white rounded-xl text-xs font-semibold transition-colors border border-slate-700"
+            >
+              <Mail className="w-3.5 h-3.5 text-blue-400" />
+              <span>lahcengelmim@gmail.com</span>
+            </a>
+          </div>
+        </div>
+
+        <div className="border-t border-slate-800 pt-8 flex flex-col sm:flex-row items-center justify-between gap-4 text-[11px] text-slate-500">
+          <div>
+            © {new Date().getFullYear()} CV EN LIGNE. Tous droits réservés.
+          </div>
+          <div className="flex items-center gap-4">
+            <span className="hover:text-slate-400 cursor-pointer">Conditions Générales</span>
+            <span className="hover:text-slate-400 cursor-pointer">Politique de Confidentialité</span>
+            <span className="hover:text-slate-400 cursor-pointer">Mentions Légales</span>
+            {onNavigate && (
+              <button
+                onClick={() => onNavigate('admin')}
+                className="hover:text-blue-400 text-slate-400 flex items-center gap-1 transition-colors font-medium ml-2"
+              >
+                <Shield className="w-3 h-3 text-blue-400" />
+                <span>Espace Administrateur</span>
+              </button>
+            )}
+          </div>
+        </div>
+      </div>
+    </footer>
+  );
+};
