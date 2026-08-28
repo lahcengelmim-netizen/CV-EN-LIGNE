@@ -121,9 +121,9 @@ export const AdminUsersView: React.FC = () => {
           >
             <option value="all">Tous les plans</option>
             <option value="free">Gratuit</option>
-            <option value="single_cv">1 CV (2,00 $)</option>
-            <option value="monthly">Pass Mensuel (9,90 $)</option>
-            <option value="yearly">Pass Annuel (29,90 $)</option>
+            <option value="single_cv">Pass Flash ($1.99)</option>
+            <option value="monthly">Pass Mensuel ($7.99)</option>
+            <option value="yearly">Pass Annuel ($39.99)</option>
           </select>
         </div>
       </div>
@@ -214,7 +214,7 @@ export const AdminUsersView: React.FC = () => {
                           )}
                           {user.plan === 'single_cv' && (
                             <span className="inline-flex items-center px-1.5 py-0.5 rounded text-[10px] font-bold bg-emerald-500/20 text-emerald-300 border border-emerald-500/30">
-                              1 CV (2,00 $)
+                              Pass Flash ($1.99)
                             </span>
                           )}
                           {(!user.plan || user.plan === 'free') && (

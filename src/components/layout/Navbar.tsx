@@ -3,6 +3,7 @@ import { LanguageCode } from '../../types';
 import { translations } from '../../lib/translations';
 import { FileText, Sparkles, User, LogOut, Globe, Plus, LayoutDashboard, Shield } from 'lucide-react';
 import { adminService } from '../../lib/adminService';
+import { LanguageSelector } from '../common/LanguageSelector';
 
 interface NavbarProps {
   currentView: 'landing' | 'dashboard' | 'builder' | 'admin';
@@ -47,7 +48,7 @@ export const Navbar: React.FC<NavbarProps> = ({
               <span className="px-1.5 py-0.2 bg-blue-100 text-blue-800 text-[10px] font-bold rounded">IA</span>
             </div>
             <p className="text-[10px] text-slate-400 font-medium hidden sm:block -mt-0.5">
-              Créez votre CV professionnel en quelques minutes
+              {t.brandTagline}
             </p>
           </div>
         </div>
@@ -115,34 +116,13 @@ export const Navbar: React.FC<NavbarProps> = ({
         </nav>
 
         {/* Right CTA / Language / Auth */}
-        <div className="flex items-center gap-3">
-          {/* Language Selector */}
-          <div className="flex items-center bg-slate-100 p-1 rounded-xl border border-slate-200">
-            <button
-              onClick={() => onLanguageChange('fr')}
-              className={`px-2 py-1 text-xs font-bold rounded-lg transition-colors ${
-                lang === 'fr' ? 'bg-white text-blue-600 shadow-2xs' : 'text-slate-500 hover:text-slate-900'
-              }`}
-            >
-              FR
-            </button>
-            <button
-              onClick={() => onLanguageChange('en')}
-              className={`px-2 py-1 text-xs font-bold rounded-lg transition-colors ${
-                lang === 'en' ? 'bg-white text-blue-600 shadow-2xs' : 'text-slate-500 hover:text-slate-900'
-              }`}
-            >
-              EN
-            </button>
-            <button
-              onClick={() => onLanguageChange('ar')}
-              className={`px-2 py-1 text-xs font-bold rounded-lg transition-colors ${
-                lang === 'ar' ? 'bg-white text-blue-600 shadow-2xs' : 'text-slate-500 hover:text-slate-900'
-              }`}
-            >
-              AR
-            </button>
-          </div>
+        <div className="flex items-center gap-2 sm:gap-3">
+          {/* Horizontal Language Selector with 8 Flags */}
+          <LanguageSelector
+            currentLang={lang}
+            onLanguageChange={onLanguageChange}
+            className="shadow-2xs"
+          />
 
           {/* User Auth or CTA */}
           {user ? (

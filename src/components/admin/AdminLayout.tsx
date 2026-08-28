@@ -241,7 +241,7 @@ export const AdminLayout: React.FC<AdminLayoutProps> = ({
                     Opérationnel
                   </span>
                 </div>
-                <p className="text-[10px] text-slate-400">Tarif par CV : 2,00 $ USD</p>
+                <p className="text-[10px] text-slate-400">Tarif Pass Flash : $1.99 USD</p>
               </div>
 
               <button

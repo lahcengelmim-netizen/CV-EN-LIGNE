@@ -100,7 +100,7 @@ export const AdminDashboardView: React.FC<AdminDashboardViewProps> = ({ stats, o
             Vue d'ensemble de la plateforme
           </h1>
           <p className="text-sm text-slate-300 mt-1 max-w-2xl">
-            Suivi en temps réel des utilisateurs, des téléchargements de CV rémunérés (2,00 $), des requêtes IA et de la performance des modèles.
+            Suivi en temps réel des utilisateurs, des téléchargements de CV rémunérés ($1.99), des requêtes IA et de la performance des modèles.
           </p>
         </div>
 
@@ -154,7 +154,7 @@ export const AdminDashboardView: React.FC<AdminDashboardViewProps> = ({ stats, o
           <div className="flex items-center justify-between mb-6">
             <div>
               <h3 className="font-bold text-base text-white">Revenus des 7 derniers jours</h3>
-              <p className="text-xs text-slate-400">Total ventes de téléchargements HD A4 à 2,00 $</p>
+              <p className="text-xs text-slate-400">Total ventes de téléchargements HD A4 à $1.99</p>
             </div>
             <div className="px-3 py-1 bg-emerald-500/10 border border-emerald-500/20 text-emerald-400 text-xs font-bold rounded-xl">
               {stats.totalRevenue.toFixed(2)} $ Total
@@ -324,12 +324,12 @@ export const AdminDashboardView: React.FC<AdminDashboardViewProps> = ({ stats, o
               <h4 className="font-bold text-sm text-white">Offres & Abonnements</h4>
             </div>
             <span className="px-2 py-0.5 bg-amber-500/10 text-amber-400 text-[10px] font-bold rounded-full">
-              3 Formules
+              4 Formules
             </span>
           </div>
 
           <p className="text-xs text-slate-400 leading-relaxed">
-            1 CV (2,00 $), Pass Mensuel (9,90 $) et Pass Annuel (29,90 $ - Meilleure Offre) avec téléchargements HD illimités.
+            Pass Flash ($1.99), Pass Pro ($3.99), Monthly ($7.99) et Annual ($39.99 - SAVE 50%) avec téléchargements HD illimités.
           </p>
 
           <div className="space-y-2 pt-2 border-t border-slate-800 text-xs">

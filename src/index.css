@@ -6,6 +6,28 @@
   }
 }
 
+/* 2-Column Balanced Editor Layout with guaranteed min-width on preview */
+.editor-layout {
+  display: grid;
+  grid-template-columns: 1fr 1fr; /* 50% Formulaire à gauche, 50% Aperçu à droite */
+  gap: 24px;
+  align-items: start;
+  width: 100%;
+  max-width: 1400px;
+  margin: 0 auto;
+}
+
+@media (max-width: 1024px) {
+  .editor-layout {
+    grid-template-columns: 1fr;
+  }
+}
+
+.preview-column {
+  min-width: 450px;
+  width: 100%;
+}
+
 /* Print optimizations for A4 CV export */
 @media print {
   body {

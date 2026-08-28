@@ -14,7 +14,7 @@ export type TemplateId =
 export type PlanType = 'free' | 'single_cv' | 'monthly' | 'yearly';
 export type SubscriptionStatus = 'active' | 'expired' | 'canceled' | 'none';
 
-export type LanguageCode = 'fr' | 'en' | 'ar';
+export type LanguageCode = 'en' | 'fr' | 'ar' | 'es' | 'de' | 'it' | 'pt' | 'zh';
 
 export interface Experience {
   id: string;
@@ -89,11 +89,23 @@ export interface CVTheme {
   showPhoto: boolean;
 }
 
+export interface CVSectionTitles {
+  contact?: string;
+  profile?: string;
+  experience?: string;
+  education?: string;
+  skills?: string;
+  languages?: string;
+  certifications?: string;
+  projects?: string;
+}
+
 export interface CVData {
   id: string;
   userId?: string;
   title: string; // Title of the CV document e.g. "CV Développeur Web"
   language?: LanguageCode;
+  sectionTitles?: CVSectionTitles;
   personalInfo: PersonalInfo;
   summary: string;
   experiences: Experience[];

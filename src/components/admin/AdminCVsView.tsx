@@ -53,7 +53,7 @@ export const AdminCVsView: React.FC = () => {
             Gestion des Curriculum Vitae
           </h2>
           <p className="text-xs text-slate-400">
-            Tous les CVs générés, statut de paiement HD (2,00 $) et modèle utilisé
+            Tous les CVs générés, statut de paiement HD ($1.99) et modèle utilisé
           </p>
         </div>
 

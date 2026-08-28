@@ -54,7 +54,7 @@ export const AdminPaymentsView: React.FC = () => {
             Transactions & Paiements
           </h2>
           <p className="text-xs text-slate-400">
-            Historique certifié des téléchargements HD A4 facturés à 2,00 $ (Vérification côté serveur)
+            Historique certifié des téléchargements HD A4 facturés dès $1.99 (Vérification côté serveur)
           </p>
         </div>
 
@@ -81,9 +81,9 @@ export const AdminPaymentsView: React.FC = () => {
           </div>
 
           <div className="p-4 bg-slate-900 border border-slate-800 rounded-2xl">
-            <div className="text-xs font-semibold text-slate-400 mb-1">Tarif Unique par CV</div>
-            <div className="text-2xl font-black text-white">2,00 $</div>
-            <div className="text-[11px] text-slate-500 mt-1">Devise : USD</div>
+            <div className="text-xs font-semibold text-slate-400 mb-1">Tarif Pass Flash</div>
+            <div className="text-2xl font-black text-white">$1.99</div>
+            <div className="text-[11px] text-slate-500 mt-1">Devise : USD ($)</div>
           </div>
 
           <div className="p-4 bg-slate-900 border border-slate-800 rounded-2xl">

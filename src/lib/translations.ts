@@ -1,7 +1,6 @@
 import { LanguageCode } from '../types';
 
-export const translations = {
-  fr: {
+const fr = {
     // Brand & Header
     brandName: 'CV EN LIGNE',
     brandTagline: 'Votre CV professionnel créé en quelques minutes',
@@ -73,25 +72,25 @@ export const translations = {
     benefit5Title: 'Sauvegarde Sécurisée',
     benefit5Desc: 'Vos données sont stockées de façon protégée sur Supabase et modifiables à vie.',
     benefit6Title: 'Tarif Transparent',
-    benefit6Desc: 'Un prix juste de seulement 2$ par CV téléchargé, sans abonnement caché.',
+    benefit6Desc: 'Dès $1.99 pour le Pass Flash, sans abonnement caché.',
 
     // Pricing
     pricingTitle: 'Un tarif simple, clair et transparent',
-    pricingSubtitle: 'Aucun abonnement récurrent. Vous ne payez que lorsque votre CV est parfait.',
-    pricingAmount: '$2',
-    pricingPerCv: 'par CV finalisé',
+    pricingSubtitle: 'Aucun abonnement récurrent imposé. Vous ne payez que lorsque votre CV est parfait.',
+    pricingAmount: '$1.99',
+    pricingPerCv: 'Pass Flash (Achat Unique)',
     pricingFeature1: 'Création illimitée et prévisualisation en direct gratuite',
     pricingFeature2: 'Amélioration des expériences avec l\'IA incluse',
     pricingFeature3: 'Accès complet à tous les 10 templates professionnels ATS',
     pricingFeature4: 'Téléchargement PDF A4 haute définition sans filigrane',
-    pricingFeature5: 'Modifications et re-téléchargements illimités de ce CV',
+    pricingFeature5: 'Modifications et re-téléchargements illimités',
     pricingFeature6: 'Support client par email prioritaire',
-    pricingCta: 'Commencer mon CV pour 2$',
+    pricingCta: 'Commencer mon CV pour $1.99',
 
     // FAQ
     faqTitle: 'Questions fréquentes',
     faqQ1: 'Puis-je modifier mon CV après avoir payé ?',
-    faqA1: 'Oui ! Une fois votre CV débloqué pour 2$, vous pouvez y apporter toutes les modifications souhaitées et le retélécharger sans surcoût.',
+    faqA1: 'Oui ! Une fois votre formule débloquée (dès $1.99), vous pouvez y apporter toutes les modifications souhaitées et le retélécharger sans surcoût.',
     faqQ2: 'L\'IA va-t-elle inventer de fausses expériences ?',
     faqA2: 'Non, absolument pas. Notre IA est spécialement programmée pour valoriser et reformuler vos véritables tâches sans jamais inventer de postes, de diplômes ou de compétences fictives.',
     faqQ3: 'Mes informations sont-elles protégées ?',
@@ -130,7 +129,7 @@ export const translations = {
     btnAcceptAi: 'Accepter cette version',
     btnEditAi: 'Personnaliser le texte',
     btnDownloadPdf: 'Télécharger le PDF',
-    btnPayAndDownload: 'Débloquer & Télécharger (2$)',
+    btnPayAndDownload: 'Débloquer & Télécharger ($1.99)',
     btnDuplicate: 'Dupliquer',
     btnDelete: 'Supprimer',
     btnEdit: 'Modifier',
@@ -206,8 +205,9 @@ export const translations = {
     footerLegal: 'Tous droits réservés.',
     footerPrivacy: 'Politique de confidentialité',
     footerTerms: 'Conditions d\'utilisation'
-  },
-  en: {
+};
+
+const en = {
     brandName: 'CV EN LIGNE',
     brandTagline: 'Your professional resume created in minutes',
     navHome: 'Home',
@@ -273,29 +273,29 @@ export const translations = {
     benefit5Title: 'Secure Supabase Storage',
     benefit5Desc: 'Your personal data is isolated and safely saved for lifetime updates.',
     benefit6Title: 'Fair & Transparent Pricing',
-    benefit6Desc: 'Only $2 per finalized CV download. No subscriptions or hidden traps.',
+    benefit6Desc: 'From $1.99 for Flash Pass. Zero recurring traps.',
 
-    pricingTitle: 'Simple and fair pricing',
-    pricingSubtitle: 'No recurring subscriptions. You only pay when your resume is ready.',
-    pricingAmount: '$2',
-    pricingPerCv: 'per finalized resume',
+    pricingTitle: 'Simple and transparent pricing',
+    pricingSubtitle: 'No forced recurring subscriptions. Pick the formula that fits your job search.',
+    pricingAmount: '$1.99',
+    pricingPerCv: 'Flash Pass (Single Purchase)',
     pricingFeature1: 'Unlimited editing and free real-time preview',
     pricingFeature2: 'AI experience enhancer included',
-    pricingFeature3: 'Full access to all 5 premium templates',
+    pricingFeature3: 'Full access to all 10 premium templates',
     pricingFeature4: 'High-res A4 PDF download with zero watermarks',
-    pricingFeature5: 'Lifetime edits and re-downloads of this resume',
+    pricingFeature5: 'Lifetime edits and re-downloads',
     pricingFeature6: 'Priority email customer support',
-    pricingCta: 'Start my resume for $2',
+    pricingCta: 'Start my resume for $1.99',
 
     faqTitle: 'Frequently Asked Questions',
     faqQ1: 'Can I edit my resume after paying?',
-    faqA1: 'Yes! Once unlocked for $2, you can edit and re-download your resume at any time for free.',
+    faqA1: 'Yes! Once unlocked (starting at $1.99), you can edit and re-download your resume at any time for free.',
     faqQ2: 'Does the AI make up fake information?',
     faqA2: 'No. The AI strictly respects your inputs and only polishes tone, grammar, and action verbs.',
     faqQ3: 'Is my personal data secure?',
     faqA3: 'Yes. All data is securely stored with Supabase Row Level Security. Only you can access your resumes.',
     faqQ4: 'Can I generate a matching cover letter?',
-    faqA4: 'Yes, you receive 2 tailored AI cover letter generations based on your profile.',
+    faqA4: 'Yes, you receive tailored AI cover letter generations based on your profile.',
 
     contactTitle: 'Need help or have questions?',
     contactSubtitle: 'Our team is here to assist you.',
@@ -325,7 +325,7 @@ export const translations = {
     btnAcceptAi: 'Accept suggestion',
     btnEditAi: 'Edit text',
     btnDownloadPdf: 'Download PDF',
-    btnPayAndDownload: 'Unlock & Download ($2)',
+    btnPayAndDownload: 'Unlock & Download ($1.99)',
     btnDuplicate: 'Duplicate',
     btnDelete: 'Delete',
     btnEdit: 'Edit',
@@ -392,8 +392,9 @@ export const translations = {
     footerLegal: 'All rights reserved.',
     footerPrivacy: 'Privacy Policy',
     footerTerms: 'Terms of Service'
-  },
-  ar: {
+};
+
+const ar = {
     brandName: 'CV EN LIGNE',
     brandTagline: 'سيرتك الذاتية المهنية في دقائق معدودة',
     navHome: 'الرئيسية',
@@ -459,29 +460,29 @@ export const translations = {
     benefit5Title: 'حفظ آمن على Supabase',
     benefit5Desc: 'بياناتك محفوظة بأمان وسرية تامة وقابلة للتعديل مدى الحياة.',
     benefit6Title: 'سعر رمزي وشفاف',
-    benefit6Desc: '2$ فقط لكل سيرة ذاتية يتم تنزيلها، بدون أي اشتراكات خفية.',
+    benefit6Desc: 'ابتداءً من $1.99 لعرض فلاش، بدون أي اشتراكات خفية.',
 
     pricingTitle: 'سعر بسيط، عادل وواضح',
-    pricingSubtitle: 'لا يوجد أي اشتراك متكرر. تدفع فقط عند اكتمال سيرتك الذاتية.',
-    pricingAmount: '$2',
-    pricingPerCv: 'لكل سيرة ذاتية جاهزة',
+    pricingSubtitle: 'لا يوجد أي اشتراك متكرر إجباري. تدفع فقط وفق الصيغة التي تناسبك.',
+    pricingAmount: '$1.99',
+    pricingPerCv: 'عرض فلاش (شراء لمرة واحدة)',
     pricingFeature1: 'إنشاء وتعديل ومعاينة حية مجانية غير محدودة',
     pricingFeature2: 'مساعد الذكاء الاصطناعي لتحسين الخبرات مشمول',
-    pricingFeature3: 'إمكانية استخدام كافة النماذج الخمسة الاحترافية',
+    pricingFeature3: 'إمكانية استخدام كافة النماذج الاحترافية العشرة',
     pricingFeature4: 'تنزيل ملف PDF A4 عالي الجودة بدون أي علامة مائية',
-    pricingFeature5: 'تعديلات وتنزيلات إضافية مجانية مدى الحياة لنفس السيرة',
+    pricingFeature5: 'تعديلات وتنزيلات إضافية مجانية',
     pricingFeature6: 'دعم فني وتوجيه عبر البريد الإلكتروني',
-    pricingCta: 'ابدأ سيرتك الذاتية مقابل 2$',
+    pricingCta: 'ابدأ سيرتك الذاتية مقابل $1.99',
 
     faqTitle: 'الأسئلة الشائعة',
     faqQ1: 'هل يمكنني تعديل سيرتي بعد الدفع؟',
-    faqA1: 'نعم بالتأكيد! بعد فتح السيرة مقابل 2$، يمكنك إجراء أي تعديل وتنزيلها مجدداً في أي وقت مجاناً.',
+    faqA1: 'نعم بالتأكيد! بعد تفعيل باقتك (ابتداءً من $1.99)، يمكنك إجراء أي تعديل وتنزيلها مجدداً في أي وقت مجاناً.',
     faqQ2: 'هل يخترع الذكاء الاصطناعي معلومات كاذبة؟',
     faqA2: 'كلا، إطلاقاً. تم ضبط نموذجنا خصيصاً ليحسن الصياغة والأسلوب دون اختلاق أي شركات أو تواريخ أو شهادات وهمية.',
     faqQ3: 'هل معلوماتي الشخصية محمية؟',
     faqA3: 'نعم. جميع بياناتك محفوظة بصورة معزولة ومحمية عبر Supabase وفق أعلى معايير الأمان.',
     faqQ4: 'هل يمكنني إنشاء خطاب تحفيز متناسق؟',
-    faqA4: 'نعم، نوفر لك إمكانية توليد خطابي تحفيز مخصصين وفق بيانات سيرتك والوظيفة المستهدفة.',
+    faqA4: 'نعم، نوفر لك إمكانية توليد خطابات تحفيز مخصصة وفق بيانات سيرتك والوظيفة المستهدفة.',
 
     contactTitle: 'هل لديك سؤال أو استفسار؟',
     contactSubtitle: 'فريقنا متاح لمساعدتك والإجابة على استفساراتك.',
@@ -511,7 +512,7 @@ export const translations = {
     btnAcceptAi: 'قبول المقترح',
     btnEditAi: 'تعديل النص',
     btnDownloadPdf: 'تحميل PDF',
-    btnPayAndDownload: 'فتح وتحميل (2$)',
+    btnPayAndDownload: 'فتح وتحميل ($1.99)',
     btnDuplicate: 'نسخ السيرة',
     btnDelete: 'حذف',
     btnEdit: 'تعديل',
@@ -578,5 +579,163 @@ export const translations = {
     footerLegal: 'جميع الحقوق محفوظة.',
     footerPrivacy: 'سياسة الخصوصية',
     footerTerms: 'شروط الاستخدام'
-  }
 };
+
+const es = {
+  ...en,
+  brandTagline: 'Tu currículum profesional creado en minutos',
+  navHome: 'Inicio',
+  navBuilder: 'Crear CV',
+  navTemplates: 'Plantillas',
+  navPricing: 'Precios',
+  navFAQ: 'Preguntas',
+  navContact: 'Contacto',
+  navDashboard: 'Mi Panel',
+  navMyCvs: 'Mis CVs',
+  navProfile: 'Mi Perfil',
+  login: 'Iniciar Sesión',
+  signUp: 'Crear Cuenta',
+  logout: 'Cerrar Sesión',
+  heroTitle: 'Crea un CV profesional que destaque.',
+  heroSubtitle: 'Diseña paso a paso, optimiza tus experiencias con IA y descarga tu CV en PDF A4 HD.',
+  heroCtaPrimary: 'Crear mi CV',
+  heroCtaSecondary: 'Ver plantillas',
+  btnNewCv: 'Nuevo CV',
+  btnDownloadPdf: 'Descargar PDF',
+  btnPayAndDownload: 'Desbloquear & Descargar ($1.99)',
+  pricingTitle: 'Precios Claros y Transparentes',
+  pricingAmount: '$1.99',
+  pricingPerCv: 'Pase Flash (Compra Única)',
+};
+
+const de = {
+  ...en,
+  brandTagline: 'Ihr professioneller Lebenslauf in wenigen Minuten',
+  navHome: 'Startseite',
+  navBuilder: 'Lebenslauf erstellen',
+  navTemplates: 'Vorlagen',
+  navPricing: 'Preise',
+  navFAQ: 'FAQ',
+  navContact: 'Kontakt',
+  navDashboard: 'Mein Dashboard',
+  navMyCvs: 'Meine Lebensläufe',
+  navProfile: 'Mein Profil',
+  login: 'Anmelden',
+  signUp: 'Registrieren',
+  logout: 'Abmelden',
+  heroTitle: 'Erstellen Sie einen überzeugenden professionellen Lebenslauf.',
+  heroSubtitle: 'Schritt für Schritt erstellen, mit KI optimieren und als hochauflösendes A4-PDF herunterladen.',
+  heroCtaPrimary: 'Lebenslauf erstellen',
+  heroCtaSecondary: 'Vorlagen ansehen',
+  btnNewCv: 'Neuer Lebenslauf',
+  btnDownloadPdf: 'PDF herunterladen',
+  btnPayAndDownload: 'Freischalten & Herunterladen ($1.99)',
+  pricingTitle: 'Transparente & Faire Preise',
+  pricingAmount: '$1.99',
+  pricingPerCv: 'Flash-Pass (Einmalkauf)',
+};
+
+const it = {
+  ...en,
+  brandTagline: 'Il tuo curriculum professionale creato in pochi minuti',
+  navHome: 'Home',
+  navBuilder: 'Crea CV',
+  navTemplates: 'Modelli',
+  navPricing: 'Tariffe',
+  navFAQ: 'FAQ',
+  navContact: 'Contatto',
+  navDashboard: 'Mia Area',
+  navMyCvs: 'I miei CV',
+  navProfile: 'Mio Profilo',
+  login: 'Accedi',
+  signUp: 'Registrati',
+  logout: 'Esci',
+  heroTitle: 'Crea un curriculum professionale vincente.',
+  heroSubtitle: 'Componi passo dopo passo, perfeziona con l\'IA e scarica il tuo PDF A4 HD.',
+  heroCtaPrimary: 'Crea il mio CV',
+  heroCtaSecondary: 'Vedi i modelli',
+  btnNewCv: 'Nuovo CV',
+  btnDownloadPdf: 'Scarica PDF',
+  btnPayAndDownload: 'Sblocca e Scarica ($1.99)',
+  pricingTitle: 'Tariffe Chiare e Trasparenti',
+  pricingAmount: '$1.99',
+  pricingPerCv: 'Pass Flash (Acquisto Singolo)',
+};
+
+const pt = {
+  ...en,
+  brandTagline: 'O seu currículo profissional criado em minutos',
+  navHome: 'Início',
+  navBuilder: 'Criar Currículo',
+  navTemplates: 'Modelos',
+  navPricing: 'Preços',
+  navFAQ: 'Perguntas',
+  navContact: 'Contacto',
+  navDashboard: 'O Meu Painel',
+  navMyCvs: 'Os Meus Currículos',
+  navProfile: 'O Meu Perfil',
+  login: 'Iniciar Sessão',
+  signUp: 'Criar Conta',
+  logout: 'Terminar Sessão',
+  heroTitle: 'Crie um currículo profissional de excelência.',
+  heroSubtitle: 'Construa passo a passo, aprimore com IA e descarregue o PDF HD A4 pronto.',
+  heroCtaPrimary: 'Criar meu currículo',
+  heroCtaSecondary: 'Ver modelos',
+  btnNewCv: 'Novo Currículo',
+  btnDownloadPdf: 'Descarregar PDF',
+  btnPayAndDownload: 'Desbloquear & Descarregar ($1.99)',
+  pricingTitle: 'Preços Transparentes e Sem Surpresas',
+  pricingAmount: '$1.99',
+  pricingPerCv: 'Passe Flash (Compra Única)',
+};
+
+const zh = {
+  ...en,
+  brandTagline: '几分钟内打造您的专属高分专业简历',
+  navHome: '首页',
+  navBuilder: '制作简历',
+  navTemplates: '精选模板',
+  navPricing: '价格方案',
+  navFAQ: '常见问题',
+  navContact: '联系我们',
+  navDashboard: '个人中心',
+  navMyCvs: '我的简历',
+  profile: '个人资料',
+  login: '登录',
+  signUp: '注册账号',
+  logout: '退出登录',
+  heroTitle: '创建脱颖而出的专业高分求职简历。',
+  heroSubtitle: '按步骤轻松填写，利用智能AI润色，一键导出符合ATS标准的超清A4 PDF简历。',
+  heroCtaPrimary: '立即制作简历',
+  heroCtaSecondary: '查看模板',
+  btnNewCv: '新建简历',
+  btnDownloadPdf: '下载 PDF',
+  btnPayAndDownload: '解锁并下载 ($1.99)',
+  pricingTitle: '清晰透明的实惠定价方案',
+  pricingAmount: '$1.99',
+  pricingPerCv: '极速单次券 (单次购买)',
+};
+
+export const translations = {
+  fr,
+  en,
+  ar,
+  es,
+  de,
+  it,
+  pt,
+  zh
+};
+
+export const t = (lang: LanguageCode, key: keyof typeof fr | string): string => {
+  const langDict = (translations as any)[lang] || translations.en;
+  if ((langDict as any)[key]) {
+    return String((langDict as any)[key]);
+  }
+  const frDict = translations.fr;
+  if ((frDict as any)[key]) {
+    return String((frDict as any)[key]);
+  }
+  return String(key);
+};
+

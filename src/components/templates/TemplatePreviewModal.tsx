@@ -117,7 +117,6 @@ export const TemplatePreviewModal: React.FC<TemplatePreviewModalProps> = ({
             <div className="shadow-2xl rounded-xl overflow-hidden bg-white max-w-full">
               <CVRenderer
                 data={dynamicSampleCV}
-                lang={lang}
                 showWatermark={false}
                 scale={previewScale}
               />

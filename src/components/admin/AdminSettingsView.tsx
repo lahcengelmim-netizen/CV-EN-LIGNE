@@ -65,7 +65,7 @@ export const AdminSettingsView: React.FC = () => {
             Configuration & Paramètres de la Plateforme
           </h2>
           <p className="text-xs text-slate-400">
-            Gestion du prix unitaire par CV (2,00 $), emails de notification administrative et connecteurs
+            Gestion du prix unitaire par CV ($1.99), emails de notification administrative et connecteurs
           </p>
         </div>
 
@@ -88,12 +88,12 @@ export const AdminSettingsView: React.FC = () => {
 
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4 text-xs">
             <div>
-              <label className="block text-slate-400 mb-1 font-semibold">Prix de Téléchargement par CV ($ USD)</label>
+              <label className="block text-slate-400 mb-1 font-semibold">Prix de Téléchargement Pass Flash ($ USD)</label>
               <input
                 type="number"
                 step="0.01"
                 min="0.50"
-                value={settings.cvPrice || 2.00}
+                value={settings.cvPrice || 1.99}
                 onChange={(e) => setSettings({ ...settings, cvPrice: parseFloat(e.target.value) })}
                 className="w-full p-3 bg-slate-950 border border-slate-800 rounded-xl text-white font-bold focus:border-blue-500 focus:outline-hidden"
               />

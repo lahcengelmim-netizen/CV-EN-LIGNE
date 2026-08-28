@@ -290,7 +290,7 @@ export const CVBuilder: React.FC<CVBuilderProps> = ({
                 className="px-4 py-2 bg-gradient-to-r from-blue-600 to-indigo-600 hover:from-blue-700 hover:to-indigo-700 text-white rounded-xl text-xs font-bold shadow-xs transition-all flex items-center gap-1.5"
               >
                 <Lock className="w-3.5 h-3.5 text-yellow-300" />
-                <span>Débloquer & Télécharger (2,00 $)</span>
+                <span>Débloquer & Télécharger ($1.99)</span>
               </button>
             )}
           </div>
@@ -319,10 +319,10 @@ export const CVBuilder: React.FC<CVBuilderProps> = ({
         </div>
       </header>
 
-      {/* Main Workspace Layout */}
-      <div className="flex-1 max-w-7xl w-full mx-auto p-4 sm:p-6 grid grid-cols-1 lg:grid-cols-12 gap-8 items-start">
-        {/* Left Form Wizard (Col 7) */}
-        <div className={`lg:col-span-7 space-y-6 ${mobileTab === 'preview' ? 'hidden sm:block' : 'block'}`}>
+      {/* Main Workspace Layout - 2 Colonnes équilibrées */}
+      <div className="flex-1 w-full max-w-[1400px] mx-auto p-4 sm:p-6 editor-layout items-start">
+        {/* Left Form Wizard */}
+        <div className={`w-full space-y-6 ${mobileTab === 'preview' ? 'hidden sm:block' : 'block'}`}>
           {/* Step Progress Pills */}
           <div className="bg-white p-4 rounded-2xl border border-slate-200/80 shadow-2xs">
             <div className="flex items-center justify-between mb-2">
@@ -483,8 +483,8 @@ export const CVBuilder: React.FC<CVBuilderProps> = ({
           </div>
         </div>
 
-        {/* Right Live Preview Sticky (Col 5) */}
-        <div className={`lg:col-span-5 ${mobileTab === 'form' ? 'hidden lg:block' : 'block'}`}>
+        {/* Right Live Preview Sticky */}
+        <div className={`preview-column ${mobileTab === 'form' ? 'hidden lg:block' : 'block'}`}>
           <div className="sticky top-20 space-y-3">
             {/* Enhanced Preview Toolbar */}
             <div className="bg-white p-3.5 rounded-2xl border border-slate-200/90 shadow-2xs space-y-2">
@@ -555,7 +555,6 @@ export const CVBuilder: React.FC<CVBuilderProps> = ({
               <div className="shadow-2xl rounded-lg overflow-hidden bg-white max-w-full">
                 <CVRenderer
                   data={cv}
-                  lang={lang}
                   showWatermark={!cv.isPaid}
                   scale={zoomScale}
                 />

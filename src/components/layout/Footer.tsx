@@ -43,7 +43,7 @@ export const Footer: React.FC<FooterProps> = ({ lang = 'fr', onNavigate }) => {
                 <a href="#workflow-section" className="hover:text-white transition-colors">Comment ça marche</a>
               </li>
               <li>
-                <a href="#pricing-section" className="hover:text-white transition-colors">Tarif Unique (2,00 $)</a>
+                <a href="#pricing-section" className="hover:text-white transition-colors">Grille Tarifaire ($1.99 - $39.99)</a>
               </li>
               <li>
                 <a href="#faq-section" className="hover:text-white transition-colors">Questions Fréquentes</a>

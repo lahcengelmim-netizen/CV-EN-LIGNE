@@ -1,11 +1,11 @@
 import { PlanType } from '../types';
 
 export interface PricingPlan {
-  id: PlanType;
+  id: PlanType | 'pro';
   title: string;
   name: string;
   price: number;
-  period: 'unique' | 'month' | 'year';
+  period: 'unique' | 'week' | 'month' | 'year';
   priceDisplay: string;
   periodDisplay: string;
   subDetail?: string;
@@ -23,66 +23,65 @@ export const PRICING_PLANS: Record<'single_cv' | 'monthly' | 'yearly', PricingPl
   single_cv: {
     id: 'single_cv',
     title: 'Paiement Unique',
-    name: '1 CV Complet',
-    price: 2.00,
+    name: 'Pass Flash',
+    price: 1.99,
     period: 'unique',
-    priceDisplay: '2,00 $',
+    priceDisplay: '$1.99',
     periodDisplay: '/ CV unique',
-    description: 'Idéal pour un besoin ponctuel : créez et téléchargez votre CV pro sans abonnement.',
+    description: 'Idéal pour une candidature ciblée et ponctuelle sans engagement.',
     features: [
       '1 CV complet au format PDF A4 Haute Définition',
+      'Sans aucun filigrane',
       'Accès immédiat aux 10 modèles de CV professionnels',
-      'Assistant IA pour valoriser expériences et compétences',
-      'Téléchargement immédiat sans filigrane',
-      'Modifications illimitées dans le temps',
-      '2 lettres de motivation sur-mesure incluses',
+      'Vérification ATS basique',
+      'Format A4 vectoriel standard',
       'Paiement unique garanti sans abonnement'
     ],
-    cta: 'Choisir 1 CV (2,00 $)',
+    cta: 'Télécharger 1 CV ($1.99)',
     isPopular: false
   },
   monthly: {
     id: 'monthly',
     title: 'Abonnement Mensuel',
-    name: 'Pass Mensuel Illimité',
-    price: 9.90,
+    name: 'Monthly Pass',
+    price: 7.99,
     period: 'month',
-    priceDisplay: '9,90 $',
+    priceDisplay: '$7.99',
     periodDisplay: '/ mois',
-    description: 'Pour les candidats actifs en recherche d\'emploi régulière.',
+    description: 'Pour les candidats actifs en recherche d\'emploi continue.',
     features: [
       'Création illimitée de CVs et variantes métiers',
       'Accès total et permanent aux 10 designs premium',
-      'Assistant IA sans limite sur tous vos CVs',
+      'Générateur de lettres de motivation IA',
       'Téléchargements PDF HD instantanés et illimités',
-      'Génération illimitée de lettres de motivation',
+      'Support client prioritaire',
       'Sans engagement • Résiliation en 1 clic à tout moment'
     ],
-    cta: 'Choisir le Pass Mensuel (9,90 $)',
+    cta: 'Choisir le Pass Mensuel ($7.99/mois)',
     isPopular: false
   },
   yearly: {
     id: 'yearly',
     title: 'Abonnement Annuel',
-    name: 'Pass Annuel Pro',
-    price: 29.90,
+    name: 'Annual Pass',
+    price: 39.99,
     period: 'year',
-    priceDisplay: '29,90 $',
+    priceDisplay: '$39.99',
     periodDisplay: '/ an',
-    subDetail: 'Soit seulement 2,49 $/mois • Économisez 75%',
-    monthlyEquivalent: '2,49 $ / mois',
-    badge: 'MEILLEURE OFFRE',
+    subDetail: 'Soit seulement ~$3.33/mois • Économisez 50%',
+    monthlyEquivalent: '$3.33 / mois',
+    badge: 'SAVE 50%',
     badgeType: 'warning',
     description: 'La solution la plus économique et complète pour piloter toute votre carrière.',
     features: [
       'Tout ce qui est inclus dans le Pass Mensuel',
       'Accès complet pendant 1 an entier (365 jours)',
-      'Économisez 75% par rapport au forfait mensuel',
+      'Économisez plus de 50% par rapport au forfait mensuel',
       'Nouveaux modèles et fonctionnalités en avant-première',
-      'Support client prioritaire VIP sous 12h',
+      'Générateur illimité de lettres de motivation IA',
       'Garantie satisfait ou remboursé 14 jours'
     ],
-    cta: 'Profiter de l\'Offre Annuelle (29,90 $)',
+    cta: 'Profiter de l\'Offre Annuelle ($39.99/an)',
     isPopular: true
   }
 };

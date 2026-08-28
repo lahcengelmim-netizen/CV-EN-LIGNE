@@ -4,7 +4,7 @@ import { translations } from '../../lib/translations';
 import { ContactSection } from '../contact/ContactSection';
 import { HeroSection } from './HeroSection';
 import { TemplatesGallery } from '../templates/TemplatesGallery';
-import { PRICING_LIST } from '../../lib/pricingConfig';
+import { Pricing } from '../Pricing';
 import {
   Sparkles,
   ArrowRight,
@@ -38,7 +38,7 @@ export const LandingPage: React.FC<LandingPageProps> = ({ onStartCV, lang = 'fr'
   const faqs = [
     {
       q: 'Combien coûte la création et le téléchargement de mon CV ?',
-      a: 'Nous proposons 3 formules transparentes sans frais cachés : 1 CV Unique pour 2,00 $, un Pass Mensuel à 9,90 $/mois pour candidatures illimitées, et un Pass Annuel Pro à 29,90 $/an (soit ~2,49 $/mois - Meilleure Offre). Vous pouvez créer et prévisualiser votre CV gratuitement avant tout téléchargement.'
+      a: 'Nous proposons 4 formules transparentes sans frais cachés : le Pass Flash à $1.99 (achat unique avec ATS check basique), le Pass Pro à $3.99 (accès 7 jours illimité + IA ATS Check), le Monthly Pass à $7.99/mois, et l\'Annual Pass à $39.99/an (Économisez 50%). Vous pouvez créer et prévisualiser votre CV gratuitement avant tout téléchargement.'
     },
     {
       q: 'Comment l\'IA améliore-t-elle mes expériences sans mentir ?',
@@ -201,7 +201,7 @@ export const LandingPage: React.FC<LandingPageProps> = ({ onStartCV, lang = 'fr'
                 <td className="p-4 sm:p-5 font-semibold text-slate-900">Prix transparent</td>
                 <td className="p-4 sm:p-5 text-slate-500">Gratuit mais difficile</td>
                 <td className="p-4 sm:p-5 text-red-500 font-semibold">Abonnement reconduit automatiquement</td>
-                <td className="p-4 sm:p-5 text-emerald-600 font-bold bg-blue-50/30">2,00 $ Unique sans abonnement</td>
+                <td className="p-4 sm:p-5 text-emerald-600 font-bold bg-blue-50/30">$1.99 Pass Flash (Achat Unique)</td>
               </tr>
               <tr>
                 <td className="p-4 sm:p-5 font-semibold text-slate-900">Assistant IA de valorisation</td>
@@ -257,7 +257,7 @@ export const LandingPage: React.FC<LandingPageProps> = ({ onStartCV, lang = 'fr'
             {
               name: 'Thomas B.',
               role: 'Développeur Junior',
-              review: '« Pour 2$, c’est le meilleur investissement de ma recherche d’emploi. Le PDF est parfaitement calibré A4, lisible sur mobile et approuvé par les ATS. »',
+              review: '« Pour $1.99, c’est le meilleur investissement de ma recherche d’emploi. Le PDF est parfaitement calibré A4, lisible sur mobile et approuvé par les ATS. »',
               rating: 5,
               badge: 'Premier CDI'
             },
@@ -303,113 +303,8 @@ export const LandingPage: React.FC<LandingPageProps> = ({ onStartCV, lang = 'fr'
         </div>
       </section>
 
-      {/* 7. PRICING SECTION (3 PLANS: $2, $9.90, $29.90) */}
-      <section id="pricing-section" className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-        <div className="text-center space-y-4 mb-12">
-          <div className="inline-flex items-center gap-2 px-3.5 py-1.5 rounded-full bg-blue-100 text-blue-800 text-xs font-bold border border-blue-200 shadow-2xs">
-            <Sparkles className="w-3.5 h-3.5 text-blue-600" />
-            <span>Tarifs Clairs, Simples & Sans Engagement</span>
-          </div>
-
-          <h2 className="text-3xl sm:text-4xl lg:text-5xl font-black text-slate-900 tracking-tight">
-            Des formules adaptées à chaque recherche d'emploi
-          </h2>
-
-          <p className="text-sm sm:text-base text-slate-600 max-w-2xl mx-auto leading-relaxed">
-            Créez et prévisualisez votre CV gratuitement. Choisissez ensuite la formule qui vous convient le mieux pour débloquer le téléchargement PDF HD.
-          </p>
-        </div>
-
-        <div className="grid grid-cols-1 lg:grid-cols-3 gap-8 items-stretch">
-          {PRICING_LIST.map((plan) => {
-            const isBest = plan.isPopular;
-            return (
-              <div
-                key={plan.id}
-                className={`rounded-3xl p-6 sm:p-8 flex flex-col justify-between transition-all duration-300 relative ${
-                  isBest
-                    ? 'bg-gradient-to-b from-slate-900 via-indigo-950 to-slate-900 text-white shadow-2xl ring-2 ring-blue-500 scale-102 lg:-translate-y-2'
-                    : 'bg-white text-slate-900 border border-slate-200 shadow-sm hover:shadow-xl hover:border-slate-300'
-                }`}
-              >
-                {/* Popular Badge */}
-                {plan.badge && (
-                  <div className="absolute -top-3.5 left-1/2 -translate-x-1/2">
-                    <span className="px-3.5 py-1 rounded-full text-[11px] font-black tracking-wide bg-gradient-to-r from-amber-400 to-amber-500 text-slate-950 shadow-md flex items-center gap-1 uppercase">
-                      <Star className="w-3.5 h-3.5 fill-slate-950" />
-                      {plan.badge}
-                    </span>
-                  </div>
-                )}
-
-                <div className="space-y-6">
-                  {/* Plan Name & Tagline */}
-                  <div className="space-y-1">
-                    <h3 className={`text-xl font-black ${isBest ? 'text-white' : 'text-slate-900'}`}>
-                      {plan.name}
-                    </h3>
-                    <p className={`text-xs ${isBest ? 'text-slate-300' : 'text-slate-500'}`}>
-                      {plan.description}
-                    </p>
-                  </div>
-
-                  {/* Price */}
-                  <div className="space-y-1">
-                    <div className="flex items-baseline gap-1.5">
-                      <span className={`text-4xl sm:text-5xl font-black ${isBest ? 'text-white' : 'text-slate-900'}`}>
-                        {plan.priceDisplay}
-                      </span>
-                      <span className={`text-xs font-semibold ${isBest ? 'text-slate-300' : 'text-slate-500'}`}>
-                        {plan.periodDisplay}
-                      </span>
-                    </div>
-                    {plan.monthlyEquivalent && (
-                      <p className={`text-xs font-semibold ${isBest ? 'text-amber-300' : 'text-blue-600'}`}>
-                        {plan.monthlyEquivalent}
-                      </p>
-                    )}
-                  </div>
-
-                  {/* Features List */}
-                  <div className={`space-y-2.5 pt-4 border-t ${isBest ? 'border-white/15' : 'border-slate-100'}`}>
-                    <div className={`text-[11px] font-bold uppercase tracking-wider ${isBest ? 'text-slate-400' : 'text-slate-400'}`}>
-                      Inclus dans cette offre :
-                    </div>
-                    <ul className="space-y-2 text-xs">
-                      {plan.features.map((feat, idx) => (
-                        <li key={idx} className="flex items-start gap-2.5">
-                          <Check className={`w-4 h-4 shrink-0 mt-0.5 ${isBest ? 'text-emerald-400' : 'text-emerald-600'}`} />
-                          <span className={isBest ? 'text-slate-200' : 'text-slate-600'}>
-                            {feat}
-                          </span>
-                        </li>
-                      ))}
-                    </ul>
-                  </div>
-                </div>
-
-                {/* Action CTA */}
-                <div className="pt-8">
-                  <button
-                    onClick={() => onStartCV()}
-                    className={`w-full py-3.5 rounded-xl font-extrabold text-xs shadow-md transition-all flex items-center justify-center gap-2 cursor-pointer ${
-                      isBest
-                        ? 'bg-gradient-to-r from-blue-500 to-indigo-500 hover:from-blue-400 hover:to-indigo-400 text-white shadow-blue-500/25'
-                        : 'bg-slate-900 hover:bg-slate-800 text-white hover:shadow-lg'
-                    }`}
-                  >
-                    <span>{plan.cta}</span>
-                    <ArrowRight className="w-4 h-4" />
-                  </button>
-                  <p className={`text-[11px] text-center mt-2.5 ${isBest ? 'text-slate-400' : 'text-slate-400'}`}>
-                    {plan.id === 'single_cv' ? 'Paiement unique sans reconduction' : 'Annulation possible en 1 clic'}
-                  </p>
-                </div>
-              </div>
-            );
-          })}
-        </div>
-      </section>
+      {/* 7. PRICING SECTION (4 FORMULAS: PASS FLASH $1.99, PASS PRO $3.99, MONTHLY $7.99, ANNUAL $39.99) */}
+      <Pricing onSelectPlan={() => onStartCV()} />
 
       {/* 8. FAQ */}
       <section id="faq-section" className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8">

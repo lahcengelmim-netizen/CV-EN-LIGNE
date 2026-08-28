@@ -1,4 +1,6 @@
 import React, { useState, useEffect } from 'react';
+import { useTranslation } from 'react-i18next';
+import i18n, { updateDocumentDirection } from './lib/i18n';
 import { CVData, LanguageCode, TemplateId } from './types';
 import { storageService, supabase } from './lib/supabase';
 import { Navbar } from './components/layout/Navbar';
@@ -13,8 +15,33 @@ import { adminService } from './lib/adminService';
 import { getTemplateById } from './lib/templatesData';
 
 export const App: React.FC = () => {
+  const { i18n: i18nInstance } = useTranslation();
   const [currentView, setCurrentView] = useState<'landing' | 'dashboard' | 'builder' | 'admin'>('landing');
-  const [lang, setLang] = useState<LanguageCode>('fr');
+  const [lang, setLang] = useState<LanguageCode>(() => {
+    const validLangs: LanguageCode[] = ['en', 'fr', 'ar', 'es', 'de', 'it', 'pt', 'zh'];
+    const saved = (typeof window !== 'undefined' ? localStorage.getItem('cvenligne_lang') : null) as LanguageCode;
+    if (saved && validLangs.includes(saved)) {
+      return saved;
+    }
+    const current = i18n.language ? (i18n.language.substring(0, 2) as LanguageCode) : 'en';
+    return validLangs.includes(current) ? current : 'en';
+  });
+
+  const handleLanguageChange = (newLang: LanguageCode) => {
+    setLang(newLang);
+    if (i18n && i18n.changeLanguage) {
+      i18n.changeLanguage(newLang);
+    }
+    updateDocumentDirection(newLang);
+    if (typeof window !== 'undefined') {
+      localStorage.setItem('cvenligne_lang', newLang);
+    }
+  };
+
+  useEffect(() => {
+    updateDocumentDirection(lang);
+  }, [lang]);
+
   const [user, setUser] = useState<any>(null);
   const [isAuthModalOpen, setIsAuthModalOpen] = useState(false);
   const [cvList, setCvList] = useState<CVData[]>([]);
@@ -168,7 +195,7 @@ export const App: React.FC = () => {
           currentView={currentView}
           onNavigate={(view) => setCurrentView(view)}
           lang={lang}
-          onLanguageChange={(newLang) => setLang(newLang)}
+          onLanguageChange={handleLanguageChange}
           user={user}
           onOpenAuth={() => setIsAuthModalOpen(true)}
           onSignOut={handleSignOut}
@@ -205,7 +232,7 @@ export const App: React.FC = () => {
               refreshCVList();
               setCurrentView(user ? 'dashboard' : 'landing');
             }}
-            onLanguageChange={(newLang) => setLang(newLang)}
+            onLanguageChange={handleLanguageChange}
           />
         )}
 

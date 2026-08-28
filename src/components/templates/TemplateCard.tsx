@@ -58,9 +58,9 @@ export const TemplateCard: React.FC<TemplateCardProps> = ({
     <div
       onMouseEnter={handleMouseEnter}
       onMouseLeave={handleMouseLeave}
-      className={`bg-white rounded-2xl border transition-all duration-300 flex flex-col justify-between overflow-visible group relative ${
+      className={`bg-white rounded-2xl border transition-all duration-200 flex flex-col justify-between overflow-visible group relative ${
         isHovered
-          ? 'border-blue-500 shadow-xl -translate-y-1 z-20'
+          ? 'border-blue-600 shadow-lg'
           : 'border-slate-200/90 shadow-2xs hover:border-slate-300'
       }`}
     >
@@ -78,82 +78,44 @@ export const TemplateCard: React.FC<TemplateCardProps> = ({
             </div>
           </div>
 
-          {/* Miniature Preview Frame with Hover Overlay */}
+          {/* High-Fidelity Scaled A4 Preview Frame */}
           <div
             onClick={() => onInspectTemplate(template.id)}
-            className="relative rounded-xl overflow-hidden bg-slate-100 border border-slate-200/80 shadow-2xs cursor-pointer group/preview aspect-[1/1.33] max-h-[290px]"
+            className="relative w-full rounded-xl overflow-hidden bg-slate-100/90 border border-slate-200/90 shadow-xs cursor-pointer group/preview select-none flex items-start justify-center"
+            style={{
+              aspectRatio: '1 / 1.414',
+            }}
           >
-            {/* Standard Thumbnail View */}
-            <div className="p-3 bg-white h-full flex flex-col justify-between text-slate-800 text-[9px] select-none transform transition-transform duration-300 group-hover/preview:scale-[1.02]">
-              {/* Header Bar */}
+            {/* Live Scaled A4 Document with exact proportional transform */}
+            <div className="w-full h-full relative overflow-hidden bg-slate-100 flex justify-center items-start">
               <div
-                className="p-2 rounded-lg text-white flex items-center gap-2 transition-colors"
-                style={{ backgroundColor: template.defaultColor }}
+                className="bg-white shadow-xs origin-top pointer-events-none shrink-0"
+                style={{
+                  width: '210mm',
+                  minHeight: '297mm',
+                  transform: 'scale(0.36)',
+                  transformOrigin: 'top center',
+                }}
               >
-                <div className="w-7 h-7 rounded-md bg-white/20 flex items-center justify-center font-bold text-[10px] uppercase shrink-0">
-                  {sample.personalInfo.firstName[0]}
-                  {sample.personalInfo.lastName[0]}
-                </div>
-                <div className="overflow-hidden">
-                  <div className="font-extrabold text-[10px] leading-tight truncate">
-                    {sample.personalInfo.firstName} {sample.personalInfo.lastName}
-                  </div>
-                  <div className="text-[8px] text-white/85 font-medium truncate">
-                    {sample.personalInfo.title}
-                  </div>
-                </div>
-              </div>
-
-              {/* Body Summary */}
-              <div className="space-y-1.5 py-1.5 flex-1 overflow-hidden">
-                <div className="text-[8px] font-bold text-slate-400 uppercase tracking-wider">
-                  Expérience Pro
-                </div>
-                {sample.experiences.slice(0, 2).map((exp, idx) => (
-                  <div key={idx} className="border-l border-slate-200 pl-1.5 space-y-0.5">
-                    <div className="font-bold text-slate-800 text-[8.5px] truncate">{exp.position}</div>
-                    <div className="text-[7.5px] text-slate-500 truncate">
-                      {exp.company} • {exp.startDate} - {exp.current ? 'Présent' : exp.endDate}
-                    </div>
-                  </div>
-                ))}
-
-                <div className="text-[8px] font-bold text-slate-400 uppercase tracking-wider pt-0.5">
-                  Compétences clés
-                </div>
-                <div className="flex flex-wrap gap-1">
-                  {sample.skills.slice(0, 3).map((s) => (
-                    <span
-                      key={s.id}
-                      className="px-1 py-0.2 rounded bg-slate-100 text-slate-700 text-[7px] font-medium truncate max-w-[80px]"
-                    >
-                      {s.name}
-                    </span>
-                  ))}
-                </div>
-              </div>
-
-              {/* Bottom Footer Info */}
-              <div className="pt-1.5 border-t border-slate-100 flex items-center justify-between text-[7.5px] text-slate-400">
-                <span className="flex items-center gap-1">
-                  <Layers className="w-2.5 h-2.5 text-blue-500" />
-                  Format A4 Standard
-                </span>
-                <span className="text-blue-600 font-bold flex items-center gap-0.5">
-                  Survoler pour aperçu 100%
-                </span>
+                <CVRenderer
+                  data={{
+                    ...sample,
+                    templateId: template.id
+                  }}
+                  showWatermark={false}
+                />
               </div>
             </div>
 
-            {/* Hover Quick Action Ribbon */}
-            <div className="absolute inset-0 bg-slate-950/40 backdrop-blur-[1.5px] opacity-0 group-hover/preview:opacity-100 transition-opacity flex flex-col items-center justify-center gap-2 p-3">
+            {/* Hover Quick Action Overlay */}
+            <div className="absolute inset-0 bg-slate-950/45 backdrop-blur-[2px] opacity-0 group-hover/preview:opacity-100 transition-all duration-200 flex flex-col items-center justify-center gap-2 p-3 z-10">
               <button
                 type="button"
                 onClick={(e) => {
                   e.stopPropagation();
                   onInspectTemplate(template.id);
                 }}
-                className="w-full max-w-[180px] py-2 bg-white hover:bg-slate-50 text-slate-900 font-bold text-xs rounded-xl shadow-lg flex items-center justify-center gap-1.5 transition-transform transform scale-95 group-hover/preview:scale-100 cursor-pointer"
+                className="w-full max-w-[170px] py-2 bg-white hover:bg-slate-50 text-slate-900 font-bold text-xs rounded-xl shadow-lg flex items-center justify-center gap-1.5 transition-transform transform scale-95 group-hover/preview:scale-100 cursor-pointer"
               >
                 <Maximize2 className="w-3.5 h-3.5 text-blue-600" />
                 <span>Aperçu Plein Écran</span>
@@ -165,7 +127,7 @@ export const TemplateCard: React.FC<TemplateCardProps> = ({
                   e.stopPropagation();
                   onSelectTemplate(template.id, template.defaultColor);
                 }}
-                className="w-full max-w-[180px] py-2 bg-blue-600 hover:bg-blue-700 text-white font-bold text-xs rounded-xl shadow-lg flex items-center justify-center gap-1.5 transition-transform transform scale-95 group-hover/preview:scale-100 cursor-pointer"
+                className="w-full max-w-[170px] py-2 bg-blue-600 hover:bg-blue-700 text-white font-bold text-xs rounded-xl shadow-lg flex items-center justify-center gap-1.5 transition-transform transform scale-95 group-hover/preview:scale-100 cursor-pointer"
               >
                 <Check className="w-3.5 h-3.5 text-white" />
                 <span>Choisir ce modèle</span>
@@ -267,7 +229,6 @@ export const TemplateCard: React.FC<TemplateCardProps> = ({
                   ...sample,
                   templateId: template.id
                 }}
-                lang={lang}
                 showWatermark={false}
               />
             </div>

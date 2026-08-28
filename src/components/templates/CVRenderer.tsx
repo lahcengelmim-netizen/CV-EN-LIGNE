@@ -1,5 +1,5 @@
 import React from 'react';
-import { CVData, LanguageCode, TemplateId } from '../../types';
+import { CVData, TemplateId } from '../../types';
 import { ModernTemplate } from './ModernTemplate';
 import { MinimalTemplate } from './MinimalTemplate';
 import { ProfessionalTemplate } from './ProfessionalTemplate';
@@ -14,18 +14,16 @@ import { ClassicTemplate } from './ClassicTemplate';
 
 interface CVRendererProps {
   data: CVData;
-  lang?: LanguageCode;
   showWatermark?: boolean;
   scale?: number;
 }
 
 export const CVRenderer: React.FC<CVRendererProps> = ({
   data,
-  lang = 'fr',
   showWatermark = false,
   scale = 1
 }) => {
-  const templateMap: Record<TemplateId, React.FC<{ data: CVData; lang?: LanguageCode }>> = {
+  const templateMap: Record<TemplateId, React.FC<{ data: CVData }>> = {
     modern: ModernTemplate,
     minimal: MinimalTemplate,
     professional: ProfessionalTemplate,
@@ -65,8 +63,9 @@ export const CVRenderer: React.FC<CVRendererProps> = ({
         </div>
       )}
 
-      {/* Render Template */}
-      <SelectedTemplate data={data} lang={lang} />
+      {/* Render Template Pure RAW */}
+      <SelectedTemplate data={data} />
     </div>
   );
 };
+

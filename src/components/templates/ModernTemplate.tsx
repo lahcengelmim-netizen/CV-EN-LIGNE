@@ -4,11 +4,10 @@ import { Mail, Phone, MapPin, Globe, Linkedin, Briefcase, GraduationCap, Award, 
 
 interface TemplateProps {
   data: CVData;
-  lang?: LanguageCode;
 }
 
-export const ModernTemplate: React.FC<TemplateProps> = ({ data, lang = 'fr' }) => {
-  const { personalInfo, summary, experiences, educations, skills, languages, certifications, projects, theme } = data;
+export const ModernTemplate: React.FC<TemplateProps> = ({ data }) => {
+  const { personalInfo, summary, experiences, educations, skills, languages, certifications, projects, theme, sectionTitles } = data;
   const primaryColor = theme?.primaryColor || '#2563eb';
 
   return (
@@ -41,7 +40,7 @@ export const ModernTemplate: React.FC<TemplateProps> = ({ data, lang = 'fr' }) =
           {/* Contact details */}
           <div className="space-y-3 text-xs text-white/90 border-t border-white/20 pt-4 mb-6">
             <div className="text-[10px] uppercase font-bold tracking-widest text-white/60 mb-1">
-              {lang === 'ar' ? 'معلومات الاتصال' : lang === 'en' ? 'Contact Info' : 'Coordonnées'}
+              {sectionTitles?.contact || 'Coordonnées'}
             </div>
             {personalInfo.email && (
               <div className="flex items-center gap-2.5 break-all">
@@ -79,7 +78,7 @@ export const ModernTemplate: React.FC<TemplateProps> = ({ data, lang = 'fr' }) =
           {skills && skills.length > 0 && (
             <div className="border-t border-white/20 pt-4 mb-6">
               <div className="text-[10px] uppercase font-bold tracking-widest text-white/60 mb-2">
-                {lang === 'ar' ? 'المهارات' : lang === 'en' ? 'Skills' : 'Compétences'}
+                {sectionTitles?.skills || 'Compétences'}
               </div>
               <div className="space-y-2 text-xs">
                 {skills.map((skill) => (
@@ -104,7 +103,7 @@ export const ModernTemplate: React.FC<TemplateProps> = ({ data, lang = 'fr' }) =
           {languages && languages.length > 0 && (
             <div className="border-t border-white/20 pt-4">
               <div className="text-[10px] uppercase font-bold tracking-widest text-white/60 mb-2">
-                {lang === 'ar' ? 'اللغات' : lang === 'en' ? 'Languages' : 'Langues'}
+                {sectionTitles?.languages || 'Langues'}
               </div>
               <div className="space-y-2 text-xs">
                 {languages.map((l) => (
@@ -125,14 +124,14 @@ export const ModernTemplate: React.FC<TemplateProps> = ({ data, lang = 'fr' }) =
       </div>
 
       {/* Right Content Area */}
-      <div className="flex-1 p-6 sm:p-10 space-y-6 flex flex-col justify-between">
+      <div className="flex-1 p-6 sm:10 space-y-6 flex flex-col justify-between">
         <div className="space-y-6">
           {/* Summary */}
           {summary && (
             <div>
               <h2 className="text-xs uppercase font-extrabold tracking-widest text-slate-400 mb-2 flex items-center gap-2">
                 <span className="w-2 h-2 rounded-full" style={{ backgroundColor: primaryColor }}></span>
-                {lang === 'ar' ? 'نبذة مهنية' : lang === 'en' ? 'Profile' : 'À propos'}
+                {sectionTitles?.profile || 'Profil'}
               </h2>
               <p className="text-xs sm:text-sm text-slate-700 leading-relaxed font-normal">
                 {summary}
@@ -145,7 +144,7 @@ export const ModernTemplate: React.FC<TemplateProps> = ({ data, lang = 'fr' }) =
             <div>
               <h2 className="text-xs uppercase font-extrabold tracking-widest text-slate-400 mb-3 flex items-center gap-2">
                 <Briefcase className="w-3.5 h-3.5" style={{ color: primaryColor }} />
-                {lang === 'ar' ? 'الخبرات المهنية' : lang === 'en' ? 'Experience' : 'Expériences professionnelles'}
+                {sectionTitles?.experience || 'Expériences professionnelles'}
               </h2>
               <div className="space-y-4 border-l-2 border-slate-100 pl-4 ml-1">
                 {experiences.map((exp) => (
@@ -159,7 +158,7 @@ export const ModernTemplate: React.FC<TemplateProps> = ({ data, lang = 'fr' }) =
                     <div className="flex flex-col sm:flex-row sm:items-baseline justify-between mb-0.5">
                       <h3 className="font-bold text-slate-900 text-sm">{exp.position}</h3>
                       <span className="text-[11px] font-medium text-slate-500 bg-slate-100 px-2 py-0.5 rounded">
-                        {exp.startDate} — {exp.current ? (lang === 'ar' ? 'حتى الآن' : lang === 'en' ? 'Present' : 'Présent') : exp.endDate}
+                        {exp.startDate} — {exp.current ? 'Présent' : exp.endDate}
                       </span>
                     </div>
                     <div className="text-xs font-semibold text-slate-600 mb-1">
@@ -189,7 +188,7 @@ export const ModernTemplate: React.FC<TemplateProps> = ({ data, lang = 'fr' }) =
             <div>
               <h2 className="text-xs uppercase font-extrabold tracking-widest text-slate-400 mb-3 flex items-center gap-2">
                 <GraduationCap className="w-3.5 h-3.5" style={{ color: primaryColor }} />
-                {lang === 'ar' ? 'المؤهلات العلمية' : lang === 'en' ? 'Education' : 'Formations'}
+                {sectionTitles?.education || 'Formations & Diplômes'}
               </h2>
               <div className="space-y-3 border-l-2 border-slate-100 pl-4 ml-1">
                 {educations.map((edu) => (
@@ -219,7 +218,7 @@ export const ModernTemplate: React.FC<TemplateProps> = ({ data, lang = 'fr' }) =
                 <div>
                   <h2 className="text-xs uppercase font-extrabold tracking-widest text-slate-400 mb-2 flex items-center gap-1.5">
                     <Award className="w-3.5 h-3.5" style={{ color: primaryColor }} />
-                    {lang === 'ar' ? 'الشهادات' : lang === 'en' ? 'Certifications' : 'Certifications'}
+                    {sectionTitles?.certifications || 'Certifications'}
                   </h2>
                   <div className="space-y-1.5 text-xs">
                     {certifications.map((c) => (
@@ -236,7 +235,7 @@ export const ModernTemplate: React.FC<TemplateProps> = ({ data, lang = 'fr' }) =
                 <div>
                   <h2 className="text-xs uppercase font-extrabold tracking-widest text-slate-400 mb-2 flex items-center gap-1.5">
                     <FolderGit2 className="w-3.5 h-3.5" style={{ color: primaryColor }} />
-                    {lang === 'ar' ? 'المشاريع' : lang === 'en' ? 'Projects' : 'Projets'}
+                    {sectionTitles?.projects || 'Projets'}
                   </h2>
                   <div className="space-y-1.5 text-xs">
                     {projects.map((p) => (

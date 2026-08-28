@@ -117,33 +117,39 @@ export const AdminRevenueView: React.FC = () => {
 
       {/* Revenue Structure Information Card */}
       <div className="bg-slate-900 border border-slate-800 rounded-3xl p-6">
-        <h3 className="font-bold text-base text-white mb-2">Grille Tarifaire & Abonnements</h3>
+        <h3 className="font-bold text-base text-white mb-2">Grille Tarifaire Unifiée (USD $)</h3>
         <p className="text-xs text-slate-400 mb-6 leading-relaxed">
-          Le modèle économique propose 3 formules claires et transparentes : <strong>1 CV Unique (2,00 $)</strong>, <strong>Pass Mensuel (9,90 $/mois)</strong> et <strong>Pass Annuel (29,90 $/an - Meilleure Offre)</strong>. Toutes les transactions sont vérifiées côté serveur avec génération de reçu officiel.
+          Le modèle économique propose 4 formules claires et transparentes : <strong>Pass Flash ($1.99)</strong>, <strong>Pass Pro ($3.99)</strong>, <strong>Monthly Pass ($7.99/mois)</strong> et <strong>Annual Pass ($39.99/an - SAVE 50%)</strong>.
         </p>
 
-        <div className="grid grid-cols-1 sm:grid-cols-3 gap-4 text-xs">
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 text-xs">
           <div className="bg-slate-950 p-4 rounded-2xl border border-slate-800">
-            <span className="text-slate-500 font-bold uppercase text-[10px]">1 CV Unique</span>
-            <div className="text-xl font-black text-white mt-1">2,00 $ USD</div>
-            <p className="text-slate-400 text-[11px] mt-1">Paiement unique sans engagement</p>
+            <span className="text-slate-500 font-bold uppercase text-[10px]">Pass Flash</span>
+            <div className="text-xl font-black text-white mt-1">$1.99</div>
+            <p className="text-slate-400 text-[11px] mt-1">1 Téléchargement HD + ATS Check</p>
+          </div>
+
+          <div className="bg-slate-950 p-4 rounded-2xl border border-blue-500/30">
+            <span className="text-blue-400 font-bold uppercase text-[10px]">Pass Pro (7j)</span>
+            <div className="text-xl font-black text-blue-400 mt-1">$3.99</div>
+            <p className="text-slate-400 text-[11px] mt-1">Accès 7j illimité + IA ATS Check</p>
           </div>
 
           <div className="bg-slate-950 p-4 rounded-2xl border border-slate-800">
-            <span className="text-blue-400 font-bold uppercase text-[10px]">Pass Mensuel Illimité</span>
-            <div className="text-xl font-black text-blue-400 mt-1">9,90 $ / mois</div>
-            <p className="text-slate-400 text-[11px] mt-1">Création illimitée de CVs & IA</p>
+            <span className="text-purple-400 font-bold uppercase text-[10px]">Monthly Pass</span>
+            <div className="text-xl font-black text-purple-400 mt-1">$7.99 / mois</div>
+            <p className="text-slate-400 text-[11px] mt-1">Illimité + Cover Letters + Support</p>
           </div>
 
           <div className="bg-slate-950 p-4 rounded-2xl border border-amber-500/30 bg-gradient-to-b from-amber-500/5 to-transparent">
             <div className="flex items-center justify-between">
-              <span className="text-amber-400 font-bold uppercase text-[10px]">Pass Annuel (Pro)</span>
+              <span className="text-amber-400 font-bold uppercase text-[10px]">Annual Pass</span>
               <span className="px-1.5 py-0.5 bg-amber-500/20 text-amber-300 rounded text-[9px] font-black uppercase">
-                -75%
+                SAVE 50%
               </span>
             </div>
-            <div className="text-xl font-black text-amber-400 mt-1">29,90 $ / an</div>
-            <p className="text-slate-400 text-[11px] mt-1">2,49 $/mois • Meilleure Valeur</p>
+            <div className="text-xl font-black text-amber-400 mt-1">$39.99 / an</div>
+            <p className="text-slate-400 text-[11px] mt-1">~$3.33/mois • Accès total 1 an</p>
           </div>
         </div>
       </div>
