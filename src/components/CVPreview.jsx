@@ -1,11 +1,13 @@
-import React from 'react';
+import React, { useState, useEffect, useRef } from 'react';
+import { CVTemplateModern } from './CVTemplateModern';
+import './CVPreview.css';
 
 /**
  * PALETTE DE COULEURS PROFESSIONNELLES PRÉDÉFINIES
  */
 export const PRESET_COLORS = [
+  { id: 'royal', label: 'Bleu Royal', value: '#2563eb' },
   { id: 'navy', label: 'Bleu Marine', value: '#1e3a8a' },
-  { id: 'royal', label: 'Bleu Pro', value: '#2563eb' },
   { id: 'black', label: 'Noir Élégant', value: '#0f172a' },
   { id: 'emerald', label: 'Vert Émeraude', value: '#047857' },
   { id: 'burgundy', label: 'Bordeaux', value: '#881337' },
@@ -14,326 +16,218 @@ export const PRESET_COLORS = [
 ];
 
 /**
- * CVPreview.jsx - Aperçu A4 100% Isolé via <iframe> avec srcDoc & Scaling strict
- * Rendu au format A4 réel (794px × 1123px) redimensionné à l'échelle pour s'intégrer
- * parfaitement dans la colonne droite sans déformation ni écrasement.
+ * OBJET STATIQUE DE SECOURS COMPLET (FULL FALLBACK DUMMY DATA)
+ * Modèle standard et complet affiché dès l'ouverture et servant de fallback automatique.
+ */
+export const DEFAULT_CV = {
+  fullName: 'Alexandre Martin',
+  jobTitle: 'Chef de Projet Digital',
+  email: 'alexandre.martin@email.com',
+  phone: '+33 6 12 34 56 78',
+  city: 'Paris, France',
+  linkedin: 'linkedin.com/in/alexandremartin',
+  summary:
+    "Professionnel expérimenté avec 6 ans d'expertise dans la gestion de projets web et le management d'équipes agiles. Rigoureux, communicatif et orienté résultats, avec une solide culture technique et design.",
+  experiences: [
+    {
+      id: 'exp-default-1',
+      title: 'Chef de Projet Senior',
+      company: 'Tech Solutions',
+      period: '2021 - Présent',
+      desc: "Pilotage d'équipes pluridisciplinaires de 8 personnes et gestion d'un budget annuel de 500k€.",
+      tasks: [
+        'Coordination des sprints Agile/Scrum et livraison continue de fonctionnalités SaaS',
+        'Amélioration de la satisfaction client de 30% grâce à une refonte orientée UX',
+      ],
+    },
+    {
+      id: 'exp-default-2',
+      title: 'Chef de Projet Junior',
+      company: 'Web Agency',
+      period: '2018 - 2021',
+      desc: 'Conception de cahiers des charges fonctionnels et suivi opérationnel de production.',
+      tasks: [
+        'Gestion de la relation client et planification de plus de 20 projets web vitrines et e-commerce',
+      ],
+    },
+  ],
+  education: [
+    {
+      id: 'edu-default-1',
+      degree: 'Master Management & Digital',
+      school: 'Université Paris-Dauphine',
+      period: '2016 - 2018',
+      desc: 'Spécialisation transformation digitale des organisations et pilotage de la performance.',
+    },
+    {
+      id: 'edu-default-2',
+      degree: 'Licence Économie & Gestion',
+      school: 'Université Paris 1 Panthéon-Sorbonne',
+      period: '2013 - 2016',
+      desc: 'Gestion de projet, analyse financière et statistiques appliquées.',
+    },
+  ],
+  skills: ['Gestion de projet', 'Agile/Scrum', 'React', 'UI/UX Design', 'Jira / Trello', 'Analytics'],
+  languages: [
+    { language: 'Français', level: 'Natif' },
+    { language: 'Anglais', level: 'Courant' },
+    { language: 'Espagnol', level: 'Intermédiaire' },
+  ],
+};
+
+/**
+ * CVPreview.jsx - Aperçu A4 en Temps Réel avec Fusion Dynamique et Scaling Fidèle
+ * - Partage le même composant de rendu que l'exportation PDF (CVTemplateModern)
+ * - Rendu DOM direct (sans iframe) pour une synchronisation absolue avec html2canvas/html2pdf/print
+ * - Fusion automatique des champs en temps réel sans jamais briser la mise en page
  */
 export const CVPreview = ({
   formData = {},
-  themeColor = '#2563eb',
+  themeColor = '#1e3a8a',
   onColorChange,
   onDownloadPdf,
   isDownloading = false,
   t = (key, fallback) => fallback || key,
 }) => {
-  const {
-    fullName = '',
-    firstName = '',
-    lastName = '',
-    jobTitle = '',
-    email = '',
-    phone = '',
-    city = '',
-    country = '',
-    summary = '',
-    sectionTitles = {},
-    experiences = [],
-    educations = [],
-    skills = [],
-    languages = [],
-  } = formData;
+  const containerRef = useRef(null);
+  const [scale, setScale] = useState(0.55);
+  const [userZoom, setUserZoom] = useState(null);
 
-  const displayName = fullName || [firstName, lastName].filter(Boolean).join(' ') || 'Alexandre Martin';
-  const displayTitle = jobTitle || formData.title || 'Développeur Full-Stack Senior';
+  // 1. Calcul dynamique du scale A4 adaptatif
+  useEffect(() => {
+    const updateScale = () => {
+      if (!containerRef.current) return;
+      const containerWidth = containerRef.current.clientWidth;
+      if (containerWidth > 0) {
+        // La feuille fait 794px de large. On prévoit 24px de marge latérale
+        const availableWidth = containerWidth - 24;
+        const computedScale = Math.min(Math.max(availableWidth / 794, 0.38), 0.72);
+        if (userZoom === null) {
+          setScale(Number(computedScale.toFixed(3)));
+        }
+      }
+    };
 
-  // Obtenir les initiales
-  const getInitials = (name) => {
-    if (!name) return 'CV';
-    const parts = name.trim().split(/\s+/);
-    if (parts.length === 1) return parts[0].substring(0, 2).toUpperCase();
-    return (parts[0][0] + parts[parts.length - 1][0]).toUpperCase();
+    updateScale();
+    const observer = new ResizeObserver(updateScale);
+    if (containerRef.current) {
+      observer.observe(containerRef.current);
+    }
+    return () => observer.disconnect();
+  }, [userZoom]);
+
+  const activeScale = userZoom !== null ? userZoom : scale;
+
+  // 2. FUSION DYNAMIQUE DES DONNÉES (FULL FALLBACK MERGE)
+  const displayData = {
+    // Champs textuels simples
+    fullName:
+      formData.fullName && formData.fullName.trim() !== ''
+        ? formData.fullName.trim()
+        : [formData.firstName, formData.lastName].filter(Boolean).join(' ').trim()
+        ? [formData.firstName, formData.lastName].filter(Boolean).join(' ').trim()
+        : DEFAULT_CV.fullName,
+
+    jobTitle:
+      formData.jobTitle && formData.jobTitle.trim() !== ''
+        ? formData.jobTitle.trim()
+        : formData.title && formData.title.trim() !== ''
+        ? formData.title.trim()
+        : DEFAULT_CV.jobTitle,
+
+    email:
+      formData.email && formData.email.trim() !== ''
+        ? formData.email.trim()
+        : DEFAULT_CV.email,
+
+    phone:
+      formData.phone && formData.phone.trim() !== ''
+        ? formData.phone.trim()
+        : DEFAULT_CV.phone,
+
+    city:
+      [formData.city, formData.country].filter(Boolean).join(', ').trim()
+        ? [formData.city, formData.country].filter(Boolean).join(', ').trim()
+        : formData.city && formData.city.trim() !== ''
+        ? formData.city.trim()
+        : DEFAULT_CV.city,
+
+    linkedin:
+      formData.linkedin && formData.linkedin.trim() !== ''
+        ? formData.linkedin.trim()
+        : DEFAULT_CV.linkedin,
+
+    summary:
+      formData.summary && formData.summary.trim() !== ''
+        ? formData.summary.trim()
+        : DEFAULT_CV.summary,
+
+    sectionTitles: {
+      contact: formData.sectionTitles?.contact || t('sections.contact', 'Coordonnées'),
+      profile: formData.sectionTitles?.profile || t('sections.profile', 'Profil Professionnel'),
+      experience: formData.sectionTitles?.experience || t('sections.experience', 'Expérience Professionnelle'),
+      education: formData.sectionTitles?.education || t('sections.education', 'Formation & Diplômes'),
+      skills: formData.sectionTitles?.skills || t('sections.skills', 'Compétences'),
+      languages: formData.sectionTitles?.languages || t('sections.languages', 'Langues'),
+    },
+
+    // Tableaux dynamiques avec détection de contenu valide
+    experiences: (() => {
+      if (Array.isArray(formData.experiences) && formData.experiences.length > 0) {
+        const hasValidExp = formData.experiences.some(
+          (e) => (e.title && e.title.trim()) || (e.position && e.position.trim()) || (e.company && e.company.trim()) || (e.desc && e.desc.trim()) || (e.description && e.description.trim())
+        );
+        if (hasValidExp) return formData.experiences;
+      }
+      return DEFAULT_CV.experiences;
+    })(),
+
+    education: (() => {
+      const userEduList = formData.education || formData.educations;
+      if (Array.isArray(userEduList) && userEduList.length > 0) {
+        const hasValidEdu = userEduList.some(
+          (e) => (e.degree && e.degree.trim()) || (e.school && e.school.trim()) || (e.institution && e.institution.trim()) || (e.desc && e.desc.trim()) || (e.description && e.description.trim())
+        );
+        if (hasValidEdu) return userEduList;
+      }
+      return DEFAULT_CV.education;
+    })(),
+
+    skills: (() => {
+      if (Array.isArray(formData.skills) && formData.skills.length > 0) {
+        const validSkills = formData.skills.filter((s) => {
+          if (typeof s === 'string') return s.trim() !== '';
+          if (typeof s === 'object' && s !== null) return (s.name && s.name.trim() !== '') || (s.label && s.label.trim() !== '');
+          return false;
+        });
+        if (validSkills.length > 0) return validSkills;
+      }
+      return DEFAULT_CV.skills;
+    })(),
+
+    languages: (() => {
+      if (Array.isArray(formData.languages) && formData.languages.length > 0) {
+        const validLangs = formData.languages.filter((l) => {
+          if (typeof l === 'string') return l.trim() !== '';
+          if (typeof l === 'object' && l !== null) return (l.language && l.language.trim() !== '') || (l.name && l.name.trim() !== '');
+          return false;
+        });
+        if (validLangs.length > 0) return validLangs;
+      }
+      return DEFAULT_CV.languages;
+    })(),
   };
 
-  // Formatage des expériences
-  const experiencesHtml = experiences && experiences.length > 0
-    ? experiences.map(exp => `
-        <div style="margin-bottom: 12px;">
-          <div style="display: flex; justify-content: space-between; align-items: baseline;">
-            <strong style="font-size: 13px; color: #0f172a;">${exp.position || exp.role || ''}</strong>
-            <span style="font-size: 11px; color: #64748b; white-space: nowrap;">${exp.startDate || ''} ${exp.endDate ? `— ${exp.endDate}` : (exp.current ? '— Présent' : '')}</span>
-          </div>
-          <div style="font-size: 12px; font-weight: 600; color: ${themeColor}; margin-top: 1px;">
-            ${exp.company || ''} ${exp.city ? `• ${exp.city}` : ''}
-          </div>
-          ${exp.description ? `<p style="font-size: 11.5px; color: #475569; margin-top: 3px; line-height: 1.4;">${exp.description}</p>` : ''}
-          ${exp.tasks && exp.tasks.length > 0 ? `
-            <ul style="margin-top: 4px; padding-left: 16px; font-size: 11px; color: #475569; line-height: 1.4;">
-              ${exp.tasks.map(task => `<li style="margin-bottom: 2px;">${task}</li>`).join('')}
-            </ul>
-          ` : ''}
-        </div>
-      `).join('')
-    : (typeof formData.experience === 'string' && formData.experience ? `<p style="font-size: 12px; line-height: 1.5; color: #475569;">${formData.experience}</p>` : `<p style="font-size: 12px; color: #94a3b8; font-style: italic;">Aucune expérience ajoutée</p>`);
-
-  // Formatage des formations
-  const educationsHtml = educations && educations.length > 0
-    ? educations.map(edu => `
-        <div style="margin-bottom: 10px;">
-          <div style="display: flex; justify-content: space-between; align-items: baseline;">
-            <strong style="font-size: 13px; color: #0f172a;">${edu.degree || ''}</strong>
-            <span style="font-size: 11px; color: #64748b;">${edu.startDate || ''} — ${edu.endDate || ''}</span>
-          </div>
-          <div style="font-size: 12px; font-weight: 600; color: ${themeColor};">
-            ${edu.institution || ''} ${edu.city ? `• ${edu.city}` : ''}
-          </div>
-          ${edu.description ? `<p style="font-size: 11px; color: #475569; margin-top: 2px;">${edu.description}</p>` : ''}
-        </div>
-      `).join('')
-    : (typeof formData.education === 'string' && formData.education ? `<p style="font-size: 12px; line-height: 1.5; color: #475569;">${formData.education}</p>` : `<p style="font-size: 12px; color: #94a3b8; font-style: italic;">Aucune formation ajoutée</p>`);
-
-  // Formatage des compétences
-  const skillsHtml = skills && skills.length > 0
-    ? `
-      <div style="margin-top: 20px;">
-        <div style="font-size: 12px; font-weight: 800; text-transform: uppercase; letter-spacing: 0.1em; color: rgba(255,255,255,0.95); border-bottom: 1.5px solid rgba(255,255,255,0.3); padding-bottom: 4px; margin-bottom: 10px;">
-          ${sectionTitles?.skills || "Compétences"}
-        </div>
-        <div style="display: flex; flex-direction: column; gap: 6px;">
-          ${skills.map(s => {
-            const skillName = typeof s === 'string' ? s : (s.name || s);
-            return `<div style="background: rgba(255,255,255,0.15); border: 1px solid rgba(255,255,255,0.25); padding: 4px 8px; border-radius: 4px; font-size: 11px; color: #ffffff;">${skillName}</div>`;
-          }).join('')}
-        </div>
-      </div>
-    `
-    : '';
-
-  // Formatage des langues
-  const languagesHtml = languages && languages.length > 0
-    ? `
-      <div style="margin-top: 20px;">
-        <div style="font-size: 12px; font-weight: 800; text-transform: uppercase; letter-spacing: 0.1em; color: rgba(255,255,255,0.95); border-bottom: 1.5px solid rgba(255,255,255,0.3); padding-bottom: 4px; margin-bottom: 10px;">
-          ${sectionTitles?.languages || "Langues"}
-        </div>
-        <div style="display: flex; flex-direction: column; gap: 6px;">
-          ${languages.map(l => `
-            <div style="display: flex; justify-content: space-between; font-size: 11px; border-bottom: 1px dashed rgba(255,255,255,0.2); padding-bottom: 3px;">
-              <strong>${l.language || l.name || ''}</strong>
-              <span style="opacity: 0.8;">${l.level || ''}</span>
-            </div>
-          `).join('')}
-        </div>
-      </div>
-    `
-    : '';
-
-  const cvHtmlContent = `
-    <!DOCTYPE html>
-    <html lang="fr">
-      <head>
-        <meta charset="UTF-8" />
-        <style>
-          * { box-sizing: border-box; margin: 0; padding: 0; }
-          html, body {
-            margin: 0;
-            padding: 0;
-            display: flex;
-            justify-content: center;
-            align-items: flex-start;
-            background: #e2e8f0;
-            height: 100vh;
-            overflow: hidden;
-            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
-          }
-          .cv-a4-sheet {
-            width: 794px;
-            min-width: 794px;
-            max-width: 794px;
-            height: 1123px;
-            min-height: 1123px;
-            max-height: 1123px;
-            transform: scale(0.56);
-            transform-origin: top center;
-            background: #ffffff;
-            box-shadow: 0 10px 25px rgba(0, 0, 0, 0.2);
-            margin-top: 15px;
-            display: flex;
-            flex-direction: row;
-            overflow: hidden;
-            box-sizing: border-box;
-          }
-          .sidebar {
-            width: 32%;
-            min-width: 32%;
-            background-color: ${themeColor};
-            color: #ffffff;
-            padding: 32px 24px;
-            display: flex;
-            flex-direction: column;
-            gap: 16px;
-            word-break: break-word;
-          }
-          .avatar {
-            width: 65px;
-            height: 65px;
-            border-radius: 9999px;
-            background: rgba(255,255,255,0.2);
-            border: 2px solid #ffffff;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            font-size: 22px;
-            font-weight: bold;
-            color: #ffffff;
-            margin: 0 auto 10px auto;
-          }
-          .contact-item {
-            display: flex;
-            align-items: center;
-            gap: 8px;
-            font-size: 11px;
-            margin-bottom: 6px;
-            line-height: 1.35;
-          }
-          .main-content {
-            width: 68%;
-            min-width: 68%;
-            padding: 36px 30px;
-            color: #333333;
-            display: flex;
-            flex-direction: column;
-            gap: 16px;
-            word-break: break-word;
-          }
-          .header-name {
-            font-size: 24px;
-            font-weight: 900;
-            color: #0f172a;
-            margin-bottom: 4px;
-            line-height: 1.2;
-            word-break: break-word;
-          }
-          .header-title {
-            font-size: 14px;
-            font-weight: 700;
-            color: ${themeColor};
-            margin-bottom: 12px;
-          }
-          .section-title {
-            font-size: 13px;
-            font-weight: 800;
-            text-transform: uppercase;
-            letter-spacing: 0.05em;
-            color: ${themeColor};
-            border-bottom: 2px solid ${themeColor};
-            padding-bottom: 3px;
-            margin-top: 10px;
-            margin-bottom: 8px;
-          }
-          p, li {
-            font-size: 12px;
-            line-height: 1.5;
-            color: #334155;
-            word-break: break-word;
-          }
-          @media print {
-            body { background: transparent; padding: 0; }
-            .cv-a4-sheet {
-              transform: none;
-              box-shadow: none;
-              border-radius: 0;
-              margin: 0;
-              width: 210mm;
-              height: 297mm;
-            }
-          }
-        </style>
-      </head>
-      <body>
-        <div class="cv-a4-sheet">
-          <!-- SIDEBAR GAUCHE -->
-          <div class="sidebar">
-            <div class="avatar">${getInitials(displayName)}</div>
-            <div style="font-size: 12px; font-weight: 800; text-transform: uppercase; letter-spacing: 0.1em; border-bottom: 1.5px solid rgba(255,255,255,0.3); padding-bottom: 4px; margin-bottom: 8px;">
-              ${sectionTitles?.contact || "Contact"}
-            </div>
-            ${email ? `<div class="contact-item">✉ ${email}</div>` : ''}
-            ${phone ? `<div class="contact-item">📞 ${phone}</div>` : ''}
-            ${(city || country) ? `<div class="contact-item">📍 ${[city, country].filter(Boolean).join(', ')}</div>` : ''}
-            ${skillsHtml}
-            ${languagesHtml}
-          </div>
-
-          <!-- CONTENU PRINCIPAL DROIT -->
-          <div class="main-content">
-            <div style="border-bottom: 2px solid ${themeColor}; padding-bottom: 10px;">
-              <h1 class="header-name">${displayName}</h1>
-              <div class="header-title">${displayTitle}</div>
-            </div>
-
-            ${summary ? `
-              <div>
-                <div class="section-title">${sectionTitles?.profile || "Profil Professionnel"}</div>
-                <p>${summary}</p>
-              </div>
-            ` : ''}
-
-            <div>
-              <div class="section-title">${sectionTitles?.experience || "Expérience Professionnelle"}</div>
-              ${experiencesHtml}
-            </div>
-
-            <div>
-              <div class="section-title">${sectionTitles?.education || "Formation & Diplômes"}</div>
-              ${educationsHtml}
-            </div>
-          </div>
-        </div>
-      </body>
-    </html>
-  `;
-
   return (
-    <div
-      style={{
-        display: 'flex',
-        flexDirection: 'column',
-        alignItems: 'center',
-        width: '100%',
-        boxSizing: 'border-box',
-      }}
-    >
-      {/* 1. BARRE D'OUTILS : COULEURS ET BOUTON EXPORT */}
-      <div
-        style={{
-          display: 'flex',
-          flexWrap: 'wrap',
-          alignItems: 'center',
-          justifyContent: 'space-between',
-          gap: '12px',
-          width: '100%',
-          marginBottom: '16px',
-          padding: '12px 20px',
-          backgroundColor: '#ffffff',
-          border: '1px solid #e2e8f0',
-          borderRadius: '14px',
-          boxShadow: '0 4px 6px -1px rgba(0, 0, 0, 0.05)',
-          boxSizing: 'border-box',
-        }}
-      >
-        <div style={{ display: 'flex', alignItems: 'center', gap: '10px', flexWrap: 'wrap' }}>
-          <span
-            style={{
-              fontSize: '13px',
-              fontWeight: 800,
-              color: '#334155',
-              textTransform: 'uppercase',
-              letterSpacing: '0.05em',
-            }}
-          >
-            {t('preview.themeColor', 'Couleur')} :
-          </span>
-          <div style={{ display: 'flex', alignItems: 'center', gap: '6px' }}>
+    <div className="cv-preview-container">
+      {/* =========================================================================
+          1. BARRE D'OUTILS : COULEURS, ZOOM ET BOUTON EXPORT PDF
+          ========================================================================= */}
+      <div className="cv-preview-toolbar">
+        {/* Sélecteur de couleur thématique */}
+        <div className="cv-toolbar-section">
+          <span className="cv-toolbar-label">{t('preview.themeColor', 'Couleur')} :</span>
+          <div className="cv-color-palette">
             {PRESET_COLORS.map((color) => {
               const isSelected = themeColor.toLowerCase() === color.value.toLowerCase();
               return (
@@ -342,120 +236,107 @@ export const CVPreview = ({
                   type="button"
                   title={color.label}
                   onClick={() => onColorChange && onColorChange(color.value)}
-                  style={{
-                    width: '26px',
-                    height: '26px',
-                    borderRadius: '9999px',
-                    backgroundColor: color.value,
-                    border: '2px solid #ffffff',
-                    boxShadow: isSelected ? '0 0 0 2px #0f172a' : '0 0 0 1px #cbd5e1',
-                    cursor: 'pointer',
-                    padding: 0,
-                    outline: 'none',
-                    transform: isSelected ? 'scale(1.15)' : 'scale(1)',
-                    transition: 'all 0.15s ease',
-                  }}
+                  className={`cv-color-swatch ${isSelected ? 'active' : ''}`}
+                  style={{ backgroundColor: color.value }}
                   aria-label={color.label}
                 />
               );
             })}
 
-            {/* Sélecteur libre */}
-            <div
-              style={{
-                position: 'relative',
-                width: '28px',
-                height: '28px',
-                borderRadius: '9999px',
-                border: '1px dashed #94a3b8',
-                background: 'conic-gradient(from 180deg at 50% 50%, #f43f5e, #8b5cf6, #3b82f6, #10b981, #eab308, #f43f5e)',
-                cursor: 'pointer',
-                display: 'flex',
-                alignItems: 'center',
-                justifyContent: 'center',
-              }}
-              title={t('preview.customColor', 'Couleur personnalisée')}
-            >
+            {/* Pastille personnalisée */}
+            <div className="cv-color-custom-wrapper" title={t('preview.customColor', 'Couleur personnalisée')}>
               <input
                 type="color"
                 value={themeColor}
                 onChange={(e) => onColorChange && onColorChange(e.target.value)}
-                style={{
-                  position: 'absolute',
-                  top: 0,
-                  left: 0,
-                  width: '100%',
-                  height: '100%',
-                  opacity: 0,
-                  cursor: 'pointer',
-                }}
-                aria-label="Custom color picker"
+                className="cv-color-native-picker"
+                aria-label="Palette de couleur personnalisée"
               />
             </div>
           </div>
         </div>
 
-        {onDownloadPdf && (
-          <button
-            type="button"
-            onClick={onDownloadPdf}
-            disabled={isDownloading}
-            style={{
-              display: 'inline-flex',
-              alignItems: 'center',
-              gap: '8px',
-              padding: '8px 16px',
-              backgroundColor: '#0f172a',
-              color: '#ffffff',
-              fontSize: '12px',
-              fontWeight: 700,
-              borderRadius: '10px',
-              border: 'none',
-              cursor: isDownloading ? 'not-allowed' : 'pointer',
-              opacity: isDownloading ? 0.6 : 1,
-              transition: 'all 0.15s ease',
-            }}
-          >
-            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5">
-              <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4" />
-              <polyline points="7 10 12 15 17 10" />
-              <line x1="12" y1="15" x2="12" y2="3" />
-            </svg>
-            <span>{isDownloading ? t('buttons.exporting', 'Export...') : t('buttons.downloadPdf', 'Télécharger PDF')}</span>
-          </button>
-        )}
+        {/* Contrôles de zoom et Bouton Téléchargement */}
+        <div className="cv-toolbar-section">
+          {/* Zoom controls */}
+          <div className="cv-zoom-controls">
+            <button
+              type="button"
+              onClick={() => setUserZoom((z) => Math.max(0.35, (z ?? scale) - 0.05))}
+              className="cv-zoom-btn"
+              title="Zoom arrière"
+            >
+              -
+            </button>
+            <button
+              type="button"
+              onClick={() => setUserZoom(null)}
+              className="cv-zoom-reset"
+              title="Ajuster automatiquement"
+            >
+              {Math.round(activeScale * 100)}%
+            </button>
+            <button
+              type="button"
+              onClick={() => setUserZoom((z) => Math.min(0.85, (z ?? scale) + 0.05))}
+              className="cv-zoom-btn"
+              title="Zoom avant"
+            >
+              +
+            </button>
+          </div>
+
+          {/* Bouton Export PDF */}
+          {onDownloadPdf && (
+            <button
+              type="button"
+              onClick={onDownloadPdf}
+              disabled={isDownloading}
+              className="cv-export-btn"
+            >
+              <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5">
+                <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4" />
+                <polyline points="7 10 12 15 17 10" />
+                <line x1="12" y1="15" x2="12" y2="3" />
+              </svg>
+              <span>{isDownloading ? t('buttons.exporting', 'Export...') : t('buttons.downloadPdf', 'Télécharger PDF')}</span>
+            </button>
+          )}
+        </div>
       </div>
 
-      {/* 2. LE CADRE GRIS PARENT AVEC IFRAME TOTALEMENT ISOLÉ */}
-      <div
-        style={{
-          width: '100%',
-          height: '680px',
-          minHeight: '680px',
-          backgroundColor: '#e2e8f0',
-          borderRadius: '16px',
-          border: '1px solid #cbd5e1',
-          display: 'flex',
-          justifyContent: 'center',
-          alignItems: 'flex-start',
-          overflow: 'hidden',
-          position: 'relative',
-          boxSizing: 'border-box',
-          boxShadow: 'inset 0 2px 4px 0 rgba(0, 0, 0, 0.05)',
-        }}
-      >
-        <iframe
-          title="CV Preview"
-          srcDoc={cvHtmlContent}
+      {/* =========================================================================
+          2. CADRE GRIS D'APERÇU AVEC SCALING STRICT A4 (794px x 1123px)
+          ========================================================================= */}
+      <div ref={containerRef} className="cv-preview-gray-canvas">
+        {/* Le conteneur redimensionné à l'échelle pour éviter tout débordement */}
+        <div
+          className="preview-scale-wrapper-outer"
           style={{
-            width: '100%',
-            height: '100%',
-            minHeight: '680px',
-            border: 'none',
-            borderRadius: '8px',
-            backgroundColor: 'transparent',
+            width: `${794 * activeScale}px`,
+            height: `${1123 * activeScale}px`,
+            position: 'relative',
+            margin: '0 auto',
           }}
-        />
+        >
+          <div
+            className="preview-scale-wrapper"
+            style={{
+              width: '794px',
+              height: '1123px',
+              minHeight: '1123px',
+              transform: `scale(${activeScale})`,
+              transformOrigin: 'top left',
+            }}
+          >
+            {/* COMPOSANT DE RENDU UNIQUE PARTAGÉ */}
+            <CVTemplateModern
+              data={displayData}
+              themeColor={themeColor}
+              id="cv-printable-document"
+            />
+          </div>
+        </div>
       </div>
     </div>
   );

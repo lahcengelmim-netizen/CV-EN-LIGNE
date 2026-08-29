@@ -1,13 +1,17 @@
 import React, { useState } from 'react';
 import { TEMPLATES_LIST } from '../lib/templatesData';
 import { CVRenderer } from './templates/CVRenderer';
+import { TemplatePreviewModal } from './TemplatePreviewModal';
 import { Check, Maximize2, Sparkles } from 'lucide-react';
 import './TemplateSelector.css';
 
 /**
- * Composant TemplateSelector
- * Taille 100% fixe et stable, sans aucun zoom/scale au hover
- * Aspect ratio A4 (1 / 1.414) avec overflow: hidden
+ * TemplateSelector.jsx
+ * Composant de sélection de modèles de CV :
+ * 1. Taille 100% FIXE et IMMOBILE au survol (aucun zoom/scale/déformation).
+ * 2. Effet hover élégant : bordure bleue (#2563eb) et ombre douce.
+ * 3. Cadre A4 strict (aspect-ratio: 1 / 1.414) avec overflow: hidden.
+ * 4. Modal d'aperçu Grand Format haute résolution intégré.
  */
 export const TemplateSelector = ({
   selectedTemplateId = 'modern',
@@ -16,6 +20,7 @@ export const TemplateSelector = ({
   lang = 'fr'
 }) => {
   const [activeId, setActiveId] = useState(selectedTemplateId);
+  const [modalTemplateId, setModalTemplateId] = useState(null);
 
   const handleSelect = (id, color) => {
     setActiveId(id);
@@ -24,17 +29,25 @@ export const TemplateSelector = ({
     }
   };
 
+  const handleInspect = (id) => {
+    if (typeof onInspectTemplate === 'function') {
+      onInspectTemplate(id);
+    } else {
+      setModalTemplateId(id);
+    }
+  };
+
   return (
     <section className="template-selector-container" id="templates-section">
       {/* En-tête de section */}
       <div className="template-selector-header">
         <div className="template-badge-pill">
-          <Sparkles className="w-3.5 h-3.5 inline mr-1 text-blue-600" />
-          Modèles Certifiés ATS &amp; Format A4
+          <Sparkles className="w-3.5 h-3.5 inline text-blue-600" />
+          <span>Modèles Certifiés ATS &amp; Format A4</span>
         </div>
         <h2 className="template-selector-title">Choisissez votre modèle de CV</h2>
         <p className="template-selector-subtitle">
-          Sélectionnez un style adapté à votre profil professionnel. Tous nos modèles respectent le ratio A4 standard et s'affichent fidèlement sans coupure.
+          Sélectionnez un style adapté à votre profil professionnel. Tous nos modèles respectent le ratio A4 standard et restent parfaitement stables au survol.
         </p>
       </div>
 
@@ -53,7 +66,7 @@ export const TemplateSelector = ({
               {isSelected && (
                 <div className="selected-badge">
                   <Check className="badge-icon" />
-                  <span>Modèle Sélectionné</span>
+                  <span>Sélectionné</span>
                 </div>
               )}
 
@@ -64,10 +77,10 @@ export const TemplateSelector = ({
 
               {/* Score ATS */}
               <div className="ats-score-tag">
-                Score ATS {tpl.atsScore}%
+                ATS {tpl.atsScore}%
               </div>
 
-              {/* Cadre d'aperçu A4 STRICT (1 : 1.414) avec overflow: hidden et SANS zoom au survol */}
+              {/* Cadre d'aperçu A4 STRICT (1 : 1.414) avec overflow: hidden */}
               <div className="preview-a4-frame">
                 {/* Rendu du document A4 proportionnel */}
                 <div className="scaled-cv-wrapper">
@@ -81,22 +94,20 @@ export const TemplateSelector = ({
                   />
                 </div>
 
-                {/* Overlay d'action au survol (Hover uniquement, pas de scale) */}
+                {/* Overlay d'action au survol (Hover uniquement sans scale) */}
                 <div className="hover-overlay">
                   <div className="hover-btn-group">
-                    {onInspectTemplate && (
-                      <button
-                        type="button"
-                        className="inspect-btn"
-                        onClick={(e) => {
-                          e.stopPropagation();
-                          onInspectTemplate(tpl.id);
-                        }}
-                      >
-                        <Maximize2 className="w-3.5 h-3.5 inline mr-1 text-blue-600" />
-                        Aperçu Plein Écran
-                      </button>
-                    )}
+                    <button
+                      type="button"
+                      className="inspect-btn"
+                      onClick={(e) => {
+                        e.stopPropagation();
+                        handleInspect(tpl.id);
+                      }}
+                    >
+                      <Maximize2 className="w-3.5 h-3.5 inline mr-1 text-blue-600" />
+                      Aperçu Grand Format
+                    </button>
                     <button
                       type="button"
                       className="action-btn"
@@ -129,6 +140,19 @@ export const TemplateSelector = ({
           );
         })}
       </div>
+
+      {/* Modal d'Aperçu Grand Format */}
+      {modalTemplateId && (
+        <TemplatePreviewModal
+          isOpen={Boolean(modalTemplateId)}
+          templateId={modalTemplateId}
+          onClose={() => setModalTemplateId(null)}
+          onSelectTemplate={(id, color) => {
+            handleSelect(id, color);
+            setModalTemplateId(null);
+          }}
+        />
+      )}
     </section>
   );
 };

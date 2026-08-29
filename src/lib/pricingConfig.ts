@@ -1,7 +1,7 @@
 import { PlanType } from '../types';
 
 export interface PricingPlan {
-  id: PlanType | 'pro';
+  id: PlanType | 'pro' | 'flash' | 'annual';
   title: string;
   name: string;
   price: number;
@@ -19,7 +19,7 @@ export interface PricingPlan {
   isPopular?: boolean;
 }
 
-export const PRICING_PLANS: Record<'single_cv' | 'monthly' | 'yearly', PricingPlan> = {
+export const PRICING_PLANS: Record<'single_cv' | 'pro' | 'monthly' | 'yearly', PricingPlan> = {
   single_cv: {
     id: 'single_cv',
     title: 'Paiement Unique',
@@ -27,18 +27,46 @@ export const PRICING_PLANS: Record<'single_cv' | 'monthly' | 'yearly', PricingPl
     price: 1.99,
     period: 'unique',
     priceDisplay: '$1.99',
-    periodDisplay: '/ CV unique',
-    description: 'Idéal pour une candidature ciblée et ponctuelle sans engagement.',
+    periodDisplay: '/ 1 CV PDF',
+    description: '1 seul téléchargement de CV en HD A4 sans filigrane. Idéal pour une candidature ciblée.',
     features: [
-      '1 CV complet au format PDF A4 Haute Définition',
-      'Sans aucun filigrane',
-      'Accès immédiat aux 10 modèles de CV professionnels',
-      'Vérification ATS basique',
-      'Format A4 vectoriel standard',
-      'Paiement unique garanti sans abonnement'
+      '1 Téléchargement unique de CV au format PDF HD A4',
+      'Crédit = 1 PDF Haute Résolution vectoriel',
+      'Sans aucun filigrane publicitaire',
+      'Accès aux 10 modèles de CV professionnels',
+      'Vérification de base de la conformité ATS',
+      'Paiement unique sans abonnement'
+    ],
+    notIncluded: [
+      'Téléchargements illimités',
+      'Générateur de Lettres de Motivation',
+      'Modifications ultérieures après téléchargement'
     ],
     cta: 'Télécharger 1 CV ($1.99)',
     isPopular: false
+  },
+  pro: {
+    id: 'pro',
+    title: 'Pass Pro (7 Jours)',
+    name: 'Pass Pro 7 Jours',
+    price: 3.99,
+    period: 'week',
+    priceDisplay: '$3.99',
+    periodDisplay: '/ 7 jours complets',
+    subDetail: 'Accès illimité pendant 7 jours',
+    badge: '⭐ PLUS POPULAIRE',
+    badgeType: 'primary',
+    description: 'Téléchargements illimités pendant 7 jours entiers avec accès inclus aux lettres de motivation.',
+    features: [
+      'Téléchargements ILLIMITÉS pendant 7 jours',
+      'Lettres de Motivation IA & Modèles incluses',
+      'Accès illimité à tous les 10 modèles ATS',
+      'Modifications et exports illimités 24/7',
+      'Exports PDF Haute Définition vectoriels',
+      'Accès complet sans engagement'
+    ],
+    cta: 'Activer le Pass Pro 7 Jours ($3.99)',
+    isPopular: true
   },
   monthly: {
     id: 'monthly',
@@ -48,13 +76,13 @@ export const PRICING_PLANS: Record<'single_cv' | 'monthly' | 'yearly', PricingPl
     period: 'month',
     priceDisplay: '$7.99',
     periodDisplay: '/ mois',
-    description: 'Pour les candidats actifs en recherche d\'emploi continue.',
+    description: 'Pour les candidats actifs en recherche d\'emploi continue avec accès permanent illimité.',
     features: [
-      'Création illimitée de CVs et variantes métiers',
+      'Téléchargements ILLIMITÉS de CVs',
+      'Générateur de lettres de motivation inclus',
       'Accès total et permanent aux 10 designs premium',
-      'Générateur de lettres de motivation IA',
-      'Téléchargements PDF HD instantanés et illimités',
-      'Support client prioritaire',
+      'Sauvegarde cloud chiffrée et multi-profils',
+      'Support client prioritaire 24/7',
       'Sans engagement • Résiliation en 1 clic à tout moment'
     ],
     cta: 'Choisir le Pass Mensuel ($7.99/mois)',
@@ -70,30 +98,33 @@ export const PRICING_PLANS: Record<'single_cv' | 'monthly' | 'yearly', PricingPl
     periodDisplay: '/ an',
     subDetail: 'Soit seulement ~$3.33/mois • Économisez 50%',
     monthlyEquivalent: '$3.33 / mois',
-    badge: 'SAVE 50%',
+    badge: '🔥 SAVE 50%',
     badgeType: 'warning',
     description: 'La solution la plus économique et complète pour piloter toute votre carrière.',
     features: [
+      'Téléchargements ILLIMITÉS pendant 1 an (365 jours)',
+      'Générateur de lettres de motivation inclus en illimité',
       'Tout ce qui est inclus dans le Pass Mensuel',
-      'Accès complet pendant 1 an entier (365 jours)',
       'Économisez plus de 50% par rapport au forfait mensuel',
       'Nouveaux modèles et fonctionnalités en avant-première',
-      'Générateur illimité de lettres de motivation IA',
       'Garantie satisfait ou remboursé 14 jours'
     ],
-    cta: 'Profiter de l\'Offre Annuelle ($39.99/an)',
-    isPopular: true
+    cta: 'Profiter du Pass Annuel ($39.99/an)',
+    isPopular: false
   }
 };
 
 export const PRICING_LIST = [
   PRICING_PLANS.single_cv,
+  PRICING_PLANS.pro,
   PRICING_PLANS.monthly,
   PRICING_PLANS.yearly
 ];
 
-export function getPlanDetails(planId: PlanType = 'single_cv'): PricingPlan {
+export function getPlanDetails(planId: string = 'single_cv'): PricingPlan {
+  if (planId === 'pro') return PRICING_PLANS.pro;
   if (planId === 'monthly') return PRICING_PLANS.monthly;
-  if (planId === 'yearly') return PRICING_PLANS.yearly;
+  if (planId === 'yearly' || planId === 'annual') return PRICING_PLANS.yearly;
+  if (planId === 'flash' || planId === 'single_cv') return PRICING_PLANS.single_cv;
   return PRICING_PLANS.single_cv;
 }

@@ -1,0 +1,331 @@
+/* ==========================================================================
+   TemplatePreviewModal.css - MODAL D'APERÇU A4 GRAND FORMAT
+   - Dimensions généreuses (85vh - 90vh, largeur 90% max 960px)
+   - Centrage parfait et scrolling fluide (overflow-y: auto)
+   - Scaling A4 adaptatif (794px x 1123px, scale 0.75 - 0.85)
+   - Ombre réaliste et rendu haute fidélité
+   ========================================================================== */
+
+/* 1. OVERLAY DE FOND FIXE AVEC FLOU BACKDROP */
+.template-modal-overlay {
+  position: fixed;
+  inset: 0;
+  z-index: 9999;
+  background-color: rgba(15, 23, 42, 0.75);
+  backdrop-filter: blur(8px);
+  -webkit-backdrop-filter: blur(8px);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 16px;
+  animation: modalFadeIn 0.2s ease-out;
+  box-sizing: border-box;
+}
+
+@keyframes modalFadeIn {
+  from {
+    opacity: 0;
+  }
+  to {
+    opacity: 1;
+  }
+}
+
+/* 2. BOÎTE MODAL PRINCIPALE (HAUTEUR 85vh - 90vh, LARGEUR MAX 960px) */
+.template-modal-window {
+  width: 90%;
+  max-width: 960px;
+  height: 88vh;
+  max-height: 88vh;
+  background-color: #ffffff;
+  border-radius: 20px;
+  box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.35);
+  border: 1px solid #cbd5e1;
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+  position: relative;
+  animation: modalScaleUp 0.25s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+@keyframes modalScaleUp {
+  from {
+    opacity: 0;
+    transform: scale(0.96) translateY(8px);
+  }
+  to {
+    opacity: 1;
+    transform: scale(1) translateY(0);
+  }
+}
+
+/* 3. EN-TÊTE FIXE DU MODAL */
+.template-modal-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 14px 24px;
+  background-color: #ffffff;
+  border-bottom: 1px solid #e2e8f0;
+  flex-shrink: 0;
+  z-index: 10;
+}
+
+.template-modal-title-group {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  flex-wrap: wrap;
+}
+
+.template-modal-title {
+  font-size: 1.125rem;
+  font-weight: 800;
+  color: #0f172a;
+  margin: 0;
+  letter-spacing: -0.015em;
+}
+
+.template-modal-badge {
+  font-size: 0.6875rem;
+  font-weight: 700;
+  padding: 3px 10px;
+  border-radius: 9999px;
+  background-color: #eff6ff;
+  color: #1d4ed8;
+  border: 1px solid #dbeafe;
+}
+
+.template-modal-ats {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  font-size: 0.6875rem;
+  font-weight: 700;
+  padding: 3px 10px;
+  border-radius: 9999px;
+  background-color: #ecfdf5;
+  color: #047857;
+  border: 1px solid #a7f3d0;
+}
+
+.template-modal-close-btn {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 34px;
+  height: 34px;
+  border-radius: 10px;
+  border: none;
+  background-color: #f1f5f9;
+  color: #64748b;
+  cursor: pointer;
+  transition: all 0.15s ease;
+}
+
+.template-modal-close-btn:hover {
+  background-color: #e2e8f0;
+  color: #0f172a;
+}
+
+/* 4. BARRE DE CONTRÔLES / COULEURS & ZOOM */
+.template-modal-controls-bar {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 8px 24px;
+  background-color: #f8fafc;
+  border-bottom: 1px solid #e2e8f0;
+  flex-shrink: 0;
+  font-size: 0.75rem;
+}
+
+.template-modal-color-picker {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.template-modal-color-label {
+  font-weight: 700;
+  color: #475569;
+  text-transform: uppercase;
+  font-size: 0.6875rem;
+  letter-spacing: 0.05em;
+}
+
+.template-modal-palette {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.template-modal-swatch {
+  width: 20px;
+  height: 20px;
+  border-radius: 9999px;
+  border: 2px solid #ffffff;
+  box-shadow: 0 0 0 1px #cbd5e1;
+  cursor: pointer;
+  padding: 0;
+  transition: transform 0.15s ease;
+  outline: none;
+}
+
+.template-modal-swatch:hover {
+  transform: scale(1.2);
+}
+
+.template-modal-swatch.active {
+  transform: scale(1.25);
+  box-shadow: 0 0 0 2px #0f172a;
+}
+
+.template-modal-zoom-group {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  background-color: #ffffff;
+  border: 1px solid #cbd5e1;
+  border-radius: 8px;
+  padding: 2px 6px;
+}
+
+.template-modal-zoom-btn {
+  background: transparent;
+  border: none;
+  font-weight: 800;
+  font-size: 0.8125rem;
+  color: #475569;
+  cursor: pointer;
+  padding: 0 4px;
+}
+
+.template-modal-zoom-btn:hover {
+  color: #0f172a;
+}
+
+.template-modal-zoom-value {
+  font-size: 0.6875rem;
+  font-family: monospace;
+  font-weight: 700;
+  color: #334155;
+  min-width: 36px;
+  text-align: center;
+}
+
+/* 5. ZONE DE DÉFILEMENT CENTRÉE (SCROLL AUTO PROPRE) */
+.modal-cv-container {
+  flex: 1;
+  display: flex;
+  justify-content: center;
+  align-items: flex-start;
+  padding: 30px 16px;
+  background-color: #e2e8f0;
+  overflow-y: auto;
+  overflow-x: auto;
+  min-height: 0; /* Essentiel pour le flex scroll */
+  box-sizing: border-box;
+}
+
+/* 6. WRAPPER EXTERNE CALCULÉ SELON LE SCALE */
+.modal-cv-outer-wrapper {
+  display: flex;
+  justify-content: center;
+  flex-shrink: 0;
+  margin: 0 auto;
+}
+
+/* 7. CONTENEUR A4 SCALÉ (794px x 1123px) */
+.modal-cv-scaler {
+  width: 794px;
+  height: 1123px;
+  min-height: 1123px;
+  max-height: 1123px;
+  background: #ffffff;
+  transform-origin: top center;
+  box-shadow: 0 20px 40px rgba(0, 0, 0, 0.22);
+  border-radius: 4px;
+  overflow: hidden;
+  flex-shrink: 0;
+}
+
+/* 8. PIED DE MODAL FIXE AVEC BOUTON D'ACTION */
+.template-modal-footer {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 14px 24px;
+  background-color: #ffffff;
+  border-top: 1px solid #e2e8f0;
+  flex-shrink: 0;
+  gap: 16px;
+}
+
+.template-modal-footer-hint {
+  font-size: 0.8125rem;
+  color: #64748b;
+}
+
+.template-modal-footer-actions {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.template-modal-cancel-btn {
+  padding: 8px 16px;
+  border-radius: 10px;
+  border: 1px solid #cbd5e1;
+  background-color: #ffffff;
+  color: #475569;
+  font-size: 0.8125rem;
+  font-weight: 700;
+  cursor: pointer;
+  transition: all 0.15s ease;
+}
+
+.template-modal-cancel-btn:hover {
+  background-color: #f1f5f9;
+  color: #0f172a;
+}
+
+.template-modal-select-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  padding: 9px 20px;
+  border-radius: 10px;
+  border: none;
+  background-color: #0f172a;
+  color: #ffffff;
+  font-size: 0.8125rem;
+  font-weight: 800;
+  cursor: pointer;
+  box-shadow: 0 4px 6px -1px rgba(15, 23, 42, 0.2);
+  transition: all 0.15s ease;
+}
+
+.template-modal-select-btn:hover {
+  background-color: #1e293b;
+  transform: translateY(-1px);
+  box-shadow: 0 6px 12px -2px rgba(15, 23, 42, 0.3);
+}
+
+@media (max-width: 640px) {
+  .template-modal-window {
+    width: 96%;
+    height: 94vh;
+    max-height: 94vh;
+    border-radius: 16px;
+  }
+
+  .template-modal-header,
+  .template-modal-footer {
+    padding: 12px 16px;
+  }
+
+  .template-modal-controls-bar {
+    padding: 8px 16px;
+  }
+}

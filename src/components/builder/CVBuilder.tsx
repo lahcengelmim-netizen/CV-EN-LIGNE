@@ -1,8 +1,9 @@
 import React, { useState, useEffect } from 'react';
-import { CVData, LanguageCode, TemplateId, CVTheme } from '../../types';
+import { CVData, LanguageCode, TemplateId, CVTheme, UserPassState } from '../../types';
 import { translations } from '../../lib/translations';
 import { storageService } from '../../lib/supabase';
 import { exportCVToPDF, triggerNativePrint } from '../../lib/pdf';
+import { passService } from '../../lib/passService';
 import { CVRenderer } from '../templates/CVRenderer';
 import { StepPersonalInfo } from './StepPersonalInfo';
 import { StepProfile } from './StepProfile';
@@ -35,7 +36,9 @@ import {
   Check,
   Layout,
   Maximize2,
-  Palette
+  Palette,
+  AlertTriangle,
+  Zap
 } from 'lucide-react';
 
 interface CVBuilderProps {
@@ -161,9 +164,20 @@ export const CVBuilder: React.FC<CVBuilderProps> = ({
   const [showTemplateSwitcherModal, setShowTemplateSwitcherModal] = useState(false);
   const [isExportingPDF, setIsExportingPDF] = useState(false);
   const [exportProgressText, setExportProgressText] = useState('');
+  const [passState, setPassState] = useState<UserPassState>(() => passService.getLocalPass());
 
   const totalSteps = 8;
   const currentTemplateDef = getTemplateById(cv.templateId);
+
+  // Sync and evaluate pass on mount and when CV email changes
+  useEffect(() => {
+    const current = passService.getLocalPass();
+    setPassState(current);
+
+    passService.fetchServerPassStatus(undefined, cv.personalInfo.email).then((serverPass) => {
+      if (serverPass) setPassState(serverPass);
+    });
+  }, [cv.personalInfo.email]);
 
   // Auto-save debounced
   useEffect(() => {
@@ -181,29 +195,64 @@ export const CVBuilder: React.FC<CVBuilderProps> = ({
   };
 
   const handleDownloadPDF = async () => {
-    if (!cv.isPaid) {
+    // 1. Re-evaluate live pass status
+    const currentPass = passService.getLocalPass();
+
+    if (!currentPass.canDownload && currentPass.downloadCredits <= 0 && !currentPass.isUnlimited) {
       setShowPaymentModal(true);
       return;
     }
 
-    setIsExportingPDF(true);
-    const fileName = `CV_${cv.personalInfo.firstName}_${cv.personalInfo.lastName}.pdf`.replace(/\s+/g, '_');
-    await exportCVToPDF({
-      fileName,
-      elementId: 'cv-printable-document',
-      onProgress: (status) => setExportProgressText(status)
-    });
-    setIsExportingPDF(false);
+    try {
+      setIsExportingPDF(true);
+      setExportProgressText('Génération du PDF HD A4...');
+
+      const fileName = `CV_${cv.personalInfo.firstName}_${cv.personalInfo.lastName}.pdf`.replace(/\s+/g, '_');
+      const exportSuccess = await exportCVToPDF({
+        fileName,
+        elementId: 'cv-printable-document',
+        onProgress: (status) => setExportProgressText(status)
+      });
+
+      if (exportSuccess) {
+        // 2. Consume download credit on backend & update pass state
+        const consumeResult = await passService.consumeDownload({
+          cvId: cv.id,
+          userEmail: cv.personalInfo.email
+        });
+
+        const updatedPass = passService.getLocalPass();
+        setPassState(updatedPass);
+        updateCv({ isPaid: true });
+
+        if (consumeResult.activePass === 'none' || consumeResult.remainingCredits === 0) {
+          if (currentPass.activePass === 'flash' || currentPass.activePass === 'single_cv') {
+            console.log('Pass Flash credit consumed (1/1).');
+          }
+        }
+      }
+    } catch (err) {
+      console.error('Erreur lors du téléchargement du CV:', err);
+    } finally {
+      setIsExportingPDF(false);
+      setExportProgressText('');
+    }
   };
 
-  const handlePaymentSuccess = () => {
+  const handlePaymentSuccess = (planType?: string) => {
+    const updatedPass = passService.getLocalPass();
+    setPassState(updatedPass);
     updateCv({ isPaid: true });
     setShowPaymentModal(false);
+
     // Directly trigger PDF export
     setTimeout(() => {
       handleDownloadPDF();
-    }, 500);
+    }, 400);
   };
+
+  const isUnlimitedPass = passState.isUnlimited;
+  const hasDownloadCredit = passState.downloadCredits > 0 || isUnlimitedPass;
 
   return (
     <div className="min-h-screen bg-slate-100 flex flex-col font-sans">
@@ -214,7 +263,7 @@ export const CVBuilder: React.FC<CVBuilderProps> = ({
             {onBackToDashboard && (
               <button
                 onClick={onBackToDashboard}
-                className="p-2 hover:bg-slate-100 rounded-xl text-slate-600 transition-colors flex items-center gap-1.5 text-xs font-semibold"
+                className="p-2 hover:bg-slate-100 rounded-xl text-slate-600 transition-colors flex items-center gap-1.5 text-xs font-semibold cursor-pointer"
               >
                 <ArrowLeft className="w-4 h-4" />
                 <span className="hidden sm:inline">Mes CVs</span>
@@ -229,12 +278,24 @@ export const CVBuilder: React.FC<CVBuilderProps> = ({
                   onChange={(e) => updateCv({ title: e.target.value })}
                   className="font-bold text-sm text-slate-900 bg-transparent border-b border-transparent hover:border-slate-300 focus:border-blue-500 focus:outline-hidden px-1"
                 />
-                {cv.isPaid && (
-                  <span className="px-2 py-0.5 bg-emerald-100 text-emerald-800 text-[10px] font-bold rounded-full flex items-center gap-1">
-                    <CheckCircle2 className="w-3 h-3" />
-                    HD Payé
+                
+                {/* Dynamic Pass Badge */}
+                {isUnlimitedPass ? (
+                  <span className="px-2.5 py-0.5 bg-emerald-100 text-emerald-800 text-[10px] font-bold rounded-full flex items-center gap-1">
+                    <ShieldCheck className="w-3 h-3 text-emerald-600" />
+                    Pass Illimité Actif
                   </span>
-                )}
+                ) : passState.downloadCredits > 0 ? (
+                  <span className="px-2.5 py-0.5 bg-blue-100 text-blue-800 text-[10px] font-bold rounded-full flex items-center gap-1">
+                    <CheckCircle2 className="w-3 h-3 text-blue-600" />
+                    Pass Flash (1 crédit)
+                  </span>
+                ) : cv.isPaid ? (
+                  <span className="px-2 py-0.5 bg-slate-100 text-slate-700 text-[10px] font-bold rounded-full flex items-center gap-1">
+                    <Check className="w-3 h-3 text-slate-500" />
+                    Téléchargé
+                  </span>
+                ) : null}
               </div>
               <div className="text-[11px] text-slate-400 flex items-center gap-2 px-1">
                 <span>{isSaving ? 'Enregistrement automatique...' : `Enregistré à ${lastSaved.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}`}</span>
@@ -247,7 +308,7 @@ export const CVBuilder: React.FC<CVBuilderProps> = ({
             {/* Quick Template Switcher Button */}
             <button
               onClick={() => setShowTemplateSwitcherModal(true)}
-              className="px-3 py-2 bg-slate-100 hover:bg-slate-200 text-slate-800 rounded-xl text-xs font-bold transition-colors flex items-center gap-1.5 border border-slate-200"
+              className="px-3 py-2 bg-slate-100 hover:bg-slate-200 text-slate-800 rounded-xl text-xs font-bold transition-colors flex items-center gap-1.5 border border-slate-200 cursor-pointer"
               title="Changer de modèle de CV"
             >
               <Layout className="w-3.5 h-3.5 text-blue-600" />
@@ -255,10 +316,16 @@ export const CVBuilder: React.FC<CVBuilderProps> = ({
               <span className="sm:hidden">Modèle</span>
             </button>
 
-            {/* Cover letter assistant modal */}
+            {/* Cover letter assistant modal (Accessible with Pro / Monthly / Annual) */}
             <button
-              onClick={() => setShowCoverLetterModal(true)}
-              className="px-3 py-2 bg-purple-50 hover:bg-purple-100 text-purple-700 rounded-xl text-xs font-bold transition-colors flex items-center gap-1.5 border border-purple-200"
+              onClick={() => {
+                if (!passState.unlockedCoverLetters) {
+                  setShowCoverLetterModal(true);
+                } else {
+                  setShowCoverLetterModal(true);
+                }
+              }}
+              className="px-3 py-2 bg-purple-50 hover:bg-purple-100 text-purple-700 rounded-xl text-xs font-bold transition-colors flex items-center gap-1.5 border border-purple-200 cursor-pointer"
             >
               <Sparkles className="w-3.5 h-3.5 text-purple-600" />
               <span className="hidden md:inline">{t.navCoverLetters}</span>
@@ -268,26 +335,26 @@ export const CVBuilder: React.FC<CVBuilderProps> = ({
             {/* Print button */}
             <button
               onClick={triggerNativePrint}
-              className="p-2 text-slate-600 hover:bg-slate-100 rounded-xl transition-colors hidden sm:flex items-center"
+              className="p-2 text-slate-600 hover:bg-slate-100 rounded-xl transition-colors hidden sm:flex items-center cursor-pointer"
               title="Imprimer"
             >
               <Printer className="w-4 h-4" />
             </button>
 
-            {/* Download / Pay Button */}
-            {cv.isPaid ? (
+            {/* Download / Pay Button with strict access check */}
+            {hasDownloadCredit ? (
               <button
                 disabled={isExportingPDF}
                 onClick={handleDownloadPDF}
-                className="px-4 py-2 bg-emerald-600 hover:bg-emerald-700 text-white rounded-xl text-xs font-bold shadow-xs transition-all flex items-center gap-1.5"
+                className="px-4 py-2 bg-emerald-600 hover:bg-emerald-700 text-white rounded-xl text-xs font-bold shadow-xs transition-all flex items-center gap-1.5 cursor-pointer disabled:opacity-50"
               >
                 <Download className="w-4 h-4" />
-                <span>{isExportingPDF ? exportProgressText || 'Export...' : t.btnDownloadPdf}</span>
+                <span>{isExportingPDF ? exportProgressText || 'Export...' : 'Télécharger PDF HD'}</span>
               </button>
             ) : (
               <button
                 onClick={() => setShowPaymentModal(true)}
-                className="px-4 py-2 bg-gradient-to-r from-blue-600 to-indigo-600 hover:from-blue-700 hover:to-indigo-700 text-white rounded-xl text-xs font-bold shadow-xs transition-all flex items-center gap-1.5"
+                className="px-4 py-2 bg-gradient-to-r from-blue-600 to-indigo-600 hover:from-blue-700 hover:to-indigo-700 text-white rounded-xl text-xs font-bold shadow-xs transition-all flex items-center gap-1.5 cursor-pointer"
               >
                 <Lock className="w-3.5 h-3.5 text-yellow-300" />
                 <span>Débloquer & Télécharger ($1.99)</span>
@@ -323,6 +390,28 @@ export const CVBuilder: React.FC<CVBuilderProps> = ({
       <div className="flex-1 w-full max-w-[1400px] mx-auto p-4 sm:p-6 editor-layout items-start">
         {/* Left Form Wizard */}
         <div className={`w-full space-y-6 ${mobileTab === 'preview' ? 'hidden sm:block' : 'block'}`}>
+          
+          {/* Flash Pass Consumed Info Banner if applicable */}
+          {!passState.canEdit && passState.activePass === 'none' && (
+            <div className="p-4 bg-amber-50 border border-amber-200 rounded-2xl flex items-start justify-between gap-3 text-xs text-amber-800">
+              <div className="flex items-start gap-2.5">
+                <AlertTriangle className="w-4 h-4 text-amber-600 shrink-0 mt-0.5" />
+                <div>
+                  <strong className="font-bold">Crédit Pass Flash utilisé (1/1 PDF).</strong>
+                  <p className="text-amber-700 mt-0.5">
+                    Pour modifier à nouveau ce CV ou exporter une nouvelle version mise à jour, activez un Pass Pro ou achetez un nouveau crédit.
+                  </p>
+                </div>
+              </div>
+              <button
+                onClick={() => setShowPaymentModal(true)}
+                className="px-3 py-1.5 bg-amber-600 hover:bg-amber-700 text-white rounded-xl font-bold shrink-0 transition-colors cursor-pointer"
+              >
+                Prendre un Pass
+              </button>
+            </div>
+          )}
+
           {/* Step Progress Pills */}
           <div className="bg-white p-4 rounded-2xl border border-slate-200/80 shadow-2xs">
             <div className="flex items-center justify-between mb-2">
@@ -355,7 +444,7 @@ export const CVBuilder: React.FC<CVBuilderProps> = ({
                 <button
                   key={item.s}
                   onClick={() => setCurrentStep(item.s)}
-                  className={`px-2.5 py-1 rounded-lg transition-colors whitespace-nowrap ${
+                  className={`px-2.5 py-1 rounded-lg transition-colors whitespace-nowrap cursor-pointer ${
                     currentStep === item.s
                       ? 'bg-blue-600 text-white font-bold'
                       : currentStep > item.s

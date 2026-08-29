@@ -2,6 +2,7 @@ import React, { useState } from 'react';
 import Navbar from './components/Navbar';
 import CVPreview, { PRESET_COLORS } from './components/CVPreview';
 import { translations } from './utils/translations';
+import { exportCVToPDF } from './lib/pdf';
 
 /**
  * App.jsx - Application Principale CV-EN-LIGNE
@@ -115,25 +116,18 @@ export default function App() {
   const handleDownloadPdf = async () => {
     try {
       setIsDownloading(true);
-      const element = document.getElementById('cv-printable-document');
-      if (!element) return;
-
-      // Import dynamique de html2pdf.js ou utilisation de window.print() en fallback
-      if (typeof window !== 'undefined' && window.html2pdf) {
-        const opt = {
-          margin: 0,
-          filename: `${formData.fullName.replace(/\s+/g, '_')}_CV.pdf`,
-          image: { type: 'jpeg', quality: 0.98 },
-          html2canvas: { scale: 2.5, useCORS: true, letterRendering: true },
-          jsPDF: { unit: 'mm', format: 'a4', orientation: 'portrait' }
-        };
-        await window.html2pdf().set(opt).from(element).save();
-      } else {
-        // Fallback d'impression A4 haute résolution
+      const name = formData.fullName?.trim() || 'Alexandre_Martin';
+      const fileName = `${name.replace(/\s+/g, '_')}_CV.pdf`;
+      const success = await exportCVToPDF({
+        fileName,
+        elementId: 'cv-printable-document',
+      });
+      if (!success) {
         window.print();
       }
     } catch (err) {
       console.error('Erreur lors du téléchargement du PDF:', err);
+      window.print();
     } finally {
       setIsDownloading(false);
     }

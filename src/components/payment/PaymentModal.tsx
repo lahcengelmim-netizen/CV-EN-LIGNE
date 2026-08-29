@@ -2,16 +2,17 @@ import React, { useState } from 'react';
 import { CVData, LanguageCode, PlanType } from '../../types';
 import { translations } from '../../lib/translations';
 import { PRICING_PLANS, getPlanDetails } from '../../lib/pricingConfig';
-import { Check, ShieldCheck, CreditCard, Lock, Sparkles, Loader2, X, Star, Crown, Zap } from 'lucide-react';
+import { passService } from '../../lib/passService';
+import { Check, ShieldCheck, CreditCard, Lock, Sparkles, Loader2, X, Star, Crown, Zap, FileText } from 'lucide-react';
 import confetti from 'canvas-confetti';
 
 interface PaymentModalProps {
   isOpen: boolean;
   onClose: () => void;
   cvData?: CVData;
-  initialPlan?: PlanType;
+  initialPlan?: string;
   lang?: LanguageCode;
-  onSuccess: (planType?: PlanType) => void;
+  onSuccess: (planType?: string) => void;
 }
 
 export const PaymentModal: React.FC<PaymentModalProps> = ({
@@ -23,7 +24,7 @@ export const PaymentModal: React.FC<PaymentModalProps> = ({
   onSuccess
 }) => {
   const t = translations[lang] || translations.fr;
-  const [selectedPlan, setSelectedPlan] = useState<PlanType>(initialPlan);
+  const [selectedPlan, setSelectedPlan] = useState<string>(initialPlan);
   const [loading, setLoading] = useState(false);
   const [step, setStep] = useState<'checkout' | 'processing' | 'success'>('checkout');
   const [cardName, setCardName] = useState(cvData ? `${cvData.personalInfo.firstName} ${cvData.personalInfo.lastName}`.trim() : 'Alex Dupont');
@@ -60,7 +61,7 @@ export const PaymentModal: React.FC<PaymentModalProps> = ({
       }
 
       // Simulate ultra-secure token processing delay
-      await new Promise((r) => setTimeout(r, 1000));
+      await new Promise((r) => setTimeout(r, 800));
 
       // 2. Verify with Server
       const verifyRes = await fetch('/api/payment/verify', {
@@ -79,7 +80,13 @@ export const PaymentModal: React.FC<PaymentModalProps> = ({
         throw new Error('Échec de validation de la transaction.');
       }
 
-      // 3. Success Confetti
+      // 3. Activate pass locally & globally via passService
+      passService.activatePurchasedPass(selectedPlan, {
+        downloadCredits: verifyData.downloadCredits,
+        passExpiresAt: verifyData.subscriptionEnd
+      });
+
+      // 4. Success Confetti
       setStep('success');
       confetti({
         particleCount: 120,
@@ -89,7 +96,7 @@ export const PaymentModal: React.FC<PaymentModalProps> = ({
 
       setTimeout(() => {
         onSuccess(selectedPlan);
-      }, 1400);
+      }, 1200);
     } catch (err: any) {
       setError(err.message || 'Erreur de paiement. Veuillez réessayer.');
       setStep('checkout');
@@ -118,10 +125,10 @@ export const PaymentModal: React.FC<PaymentModalProps> = ({
           </div>
 
           <h3 className="text-xl sm:text-2xl font-black tracking-tight text-white">
-            Finalisez votre accès professionnel
+            Choisissez votre Pass de Téléchargement
           </h3>
           <p className="text-xs text-slate-300 mt-1">
-            Téléchargez vos CVs au format PDF A4 Haute Définition sans filigrane
+            Téléchargez vos CVs au format PDF A4 Haute Définition vectoriel sans filigrane
           </p>
         </div>
 
@@ -129,65 +136,85 @@ export const PaymentModal: React.FC<PaymentModalProps> = ({
         <div className="p-6 space-y-5">
           {step === 'checkout' && (
             <form onSubmit={handlePay} className="space-y-5">
-              {/* Plan Selection Tabs */}
+              {/* Plan Selection Tabs - 4 Distinct Plans */}
               <div className="space-y-2">
                 <label className="block text-xs font-bold text-slate-700 uppercase tracking-wider">
                   Sélectionnez votre formule :
                 </label>
                 
-                <div className="grid grid-cols-3 gap-2">
-                  {/* Single CV / Pass Flash */}
+                <div className="grid grid-cols-2 sm:grid-cols-4 gap-2">
+                  {/* 1. Pass Flash ($1.99 - 1 Credit) */}
                   <button
                     type="button"
                     onClick={() => setSelectedPlan('single_cv')}
-                    className={`p-3 rounded-2xl border-2 text-left transition-all relative flex flex-col justify-between ${
-                      selectedPlan === 'single_cv'
-                        ? 'border-blue-600 bg-blue-50/50 shadow-xs'
+                    className={`p-2.5 rounded-2xl border-2 text-left transition-all relative flex flex-col justify-between cursor-pointer ${
+                      selectedPlan === 'single_cv' || selectedPlan === 'flash'
+                        ? 'border-blue-600 bg-blue-50/70 shadow-xs'
                         : 'border-slate-200 bg-slate-50/70 hover:border-slate-300'
                     }`}
                   >
                     <div>
-                      <div className="text-[11px] font-bold text-slate-900">Pass Flash</div>
-                      <div className="text-base font-black text-blue-700 mt-0.5">$1.99</div>
+                      <div className="text-[11px] font-bold text-slate-900 leading-tight">Pass Flash</div>
+                      <div className="text-sm font-black text-blue-700 mt-0.5">$1.99</div>
                     </div>
-                    <div className="text-[10px] text-slate-500 mt-1">Sans abonnement</div>
+                    <div className="text-[9px] text-slate-500 mt-1 font-medium leading-tight">1 CV (1 PDF)</div>
                   </button>
 
-                  {/* Monthly */}
+                  {/* 2. Pass Pro 7 Jours ($3.99 - Unlimited 7 Days) */}
+                  <button
+                    type="button"
+                    onClick={() => setSelectedPlan('pro')}
+                    className={`p-2.5 rounded-2xl border-2 text-left transition-all relative flex flex-col justify-between cursor-pointer ${
+                      selectedPlan === 'pro'
+                        ? 'border-indigo-600 bg-indigo-50/70 shadow-xs ring-1 ring-indigo-500'
+                        : 'border-slate-200 bg-slate-50/70 hover:border-slate-300'
+                    }`}
+                  >
+                    <span className="absolute -top-2.5 right-1.5 px-1.5 py-0.5 rounded bg-indigo-600 text-white font-black text-[7px] uppercase tracking-wider shadow-2xs">
+                      PRO 7J
+                    </span>
+                    <div>
+                      <div className="text-[11px] font-bold text-slate-900 leading-tight">Pass Pro</div>
+                      <div className="text-sm font-black text-indigo-700 mt-0.5">$3.99</div>
+                    </div>
+                    <div className="text-[9px] text-indigo-600 font-semibold mt-1 leading-tight">7 jours illimités</div>
+                  </button>
+
+                  {/* 3. Monthly ($7.99) */}
                   <button
                     type="button"
                     onClick={() => setSelectedPlan('monthly')}
-                    className={`p-3 rounded-2xl border-2 text-left transition-all relative flex flex-col justify-between ${
+                    className={`p-2.5 rounded-2xl border-2 text-left transition-all relative flex flex-col justify-between cursor-pointer ${
                       selectedPlan === 'monthly'
-                        ? 'border-blue-600 bg-blue-50/50 shadow-xs'
+                        ? 'border-blue-600 bg-blue-50/70 shadow-xs'
                         : 'border-slate-200 bg-slate-50/70 hover:border-slate-300'
                     }`}
                   >
                     <div>
-                      <div className="text-[11px] font-bold text-slate-900">Pass Mensuel</div>
-                      <div className="text-base font-black text-blue-700 mt-0.5">$7.99</div>
+                      <div className="text-[11px] font-bold text-slate-900 leading-tight">Pass Mensuel</div>
+                      <div className="text-sm font-black text-blue-700 mt-0.5">$7.99</div>
                     </div>
-                    <div className="text-[10px] text-slate-500 mt-1">Illimité / mois</div>
+                    <div className="text-[9px] text-slate-500 mt-1 leading-tight">Illimité / mois</div>
                   </button>
 
-                  {/* Yearly */}
+                  {/* 4. Yearly ($39.99) */}
                   <button
                     type="button"
                     onClick={() => setSelectedPlan('yearly')}
-                    className={`p-3 rounded-2xl border-2 text-left transition-all relative flex flex-col justify-between ${
-                      selectedPlan === 'yearly'
-                        ? 'border-amber-500 bg-amber-50/50 shadow-xs'
+                    className={`p-2.5 rounded-2xl border-2 text-left transition-all relative flex flex-col justify-between cursor-pointer ${
+                      selectedPlan === 'yearly' || selectedPlan === 'annual'
+                        ? 'border-amber-500 bg-amber-50/70 shadow-xs'
                         : 'border-slate-200 bg-slate-50/70 hover:border-slate-300'
                     }`}
                   >
-                    <span className="absolute -top-2.5 right-2 px-1.5 py-0.5 rounded bg-amber-500 text-slate-950 font-black text-[8px] uppercase tracking-wider shadow-2xs">
+                    <span className="absolute -top-2.5 right-1 px-1 py-0.5 rounded bg-amber-500 text-slate-950 font-black text-[7px] uppercase tracking-wider shadow-2xs">
                       -50%
                     </span>
                     <div>
-                      <div className="text-[11px] font-bold text-slate-900">Pass Annuel</div>
-                      <div className="text-base font-black text-amber-600 mt-0.5">$39.99</div>
+                      <div className="text-[11px] font-bold text-slate-900 leading-tight">Pass Annuel</div>
+                      <div className="text-sm font-black text-amber-600 mt-0.5">$39.99</div>
                     </div>
-                    <div className="text-[10px] text-amber-700 font-semibold mt-1">~$3.33/mois</div>
+                    <div className="text-[9px] text-amber-700 font-semibold mt-1 leading-tight">1 An (~$3.3/m)</div>
                   </button>
                 </div>
               </div>
@@ -198,10 +225,12 @@ export const PaymentModal: React.FC<PaymentModalProps> = ({
                   <div>
                     <div className="font-bold text-xs text-slate-900 flex items-center gap-1.5">
                       {selectedPlan === 'yearly' && <Crown className="w-3.5 h-3.5 text-amber-600" />}
+                      {selectedPlan === 'pro' && <Star className="w-3.5 h-3.5 text-indigo-600 fill-indigo-600" />}
                       {selectedPlan === 'monthly' && <Zap className="w-3.5 h-3.5 text-blue-600" />}
+                      {selectedPlan === 'single_cv' && <FileText className="w-3.5 h-3.5 text-slate-700" />}
                       {currentPlan.name}
                     </div>
-                    <div className="text-[11px] text-slate-500">{currentPlan.description}</div>
+                    <div className="text-[11px] text-slate-500 mt-0.5">{currentPlan.description}</div>
                   </div>
                   <div className="text-right shrink-0">
                     <div className="text-xl font-black text-slate-900">{currentPlan.priceDisplay}</div>
@@ -209,13 +238,23 @@ export const PaymentModal: React.FC<PaymentModalProps> = ({
                   </div>
                 </div>
 
-                <div className="border-t border-slate-200/80 pt-2.5 space-y-1 text-xs text-slate-600">
+                <div className="border-t border-slate-200/80 pt-2.5 space-y-1.5 text-xs text-slate-600">
                   {currentPlan.features.slice(0, 4).map((f, i) => (
                     <div key={i} className="flex items-center gap-2">
                       <Check className="w-3.5 h-3.5 text-emerald-600 shrink-0" />
                       <span>{f}</span>
                     </div>
                   ))}
+                  {currentPlan.notIncluded && currentPlan.notIncluded.length > 0 && (
+                    <div className="border-t border-slate-200/50 pt-1.5 space-y-1 text-slate-400">
+                      {currentPlan.notIncluded.map((nf, i) => (
+                        <div key={i} className="flex items-center gap-2 text-[11px]">
+                          <X className="w-3.5 h-3.5 text-slate-400 shrink-0" />
+                          <span>{nf}</span>
+                        </div>
+                      ))}
+                    </div>
+                  )}
                 </div>
               </div>
 
@@ -287,6 +326,8 @@ export const PaymentModal: React.FC<PaymentModalProps> = ({
                 className={`w-full py-3.5 px-6 rounded-2xl font-bold text-sm shadow-md hover:shadow-lg transition-all flex items-center justify-center gap-2 cursor-pointer ${
                   selectedPlan === 'yearly'
                     ? 'bg-gradient-to-r from-amber-500 to-amber-600 text-slate-950 hover:from-amber-400 hover:to-amber-500'
+                    : selectedPlan === 'pro'
+                    ? 'bg-gradient-to-r from-indigo-600 to-blue-600 hover:from-indigo-700 hover:to-blue-700 text-white'
                     : 'bg-gradient-to-r from-blue-600 to-indigo-600 hover:from-blue-700 hover:to-indigo-700 text-white'
                 }`}
               >
@@ -296,7 +337,7 @@ export const PaymentModal: React.FC<PaymentModalProps> = ({
 
               <div className="text-center text-[11px] text-slate-400 flex items-center justify-center gap-1">
                 <ShieldCheck className="w-3.5 h-3.5 text-emerald-600" />
-                <span>Satisfied or Refunded (14 days) • 100% Secure Payment (SSL)</span>
+                <span>Satisfait ou Remboursé (14 jours) • 100% Sécurisé (SSL)</span>
               </div>
             </form>
           )}
@@ -308,7 +349,7 @@ export const PaymentModal: React.FC<PaymentModalProps> = ({
                 Traitement sécurisé ({currentPlan.priceDisplay})...
               </div>
               <p className="text-xs text-slate-500 max-w-xs">
-                Vérification bancaire et activation instantanée de vos fonctionnalités...
+                Vérification bancaire et activation instantanée de vos crédits de téléchargement...
               </p>
             </div>
           )}
@@ -321,7 +362,7 @@ export const PaymentModal: React.FC<PaymentModalProps> = ({
               <div>
                 <h4 className="text-xl font-black text-slate-900">Paiement validé avec succès !</h4>
                 <p className="text-xs text-slate-500 mt-1">
-                  Votre formule <strong>{currentPlan.name}</strong> est désormais active. Vos téléchargements HD sont débloqués.
+                  Votre formule <strong>{currentPlan.name}</strong> est désormais active. Votre téléchargement démarre immédiatement.
                 </p>
               </div>
             </div>

@@ -11,8 +11,20 @@ export type TemplateId =
   | 'corporate'
   | 'classic';
 
-export type PlanType = 'free' | 'single_cv' | 'monthly' | 'yearly';
+export type PlanType = 'free' | 'single_cv' | 'flash' | 'pro' | 'monthly' | 'yearly' | 'annual';
+export type PassType = 'none' | 'flash' | 'pro' | 'monthly' | 'annual' | 'single_cv' | 'yearly';
 export type SubscriptionStatus = 'active' | 'expired' | 'canceled' | 'none';
+
+export interface UserPassState {
+  activePass: PassType;
+  downloadCredits: number; // 1 for flash, 999999 for pro/monthly/annual, 0 for none/consumed
+  passExpiresAt?: string | null;
+  unlockedCoverLetters: boolean;
+  totalDownloads: number;
+  isUnlimited: boolean;
+  canDownload: boolean;
+  canEdit: boolean;
+}
 
 export type LanguageCode = 'en' | 'fr' | 'ar' | 'es' | 'de' | 'it' | 'pt' | 'zh';
 
@@ -150,9 +162,13 @@ export interface UserProfile {
   skills?: string[];
   coverLetterUsageCount: number;
   plan: PlanType;
+  activePass?: PassType;
+  downloadCredits?: number;
   subscriptionStatus: SubscriptionStatus;
   subscriptionStart?: string;
   subscriptionEnd?: string;
+  passExpiresAt?: string;
+  canEdit?: boolean;
 }
 
 export interface AIImprovementResult {
@@ -171,9 +187,12 @@ export interface AdminUser {
   lastName: string;
   createdAt: string;
   plan: PlanType;
+  activePass?: PassType;
+  downloadCredits?: number;
   subscriptionStatus: SubscriptionStatus;
   subscriptionStart?: string;
   subscriptionEnd?: string;
+  passExpiresAt?: string;
   cvCount: number;
   status: 'active' | 'suspended';
   role: 'user' | 'admin';

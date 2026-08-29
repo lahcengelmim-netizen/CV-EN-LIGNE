@@ -1,4 +1,4 @@
-import React, { useState, useRef, useEffect } from 'react';
+import React, { useState } from 'react';
 import { TemplateDefinition } from '../../lib/templatesData';
 import { TemplateId, LanguageCode } from '../../types';
 import { CVRenderer } from './CVRenderer';
@@ -6,11 +6,8 @@ import {
   Eye,
   ArrowRight,
   ShieldCheck,
-  Sparkles,
   Maximize2,
-  Check,
-  Layers,
-  ChevronDown
+  Check
 } from 'lucide-react';
 
 interface TemplateCardProps {
@@ -27,38 +24,13 @@ export const TemplateCard: React.FC<TemplateCardProps> = ({
   lang = 'fr'
 }) => {
   const [isHovered, setIsHovered] = useState(false);
-  const [showFullHoverPreview, setShowFullHoverPreview] = useState(false);
-  const hoverTimeoutRef = useRef<NodeJS.Timeout | null>(null);
   const sample = template.sampleCV;
-
-  // Debounce hover entrance/exit slightly to prevent rapid flickering on fast mouse movements
-  const handleMouseEnter = () => {
-    setIsHovered(true);
-    if (hoverTimeoutRef.current) clearTimeout(hoverTimeoutRef.current);
-    hoverTimeoutRef.current = setTimeout(() => {
-      setShowFullHoverPreview(true);
-    }, 150);
-  };
-
-  const handleMouseLeave = () => {
-    setIsHovered(false);
-    if (hoverTimeoutRef.current) clearTimeout(hoverTimeoutRef.current);
-    hoverTimeoutRef.current = setTimeout(() => {
-      setShowFullHoverPreview(false);
-    }, 100);
-  };
-
-  useEffect(() => {
-    return () => {
-      if (hoverTimeoutRef.current) clearTimeout(hoverTimeoutRef.current);
-    };
-  }, []);
 
   return (
     <div
-      onMouseEnter={handleMouseEnter}
-      onMouseLeave={handleMouseLeave}
-      className={`bg-white rounded-2xl border transition-all duration-200 flex flex-col justify-between overflow-visible group relative ${
+      onMouseEnter={() => setIsHovered(true)}
+      onMouseLeave={() => setIsHovered(false)}
+      className={`bg-white rounded-2xl border transition-all duration-200 flex flex-col justify-between overflow-hidden group relative ${
         isHovered
           ? 'border-blue-600 shadow-lg'
           : 'border-slate-200/90 shadow-2xs hover:border-slate-300'
@@ -108,14 +80,14 @@ export const TemplateCard: React.FC<TemplateCardProps> = ({
             </div>
 
             {/* Hover Quick Action Overlay */}
-            <div className="absolute inset-0 bg-slate-950/45 backdrop-blur-[2px] opacity-0 group-hover/preview:opacity-100 transition-all duration-200 flex flex-col items-center justify-center gap-2 p-3 z-10">
+            <div className="absolute inset-0 bg-slate-950/45 backdrop-blur-[2px] opacity-0 group-hover/preview:opacity-100 transition-opacity duration-200 flex flex-col items-center justify-center gap-2 p-3 z-10">
               <button
                 type="button"
                 onClick={(e) => {
                   e.stopPropagation();
                   onInspectTemplate(template.id);
                 }}
-                className="w-full max-w-[170px] py-2 bg-white hover:bg-slate-50 text-slate-900 font-bold text-xs rounded-xl shadow-lg flex items-center justify-center gap-1.5 transition-transform transform scale-95 group-hover/preview:scale-100 cursor-pointer"
+                className="w-full max-w-[170px] py-2 bg-white hover:bg-slate-50 text-slate-900 font-bold text-xs rounded-xl shadow-lg flex items-center justify-center gap-1.5 transition-colors cursor-pointer"
               >
                 <Maximize2 className="w-3.5 h-3.5 text-blue-600" />
                 <span>Aperçu Plein Écran</span>
@@ -127,7 +99,7 @@ export const TemplateCard: React.FC<TemplateCardProps> = ({
                   e.stopPropagation();
                   onSelectTemplate(template.id, template.defaultColor);
                 }}
-                className="w-full max-w-[170px] py-2 bg-blue-600 hover:bg-blue-700 text-white font-bold text-xs rounded-xl shadow-lg flex items-center justify-center gap-1.5 transition-transform transform scale-95 group-hover/preview:scale-100 cursor-pointer"
+                className="w-full max-w-[170px] py-2 bg-blue-600 hover:bg-blue-700 text-white font-bold text-xs rounded-xl shadow-lg flex items-center justify-center gap-1.5 transition-colors cursor-pointer"
               >
                 <Check className="w-3.5 h-3.5 text-white" />
                 <span>Choisir ce modèle</span>
@@ -187,75 +159,6 @@ export const TemplateCard: React.FC<TemplateCardProps> = ({
           <ArrowRight className="w-3 h-3 group-hover:translate-x-0.5 transition-transform" />
         </button>
       </div>
-
-      {/* --- DESKTOP HOVER FULL-DOCUMENT POPUP PANEL (100% COMPLETE A4 PREVIEW) --- */}
-      {showFullHoverPreview && (
-        <div
-          className="hidden lg:block absolute left-1/2 -translate-x-1/2 top-[-15px] z-50 w-[420px] bg-slate-900/95 backdrop-blur-md rounded-2xl shadow-2xl border border-slate-700/80 p-3.5 text-white animate-in fade-in zoom-in-95 duration-200 pointer-events-auto"
-          style={{
-            boxShadow: '0 25px 50px -12px rgba(0, 0, 0, 0.5), 0 0 0 1px rgba(255, 255, 255, 0.1)'
-          }}
-        >
-          {/* Header Bar with Template Name & Actions */}
-          <div className="flex items-center justify-between pb-2.5 mb-2.5 border-b border-slate-800">
-            <div className="flex items-center gap-2">
-              <div
-                className="w-3.5 h-3.5 rounded-full ring-2 ring-white/20"
-                style={{ backgroundColor: template.defaultColor }}
-              />
-              <span className="font-extrabold text-xs tracking-tight text-white">
-                {template.name} • Aperçu Intégral A4
-              </span>
-            </div>
-            <span className="text-[10px] font-bold bg-emerald-500/20 text-emerald-300 px-2 py-0.5 rounded-full border border-emerald-500/30">
-              ATS {template.atsScore}%
-            </span>
-          </div>
-
-          {/* Scaled Full Document Frame (Complete A4 Document, 100% Uncropped) */}
-          <div className="relative bg-slate-100 rounded-xl overflow-y-auto max-h-[460px] border border-slate-700 shadow-inner flex justify-center p-2 no-scrollbar">
-            <div
-              className="bg-white shadow-xl rounded-md overflow-hidden origin-top"
-              style={{
-                width: '210mm',
-                minHeight: '297mm',
-                transform: 'scale(0.48)',
-                transformOrigin: 'top center',
-                marginBottom: '-580px' // Compensate for scaled height to ensure tight container bounding
-              }}
-            >
-              <CVRenderer
-                data={{
-                  ...sample,
-                  templateId: template.id
-                }}
-                showWatermark={false}
-              />
-            </div>
-          </div>
-
-          {/* Sticky Footer Actions Inside Hover Panel */}
-          <div className="pt-3 mt-2.5 border-t border-slate-800 flex items-center gap-2">
-            <button
-              type="button"
-              onClick={() => onInspectTemplate(template.id)}
-              className="flex-1 py-2 bg-slate-800 hover:bg-slate-700 text-slate-200 rounded-xl text-xs font-bold transition-colors flex items-center justify-center gap-1.5 cursor-pointer"
-            >
-              <Maximize2 className="w-3.5 h-3.5 text-slate-400" />
-              <span>Agrandir / Zoom</span>
-            </button>
-
-            <button
-              type="button"
-              onClick={() => onSelectTemplate(template.id, template.defaultColor)}
-              className="flex-1 py-2 bg-blue-600 hover:bg-blue-500 text-white rounded-xl text-xs font-extrabold shadow-lg transition-all flex items-center justify-center gap-1.5 cursor-pointer"
-            >
-              <Check className="w-3.5 h-3.5" />
-              <span>Choisir ce modèle</span>
-            </button>
-          </div>
-        </div>
-      )}
     </div>
   );
 };

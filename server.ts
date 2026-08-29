@@ -45,7 +45,13 @@ export interface ServerUserRecord {
   firstName: string;
   lastName: string;
   createdAt: string;
-  plan: 'free' | 'single_cv' | 'monthly' | 'yearly';
+  plan: 'free' | 'single_cv' | 'flash' | 'pro' | 'monthly' | 'yearly' | 'annual';
+  activePass: 'none' | 'flash' | 'pro' | 'monthly' | 'annual' | 'single_cv' | 'yearly';
+  downloadCredits: number;
+  passExpiresAt?: string;
+  totalDownloads: number;
+  unlockedCoverLetters: boolean;
+  canEdit: boolean;
   subscriptionStatus: 'none' | 'active' | 'expired' | 'trial';
   subscriptionStart?: string;
   subscriptionEnd?: string;
@@ -63,7 +69,7 @@ export interface ServerPaymentRecord {
   userName: string;
   cvId?: string;
   cvTitle?: string;
-  planType: 'single_cv' | 'monthly' | 'yearly';
+  planType: 'single_cv' | 'flash' | 'pro' | 'monthly' | 'yearly' | 'annual';
   planName: string;
   amount: number;
   currency: string;
@@ -114,6 +120,12 @@ const serverUsers: ServerUserRecord[] = [
     lastName: 'Gelmim',
     createdAt: new Date(Date.now() - 60 * 86400000).toISOString(),
     plan: 'yearly',
+    activePass: 'annual',
+    downloadCredits: 999999,
+    passExpiresAt: new Date(Date.now() + 305 * 86400000).toISOString(),
+    totalDownloads: 14,
+    unlockedCoverLetters: true,
+    canEdit: true,
     subscriptionStatus: 'active',
     subscriptionStart: new Date(Date.now() - 60 * 86400000).toISOString(),
     subscriptionEnd: new Date(Date.now() + 305 * 86400000).toISOString(),
@@ -129,6 +141,12 @@ const serverUsers: ServerUserRecord[] = [
     lastName: 'Laurent',
     createdAt: new Date(Date.now() - 15 * 86400000).toISOString(),
     plan: 'monthly',
+    activePass: 'monthly',
+    downloadCredits: 999999,
+    passExpiresAt: new Date(Date.now() + 15 * 86400000).toISOString(),
+    totalDownloads: 5,
+    unlockedCoverLetters: true,
+    canEdit: true,
     subscriptionStatus: 'active',
     subscriptionStart: new Date(Date.now() - 15 * 86400000).toISOString(),
     subscriptionEnd: new Date(Date.now() + 15 * 86400000).toISOString(),
@@ -144,6 +162,11 @@ const serverUsers: ServerUserRecord[] = [
     lastName: 'Benali',
     createdAt: new Date(Date.now() - 8 * 86400000).toISOString(),
     plan: 'single_cv',
+    activePass: 'flash',
+    downloadCredits: 0, // Consumed single download
+    totalDownloads: 1,
+    unlockedCoverLetters: false,
+    canEdit: false, // Flash pass already consumed
     subscriptionStatus: 'none',
     cvCount: 1,
     status: 'active',
@@ -157,6 +180,11 @@ const serverUsers: ServerUserRecord[] = [
     lastName: 'Dupont',
     createdAt: new Date(Date.now() - 3 * 86400000).toISOString(),
     plan: 'free',
+    activePass: 'none',
+    downloadCredits: 0,
+    totalDownloads: 0,
+    unlockedCoverLetters: false,
+    canEdit: true,
     subscriptionStatus: 'none',
     cvCount: 1,
     status: 'active',
@@ -170,6 +198,12 @@ const serverUsers: ServerUserRecord[] = [
     lastName: 'Martin',
     createdAt: new Date(Date.now() - 40 * 86400000).toISOString(),
     plan: 'monthly',
+    activePass: 'none',
+    downloadCredits: 0,
+    passExpiresAt: new Date(Date.now() - 10 * 86400000).toISOString(),
+    totalDownloads: 3,
+    unlockedCoverLetters: false,
+    canEdit: true,
     subscriptionStatus: 'expired',
     subscriptionStart: new Date(Date.now() - 40 * 86400000).toISOString(),
     subscriptionEnd: new Date(Date.now() - 10 * 86400000).toISOString(),
@@ -690,26 +724,30 @@ Réponds STRICTEMENT en JSON :
   }
 });
 
-// 5. Payment Order Creation & Verification (Tiered Pricing: $2.00 / $9.90 / $29.90)
+// 5. Payment Order Creation & Verification (Pass Flash $1.99 / Pass Pro 7J $3.99 / Monthly $7.99 / Annual $39.99)
 app.post('/api/payment/create-order', (req: Request, res: Response) => {
   try {
     const { cvId, cvTitle, userId, userEmail, userName, planType = 'single_cv' } = req.body;
 
-    let amount = 2.00;
-    let planName = '1 CV Complet';
-    let description = 'Téléchargement HD PDF A4 & modifications illimitées pour 1 CV';
+    let amount = 1.99;
+    let planName = 'Pass Flash (1 Téléchargement)';
+    let description = 'Téléchargement de 1 CV PDF HD A4 sans filigrane (Crédit = 1 PDF)';
 
-    if (planType === 'monthly') {
-      amount = 9.90;
+    if (planType === 'pro') {
+      amount = 3.99;
+      planName = 'Pass Pro (7 Jours)';
+      description = 'Téléchargements illimités pendant 7 jours + Lettres de Motivation incluses';
+    } else if (planType === 'monthly') {
+      amount = 7.99;
       planName = 'Pass Mensuel Illimité';
-      description = 'Création illimitée de CVs, accès permanent à tous les modèles & IA illimitée';
-    } else if (planType === 'yearly') {
-      amount = 29.90;
-      planName = 'Pass Annuel Pro (Meilleure Offre)';
-      description = 'Accès illimité pendant 1 an complet (365 jours) - Économisez 75%';
+      description = 'Création & téléchargements illimités de CVs + Lettres de motivation incluses';
+    } else if (planType === 'yearly' || planType === 'annual') {
+      amount = 39.99;
+      planName = 'Pass Annuel Pro (Économisez 50%)';
+      description = 'Accès illimité pendant 1 an complet (365 jours) - Tous modèles et outils';
     } else {
-      amount = serverSettings.cvPrice || 2.00;
-      planName = '1 CV Complet';
+      amount = 1.99;
+      planName = 'Pass Flash (1 Téléchargement)';
     }
 
     const currency = serverSettings.currency || 'USD';
@@ -719,7 +757,7 @@ app.post('/api/payment/create-order', (req: Request, res: Response) => {
       success: true,
       orderId,
       cvId: cvId || 'all_cvs',
-      cvTitle: cvTitle || (planType === 'single_cv' ? 'CV Professionnel' : planName),
+      cvTitle: cvTitle || (planType === 'single_cv' || planType === 'flash' ? 'CV Professionnel' : planName),
       planType,
       planName,
       amount,
@@ -748,21 +786,40 @@ app.post('/api/payment/verify', (req: Request, res: Response) => {
       return res.status(400).json({ error: 'Identifiant de commande manquant.' });
     }
 
-    let amount = 2.00;
-    let planName = '1 CV Complet';
+    let amount = 1.99;
+    let planName = 'Pass Flash (1 Téléchargement)';
     let subscriptionDurationDays = 0;
+    let activePass: 'flash' | 'pro' | 'monthly' | 'annual' = 'flash';
+    let downloadCredits = 1;
+    let unlockedCoverLetters = false;
 
-    if (planType === 'monthly') {
-      amount = 9.90;
+    if (planType === 'pro') {
+      amount = 3.99;
+      planName = 'Pass Pro (7 Jours)';
+      subscriptionDurationDays = 7;
+      activePass = 'pro';
+      downloadCredits = 999999;
+      unlockedCoverLetters = true;
+    } else if (planType === 'monthly') {
+      amount = 7.99;
       planName = 'Pass Mensuel Illimité';
       subscriptionDurationDays = 30;
-    } else if (planType === 'yearly') {
-      amount = 29.90;
+      activePass = 'monthly';
+      downloadCredits = 999999;
+      unlockedCoverLetters = true;
+    } else if (planType === 'yearly' || planType === 'annual') {
+      amount = 39.99;
       planName = 'Pass Annuel Pro';
       subscriptionDurationDays = 365;
+      activePass = 'annual';
+      downloadCredits = 999999;
+      unlockedCoverLetters = true;
     } else {
-      amount = serverSettings.cvPrice || 2.00;
-      planName = '1 CV Complet';
+      amount = 1.99;
+      planName = 'Pass Flash (1 Téléchargement)';
+      activePass = 'flash';
+      downloadCredits = 1;
+      unlockedCoverLetters = false;
     }
 
     const targetCvId = cvId || 'cv_unlimited';
@@ -791,7 +848,7 @@ app.post('/api/payment/verify', (req: Request, res: Response) => {
     serverPayments.unshift(newPaymentRecord);
 
     // Update or create user record in server database
-    let userRecord = serverUsers.find(u => u.id === userId || (userEmail && u.email.toLowerCase() === userEmail.toLowerCase()));
+    let userRecord = serverUsers.find(u => (userId && userId !== 'guest' && u.id === userId) || (userEmail && u.email.toLowerCase() === userEmail.toLowerCase()));
     const subscriptionStart = now.toISOString();
     const subscriptionEnd = subscriptionDurationDays > 0 
       ? new Date(now.getTime() + subscriptionDurationDays * 86400000).toISOString()
@@ -799,17 +856,28 @@ app.post('/api/payment/verify', (req: Request, res: Response) => {
 
     if (userRecord) {
       userRecord.plan = planType as any;
+      userRecord.activePass = activePass;
+      userRecord.downloadCredits = downloadCredits;
+      userRecord.unlockedCoverLetters = unlockedCoverLetters;
+      userRecord.canEdit = true;
+      userRecord.passExpiresAt = subscriptionEnd;
       userRecord.subscriptionStatus = subscriptionDurationDays > 0 ? 'active' : 'none';
       if (subscriptionStart) userRecord.subscriptionStart = subscriptionStart;
       if (subscriptionEnd) userRecord.subscriptionEnd = subscriptionEnd;
-    } else if (userEmail) {
+    } else if (userEmail || (userId && userId !== 'guest')) {
       serverUsers.unshift({
         id: userId || 'usr_' + Math.random().toString(36).substring(2, 9),
-        email: userEmail,
+        email: userEmail || 'user@example.com',
         firstName: userName.split(' ')[0] || 'Utilisateur',
         lastName: userName.split(' ').slice(1).join(' ') || '',
         createdAt: now.toISOString(),
         plan: planType as any,
+        activePass,
+        downloadCredits,
+        passExpiresAt: subscriptionEnd,
+        totalDownloads: 0,
+        unlockedCoverLetters,
+        canEdit: true,
         subscriptionStatus: subscriptionDurationDays > 0 ? 'active' : 'none',
         subscriptionStart,
         subscriptionEnd,
@@ -826,6 +894,8 @@ app.post('/api/payment/verify', (req: Request, res: Response) => {
       cvId: targetCvId,
       orderId,
       planType,
+      activePass,
+      downloadCredits,
       planName,
       reference,
       paidAt: newPaymentRecord.createdAt,
@@ -833,10 +903,173 @@ app.post('/api/payment/verify', (req: Request, res: Response) => {
       currency: newPaymentRecord.currency,
       verificationToken,
       subscriptionStart,
-      subscriptionEnd
+      subscriptionEnd,
+      unlockedCoverLetters,
+      canDownload: true
     });
   } catch (error: any) {
     res.status(500).json({ error: 'Échec de la validation du paiement.' });
+  }
+});
+
+// 5.b User Pass Status Verification Endpoint
+app.post('/api/user/pass-status', (req: Request, res: Response) => {
+  try {
+    const { userId, userEmail } = req.body;
+    const now = new Date().getTime();
+
+    let userRecord = serverUsers.find(u => (userId && userId !== 'guest' && u.id === userId) || (userEmail && u.email.toLowerCase() === userEmail.toLowerCase()));
+
+    if (!userRecord) {
+      return res.json({
+        success: true,
+        pass: {
+          activePass: 'none',
+          downloadCredits: 0,
+          passExpiresAt: null,
+          unlockedCoverLetters: false,
+          totalDownloads: 0,
+          isUnlimited: false,
+          canDownload: false,
+          canEdit: true
+        }
+      });
+    }
+
+    // Check expiration for time-based passes (pro, monthly, annual)
+    if (['pro', 'monthly', 'yearly', 'annual'].includes(userRecord.activePass)) {
+      if (userRecord.passExpiresAt) {
+        const expiryTime = new Date(userRecord.passExpiresAt).getTime();
+        if (now > expiryTime) {
+          userRecord.subscriptionStatus = 'expired';
+          userRecord.activePass = 'none';
+          userRecord.downloadCredits = 0;
+          userRecord.unlockedCoverLetters = false;
+        }
+      }
+    }
+
+    const isUnlimited = ['pro', 'monthly', 'yearly', 'annual'].includes(userRecord.activePass);
+    const canDownload = isUnlimited || userRecord.downloadCredits >= 1;
+    const canEdit = isUnlimited || userRecord.downloadCredits >= 1 || userRecord.activePass === 'none';
+
+    return res.json({
+      success: true,
+      pass: {
+        activePass: userRecord.activePass,
+        downloadCredits: userRecord.downloadCredits,
+        passExpiresAt: userRecord.passExpiresAt || null,
+        unlockedCoverLetters: userRecord.unlockedCoverLetters,
+        totalDownloads: userRecord.totalDownloads,
+        isUnlimited,
+        canDownload,
+        canEdit
+      }
+    });
+  } catch (error: any) {
+    res.status(500).json({ error: 'Erreur vérification du pass.' });
+  }
+});
+
+// 5.c Consume Download Credit Endpoint (Strict Backend Permission & Consumption)
+app.post('/api/user/consume-download', (req: Request, res: Response) => {
+  try {
+    const { userId, userEmail, currentPassType } = req.body;
+    const now = new Date().getTime();
+
+    let userRecord = serverUsers.find(u => (userId && userId !== 'guest' && u.id === userId) || (userEmail && u.email.toLowerCase() === userEmail.toLowerCase()));
+
+    // If no user record on server, use currentPassType if requested
+    if (!userRecord && currentPassType) {
+      if (currentPassType === 'flash' || currentPassType === 'single_cv') {
+        return res.json({
+          success: true,
+          remainingCredits: 0,
+          activePass: 'none',
+          canEdit: false,
+          message: 'Crédit Pass Flash consommé (1/1 PDF).'
+        });
+      } else if (['pro', 'monthly', 'yearly', 'annual'].includes(currentPassType)) {
+        return res.json({
+          success: true,
+          remainingCredits: 999999,
+          activePass: currentPassType,
+          isUnlimited: true,
+          canEdit: true
+        });
+      }
+    }
+
+    if (!userRecord) {
+      return res.status(403).json({
+        success: false,
+        requirePass: true,
+        error: 'Aucun pass actif trouvé. Veuillez choisir une formule pour télécharger.'
+      });
+    }
+
+    // 1. Check time-based passes
+    if (['pro', 'monthly', 'yearly', 'annual'].includes(userRecord.activePass)) {
+      if (userRecord.passExpiresAt) {
+        const expiryTime = new Date(userRecord.passExpiresAt).getTime();
+        if (now > expiryTime) {
+          userRecord.subscriptionStatus = 'expired';
+          userRecord.activePass = 'none';
+          userRecord.downloadCredits = 0;
+          return res.status(403).json({
+            success: false,
+            requirePass: true,
+            error: 'Votre Pass a expiré. Veuillez renouveler votre accès pour télécharger.'
+          });
+        }
+      }
+
+      userRecord.totalDownloads = (userRecord.totalDownloads || 0) + 1;
+      return res.json({
+        success: true,
+        remainingCredits: 999999,
+        activePass: userRecord.activePass,
+        isUnlimited: true,
+        canEdit: true,
+        totalDownloads: userRecord.totalDownloads
+      });
+    }
+
+    // 2. Check Pass Flash (Single purchase 1 credit)
+    if (userRecord.activePass === 'flash' || userRecord.activePass === 'single_cv') {
+      if (userRecord.downloadCredits >= 1) {
+        // Decrement credit from 1 to 0
+        userRecord.downloadCredits = 0;
+        userRecord.activePass = 'none'; // Pass is fully consumed
+        userRecord.canEdit = false; // Block further edits without new pass
+        userRecord.totalDownloads = (userRecord.totalDownloads || 0) + 1;
+
+        return res.json({
+          success: true,
+          remainingCredits: 0,
+          activePass: 'none',
+          canEdit: false,
+          totalDownloads: userRecord.totalDownloads,
+          message: 'Crédit Pass Flash utilisé (1/1 PDF consommé). Achetez un nouveau pass pour modifier ou télécharger à nouveau.'
+        });
+      } else {
+        return res.status(403).json({
+          success: false,
+          requirePass: true,
+          remainingCredits: 0,
+          error: 'Votre crédit de téléchargement Pass Flash a déjà été utilisé (1/1). Achetez un nouveau pass.'
+        });
+      }
+    }
+
+    // 3. No active pass or 0 credits
+    return res.status(403).json({
+      success: false,
+      requirePass: true,
+      error: 'Aucun pass actif ou crédit épuisé. Veuillez choisir une formule.'
+    });
+  } catch (error: any) {
+    res.status(500).json({ error: 'Erreur lors de la validation du téléchargement.' });
   }
 });
 

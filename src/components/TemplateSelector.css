@@ -1,6 +1,9 @@
 /* ==========================================================================
-   Conteneur Principal
+   TemplateSelector.css - Styles Stricts sans Zoom / Scale au Hover
+   Taille 100% Fixe, Aspect Ratio A4 et Transitions Subtiles
    ========================================================================== */
+
+/* Conteneur Principal de la Section */
 .template-selector-container {
   width: 100%;
   max-width: 1280px;
@@ -9,14 +12,16 @@
   box-sizing: border-box;
 }
 
+/* En-tête de Section */
 .template-selector-header {
   text-align: center;
-  margin-bottom: 40px;
+  margin-bottom: 36px;
 }
 
 .template-badge-pill {
   display: inline-flex;
   align-items: center;
+  gap: 6px;
   background-color: #eff6ff;
   color: #1d4ed8;
   font-size: 0.75rem;
@@ -51,7 +56,9 @@
 .template-grid {
   display: grid;
   grid-template-columns: 1fr;
-  gap: 28px;
+  gap: 24px;
+  width: 100%;
+  box-sizing: border-box;
 }
 
 @media (min-width: 640px) {
@@ -67,12 +74,15 @@
 }
 
 /* ==========================================================================
-   Carte du Template (Taille FIXE et STABLE, AUCUN scale/zoom au survol)
+   Carte du Template (Taille 100% FIXE et IMMOBILE au survol)
+   - AUCUN transform: scale(), zoom: ou agrandissement
+   - overflow: hidden pour éviter tout débordement
+   - transition uniquement sur la bordure et l'ombre
    ========================================================================== */
 .template-card {
   position: relative;
   background-color: #ffffff;
-  border-radius: 18px;
+  border-radius: 16px;
   border: 1px solid #e2e8f0;
   box-shadow: 0 1px 3px rgba(0, 0, 0, 0.04);
   padding: 12px;
@@ -80,27 +90,31 @@
   flex-direction: column;
   cursor: pointer;
   box-sizing: border-box;
-  /* Transition UNIQUEMENT sur la couleur de bordure et l'ombre (AUCUN transform: scale) */
+  overflow: hidden; /* Empêche tout dépassement de contenu */
+  width: 100%;
+  transform: none !important; /* Verrouille formellement la transformation */
   transition: border-color 0.2s ease, box-shadow 0.2s ease;
   user-select: none;
 }
 
-/* État au survol (Hover) : Bordure bleue professionnelle et ombre douce */
+/* Effet Survol (Hover) Subtil : Bordure bleue et ombre portée douce UNIQUEMENT */
 .template-card:hover {
   border-color: #2563eb;
-  box-shadow: 0 10px 25px -5px rgba(37, 99, 235, 0.12), 0 4px 6px -2px rgba(0, 0, 0, 0.03);
+  box-shadow: 0 10px 25px rgba(37, 99, 235, 0.15);
+  transform: none !important; /* Aucun zoom/agrandissement */
 }
 
-/* État Sélectionné : Bordure bleue épaisse et badge d'état */
+/* État Sélectionné : Bordure bleue active et halo discret */
 .template-card.selected {
   border-color: #2563eb;
   border-width: 2px;
-  padding: 11px; /* Compense la bordure de 2px sans saut de mise en page */
-  box-shadow: 0 0 0 1px #2563eb, 0 10px 20px -5px rgba(37, 99, 235, 0.15);
+  padding: 11px; /* Compense la bordure de 2px sans saut de dimensions */
+  box-shadow: 0 0 0 1px #2563eb, 0 10px 25px rgba(37, 99, 235, 0.18);
+  transform: none !important;
 }
 
 /* ==========================================================================
-   Badges et Tags
+   Badges et Indicateurs
    ========================================================================== */
 .selected-badge {
   position: absolute;
@@ -155,28 +169,29 @@
 }
 
 /* ==========================================================================
-   Cadre de Prévisualisation Ratio A4 Standard (1 / 1.414)
+   Cadre de Prévisualisation Ratio A4 Strict (1 / 1.414)
    ========================================================================== */
 .preview-a4-frame {
   position: relative;
   width: 100%;
-  aspect-ratio: 1 / 1.414; /* Ratio officiel A4 */
+  aspect-ratio: 1 / 1.414; /* Ratio exact A4 */
   background-color: #f1f5f9;
-  border-radius: 12px;
+  border-radius: 10px;
   border: 1px solid #e2e8f0;
-  overflow: hidden; /* Empêche tout débordement ou scrollbar */
+  overflow: hidden; /* Empêche tout débordement */
   display: flex;
   justify-content: center;
   align-items: flex-start;
+  box-sizing: border-box;
 }
 
-/* Document CV vectoriel réduit à l'échelle pour s'intégrer à 100% dans le cadre */
+/* Document CV réduit proportionnellement pour s'adapter au cadre A4 */
 .scaled-cv-wrapper {
   position: relative;
   width: 210mm;
   min-height: 297mm;
   background-color: #ffffff;
-  transform: scale(0.36);
+  transform: scale(0.35);
   transform-origin: top center;
   pointer-events: none;
   box-sizing: border-box;
@@ -185,18 +200,18 @@
 
 @media (min-width: 640px) and (max-width: 1023px) {
   .scaled-cv-wrapper {
-    transform: scale(0.38);
+    transform: scale(0.37);
   }
 }
 
 @media (min-width: 1024px) {
   .scaled-cv-wrapper {
-    transform: scale(0.36);
+    transform: scale(0.35);
   }
 }
 
 /* ==========================================================================
-   Overlay d'Action au Survol (Hover Overlay)
+   Overlay d'Action au Survol (Hover Overlay sans aucun scale)
    ========================================================================== */
 .hover-overlay {
   position: absolute;
@@ -210,6 +225,7 @@
   transition: opacity 0.2s ease-in-out;
   z-index: 8;
   padding: 16px;
+  border-radius: 10px;
 }
 
 .template-card:hover .hover-overlay {
@@ -230,8 +246,8 @@
   border: none;
   font-size: 0.82rem;
   font-weight: 700;
-  padding: 10px 16px;
-  border-radius: 10px;
+  padding: 9px 16px;
+  border-radius: 8px;
   cursor: pointer;
   box-shadow: 0 4px 12px rgba(0, 0, 0, 0.25);
   transition: background-color 0.15s ease;
@@ -250,7 +266,7 @@
   font-size: 0.8rem;
   font-weight: 700;
   padding: 8px 14px;
-  border-radius: 10px;
+  border-radius: 8px;
   cursor: pointer;
   box-shadow: 0 4px 10px rgba(0, 0, 0, 0.15);
   transition: background-color 0.15s ease;
@@ -266,19 +282,19 @@
    Pied de Carte & Typographie
    ========================================================================== */
 .template-card-footer {
-  padding-top: 14px;
-  padding-bottom: 4px;
+  padding-top: 12px;
+  padding-bottom: 2px;
 }
 
 .template-header-row {
   display: flex;
   align-items: center;
   justify-content: space-between;
-  margin-bottom: 3px;
+  margin-bottom: 2px;
 }
 
 .template-name {
-  font-size: 0.95rem;
+  font-size: 0.92rem;
   font-weight: 800;
   color: #0f172a;
   margin: 0;
@@ -293,7 +309,7 @@
 }
 
 .template-desc {
-  font-size: 0.78rem;
+  font-size: 0.76rem;
   color: #64748b;
   margin: 0;
   line-height: 1.35;
