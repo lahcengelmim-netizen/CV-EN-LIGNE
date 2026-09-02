@@ -9,7 +9,17 @@ export type TemplateId =
   | 'ats'
   | 'elegant'
   | 'corporate'
-  | 'classic';
+  | 'classic'
+  | 'bold'
+  | 'compact'
+  | 'timeline'
+  | 'nordic'
+  | 'infographic'
+  | 'stockholm-modern'
+  | 'casablanca-bilingual'
+  | 'zurich-executive'
+  | 'dubai-luxury-rtl'
+  | 'silicon-tech';
 
 export type PlanType = 'free' | 'single_cv' | 'flash' | 'pro' | 'monthly' | 'yearly' | 'annual';
 export type PassType = 'none' | 'flash' | 'pro' | 'monthly' | 'annual' | 'single_cv' | 'yearly';
@@ -28,16 +38,42 @@ export interface UserPassState {
 
 export type LanguageCode = 'en' | 'fr' | 'ar' | 'es' | 'de' | 'it' | 'pt' | 'zh';
 
+export type SectionKey =
+  | 'personalInfo'
+  | 'summary'
+  | 'experience'
+  | 'education'
+  | 'skills'
+  | 'languages'
+  | 'certifications'
+  | 'projects'
+  | 'achievements'
+  | 'interests'
+  | 'references'
+  | 'custom';
+
+export interface ReferenceItem {
+  id: string;
+  name: string;
+  title: string;
+  company: string;
+  email?: string;
+  phone?: string;
+}
+
 export interface Experience {
   id: string;
   position: string;
+  jobTitle?: string;
   company: string;
   city: string;
+  location?: string;
   startDate: string;
   endDate: string;
   current: boolean;
   description: string;
   tasks: string[];
+  bullets?: string[];
 }
 
 export interface Education {
@@ -45,9 +81,11 @@ export interface Education {
   degree: string;
   institution: string;
   city: string;
+  location?: string;
   startDate: string;
   endDate: string;
   current: boolean;
+  grade?: string;
   description?: string;
 }
 
@@ -60,22 +98,29 @@ export interface Skill {
 export interface LanguageSkill {
   id: string;
   language: string;
+  name?: string;
   level: string; // e.g. "Langue maternelle", "Courant (C1)", "Intermédiaire (B2)", "Débutant (A2)"
+  cefr?: string;
 }
 
 export interface Certification {
   id: string;
   title: string;
+  name?: string;
   organization: string;
+  issuer?: string;
   date: string;
 }
 
 export interface Project {
   id: string;
   title: string;
+  name?: string;
   role?: string;
   link?: string;
   description: string;
+  date?: string;
+  technologies?: string[];
 }
 
 export interface PersonalInfo {
@@ -98,6 +143,10 @@ export interface CVTheme {
   secondaryColor?: string;
   fontFamily: 'sans' | 'serif' | 'mono';
   spacing: 'compact' | 'normal' | 'spacious';
+  margins?: 'compact' | 'normal' | 'wide';
+  lineSpacing?: 'compact' | 'normal' | 'spacious';
+  isRtl?: boolean;
+  sectionOrder?: SectionKey[];
   showPhoto: boolean;
 }
 
@@ -110,6 +159,7 @@ export interface CVSectionTitles {
   languages?: string;
   certifications?: string;
   projects?: string;
+  references?: string;
 }
 
 export interface CVData {
@@ -121,11 +171,16 @@ export interface CVData {
   personalInfo: PersonalInfo;
   summary: string;
   experiences: Experience[];
+  experience?: Experience[];
   educations: Education[];
+  education?: Education[];
   skills: Skill[];
   languages: LanguageSkill[];
   certifications: Certification[];
   projects: Project[];
+  references?: ReferenceItem[];
+  activeSections?: Record<string, boolean>;
+  design?: any;
   templateId: TemplateId;
   theme: CVTheme;
   isPaid: boolean;

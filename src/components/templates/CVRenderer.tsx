@@ -11,18 +11,41 @@ import { ATSTemplate } from './ATSTemplate';
 import { ElegantTemplate } from './ElegantTemplate';
 import { CorporateTemplate } from './CorporateTemplate';
 import { ClassicTemplate } from './ClassicTemplate';
+import { BoldTemplate } from './BoldTemplate';
+import { CompactTemplate } from './CompactTemplate';
+import { TimelineTemplate } from './TimelineTemplate';
+import { NordicTemplate } from './NordicTemplate';
+import { InfographicTemplate } from './InfographicTemplate';
+import { StockholmTemplate } from './StockholmTemplate';
+import { ZurichTemplate } from './ZurichTemplate';
+import { SiliconTemplate } from './SiliconTemplate';
 
-interface CVRendererProps {
-  data: CVData;
+export interface CVRendererProps {
+  data?: CVData;
+  cv?: CVData;
   showWatermark?: boolean;
   scale?: number;
+  zoom?: number;
+  id?: string;
+  className?: string;
 }
 
 export const CVRenderer: React.FC<CVRendererProps> = ({
   data,
+  cv,
   showWatermark = false,
-  scale = 1
+  scale = 1,
+  zoom,
+  id = 'cv-printable-document',
+  className = ''
 }) => {
+  const activeData = data || cv;
+  const effectiveScale = zoom !== undefined ? zoom : scale;
+
+  if (!activeData) {
+    return null;
+  }
+
   const templateMap: Record<TemplateId, React.FC<{ data: CVData }>> = {
     modern: ModernTemplate,
     minimal: MinimalTemplate,
@@ -35,23 +58,33 @@ export const CVRenderer: React.FC<CVRendererProps> = ({
     elegant: ElegantTemplate,
     corporate: CorporateTemplate,
     classic: ClassicTemplate,
+    bold: BoldTemplate,
+    compact: CompactTemplate,
+    timeline: TimelineTemplate,
+    nordic: NordicTemplate,
+    infographic: InfographicTemplate,
+    'stockholm-modern': StockholmTemplate,
+    'casablanca-bilingual': StockholmTemplate,
+    'zurich-executive': ZurichTemplate,
+    'dubai-luxury-rtl': ZurichTemplate,
+    'silicon-tech': SiliconTemplate,
   };
 
-  const SelectedTemplate = templateMap[data.templateId] || ModernTemplate;
+  const SelectedTemplate = templateMap[activeData.templateId] || ModernTemplate;
 
   // Watermark is only shown if explicitly asked or if not paid during draft preview
-  const isWatermarked = showWatermark && !data.isPaid;
+  const isWatermarked = showWatermark && !activeData.isPaid;
 
   return (
     <div 
-      id="cv-printable-document" 
-      className="cv-print-container relative bg-white transition-all select-text"
+      id={id} 
+      className={`cv-print-container relative bg-white transition-all select-text ${className}`}
       style={{
         width: '100%',
         maxWidth: '210mm',
         minHeight: '297mm',
         transformOrigin: 'top center',
-        ...(scale !== 1 ? { transform: `scale(${scale})` } : {})
+        ...(effectiveScale !== 1 ? { transform: `scale(${effectiveScale})` } : {})
       }}
     >
       {/* Draft watermark if previewing without payment */}
@@ -64,8 +97,7 @@ export const CVRenderer: React.FC<CVRendererProps> = ({
       )}
 
       {/* Render Template Pure RAW */}
-      <SelectedTemplate data={data} />
+      <SelectedTemplate data={activeData} />
     </div>
   );
 };
-

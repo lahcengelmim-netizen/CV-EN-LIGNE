@@ -27,15 +27,15 @@ export interface TemplateDefinition {
 }
 
 export const TEMPLATE_CATEGORIES: TemplateCategory[] = [
-  { id: 'all', name: 'Tous les modèles', shortName: 'Tous', count: 10 },
-  { id: 'modern', name: 'Moderne', shortName: 'Modern', count: 4 },
-  { id: 'minimal', name: 'Minimaliste', shortName: 'Minimal', count: 3 },
-  { id: 'professional', name: 'Professionnel & Finance', shortName: 'Professional', count: 3 },
-  { id: 'executive', name: 'Cadres & Direction', shortName: 'Executive', count: 2 },
-  { id: 'creative', name: 'Créatif & Marketing', shortName: 'Creative', count: 3 },
-  { id: 'tech', name: 'Tech & Développeurs', shortName: 'Tech', count: 3 },
+  { id: 'all', name: 'Tous les modèles (21)', shortName: 'Tous', count: 21 },
+  { id: 'modern', name: 'Moderne', shortName: 'Modern', count: 9 },
+  { id: 'minimal', name: 'Minimaliste & B&W', shortName: 'Minimal', count: 5 },
+  { id: 'professional', name: 'Professionnel & Finance', shortName: 'Professional', count: 7 },
+  { id: 'executive', name: 'Cadres & Direction', shortName: 'Executive', count: 6 },
+  { id: 'creative', name: 'Créatif & Marketing', shortName: 'Creative', count: 5 },
+  { id: 'tech', name: 'Tech & Développeurs', shortName: 'Tech', count: 6 },
   { id: 'student', name: 'Étudiants & Débutants', shortName: 'Student', count: 3 },
-  { id: 'ats', name: 'ATS Optimisé', shortName: 'ATS Friendly', count: 4 }
+  { id: 'ats', name: 'ATS Optimisé', shortName: 'ATS Friendly', count: 8 }
 ];
 
 export const TEMPLATES_CATALOG: TemplateDefinition[] = [
@@ -1178,6 +1178,1047 @@ export const TEMPLATES_CATALOG: TemplateDefinition[] = [
         showPhoto: false
       }
     }
+  },
+
+  {
+    id: 'bold',
+    name: '12. Bold Impact',
+    title: 'Design Affirmé & Énergique',
+    subtitle: 'Bandeau supérieur percutant et typographie moderne pour profils dynamiques',
+    badge: 'Tendance 2026',
+    badgeType: 'creative',
+    categories: ['all', 'modern', 'creative', 'tech'],
+    style: 'Bandeau géométrique coloré avec typographie bold et puces de validation',
+    typography: 'Plus Jakarta / Extra-Bold',
+    recommendedFor: 'Marketing, Startups, Product Management, Commerce & Communication',
+    recommendedRoles: ['Growth Marketer', 'Product Manager', 'Directeur Artistique', 'Chef de Projet Digital'],
+    defaultColor: '#4f46e5',
+    atsScore: 97,
+    layoutType: 'header-banner',
+    highlights: [
+      'Idéal pour capter l\'attention du recruteur en moins de 5 secondes',
+      'Mise en valeur percutante des compétences et résultats chiffrés',
+      'Harmonie des couleurs contemporaine et énergique'
+    ],
+    sampleCV: {
+      id: 'sample_bold',
+      title: 'CV Growth Marketer (Exemple)',
+      templateId: 'bold',
+      isPaid: true,
+      language: 'fr',
+      personalInfo: {
+        firstName: 'Thomas',
+        lastName: 'Legrand',
+        title: 'Lead Growth Marketer & Acquisition Manager',
+        email: 'thomas.legrand@growth-agency.fr',
+        phone: '+33 6 45 67 89 01',
+        city: 'Paris',
+        country: 'France',
+        linkedin: 'linkedin.com/in/thomas-legrand-growth',
+        website: 'thomaslegrand.dev'
+      },
+      summary: 'Expert en acquisition digitale et rétention avec 7 ans d\'expérience en environnement SaaS B2B et e-commerce. Spécialiste du scaling payant (Google Ads, Meta, TikTok) et du marketing automation.',
+      experiences: [
+        {
+          id: 'exp_b1',
+          position: 'Head of Growth Marketing',
+          company: 'ScaleUp SaaS Solutions',
+          city: 'Paris',
+          startDate: '2021',
+          endDate: '',
+          current: true,
+          description: 'Pilotage de la stratégie d\'acquisition omnicanale et management d\'une équipe de 5 growth specialists.',
+          tasks: [
+            'Croissance de +180% du MRR en 24 mois via l\'optimisation des funnels de conversion',
+            'Gestion d\'un budget annuel d\'acquisition média de 1,2 M€ avec un ROAS moyen de 4.2x',
+            'Implémentation de l\'automatisation CRM HubSpot et de l\'attribution multi-touch'
+          ]
+        },
+        {
+          id: 'exp_b2',
+          position: 'Growth & Paid Acquisition Manager',
+          company: 'Fintech Rocket',
+          city: 'Levallois-Perret',
+          startDate: '2018',
+          endDate: '2021',
+          current: false,
+          description: 'Déploiement des campagnes d\'acquisition payante et A/B testing continu des landing pages.',
+          tasks: [
+            'Diminution du CAC de 35% grâce à des stratégies de retargeting avancées',
+            'Génération de plus de 50 000 leads qualifiés sur le segment PME'
+          ]
+        }
+      ],
+      educations: [
+        {
+          id: 'edu_b1',
+          degree: 'Master 2 Marketing Digital & Data Strategy',
+          institution: 'ESCP Business School',
+          city: 'Paris',
+          startDate: '2016',
+          endDate: '2018',
+          current: false
+        }
+      ],
+      skills: [
+        { id: 'sk_b1', name: 'Google Ads & Meta Ads (ROAS Optimization)' },
+        { id: 'sk_b2', name: 'SEO Technique & Content Scaling' },
+        { id: 'sk_b3', name: 'HubSpot & Marketo Marketing Automation' },
+        { id: 'sk_b4', name: 'Google Analytics 4, Mixpanel & SQL' }
+      ],
+      languages: [
+        { id: 'lang_b1', language: 'Français', level: 'Langue maternelle' },
+        { id: 'lang_b2', language: 'Anglais', level: 'Bilingue (TOEIC 980)' }
+      ],
+      certifications: [
+        { id: 'cert_b1', title: 'Google Analytics & Ads Certified Professional', organization: 'Google', date: '2024' },
+        { id: 'cert_b2', title: 'HubSpot Revenue Operations Master', organization: 'HubSpot Academy', date: '2023' }
+      ],
+      projects: [
+        {
+          id: 'proj_b1',
+          title: 'Campagne de Lancement SaaS Européen',
+          description: 'Génération de 4 500 inscrits en pré-lancement via une campagne virale avec programme de parrainage gamifié.',
+          link: 'https://growth-case.com'
+        }
+      ],
+      theme: {
+        primaryColor: '#4f46e5',
+        fontFamily: 'sans',
+        spacing: 'normal',
+        showPhoto: true
+      }
+    }
+  },
+
+  {
+    id: 'compact',
+    name: '13. Studio Pro',
+    title: 'Deux Colonnes avec Photo Intégrée',
+    subtitle: 'Mise en page équilibrée avec colonne latérale douce et photo valorisée',
+    badge: 'Double Colonne',
+    badgeType: 'popular',
+    categories: ['all', 'modern', 'professional', 'executive'],
+    style: 'Deux colonnes asymétriques avec colonne gris perle et jauges de compétences',
+    typography: 'Inter Sans / Moderne',
+    recommendedFor: 'Cadres, Consultants, RH, Immobilier, Métiers de contact et relation client',
+    recommendedRoles: ['Consultant Senior', 'Responsable RH', 'Account Manager', 'Conseiller Clientèle'],
+    defaultColor: '#0d9488',
+    atsScore: 99,
+    layoutType: '2-columns',
+    highlights: [
+      'Intégration photo soignée et valorisante',
+      'Lecture immédiate des coordonnées et compétences clés en barre latérale',
+      'Conforme aux standards de recrutement européens'
+    ],
+    sampleCV: {
+      id: 'sample_compact',
+      title: 'CV Consultante RH & Management (Exemple)',
+      templateId: 'compact',
+      isPaid: true,
+      language: 'fr',
+      personalInfo: {
+        firstName: 'Camille',
+        lastName: 'Laurent',
+        title: 'Consultante Senior en Organisation & Recrutement Cadres',
+        email: 'camille.laurent@rh-consulting.fr',
+        phone: '+33 6 52 84 19 33',
+        city: 'Lyon',
+        country: 'France',
+        linkedin: 'linkedin.com/in/camille-laurent-rh'
+      },
+      summary: 'Consultante en transformation RH avec 8 ans d\'expérience dans l\'accompagnement des comités de direction et le recrutement de profils exécutifs. Spécialisée en marque employeur et audit organisationnel.',
+      experiences: [
+        {
+          id: 'exp_cmp1',
+          position: 'Consultante Senior Recrutement & Transformation',
+          company: 'Cabinet Altius Conseil',
+          city: 'Lyon',
+          startDate: '2020',
+          endDate: '',
+          current: true,
+          description: 'Direction de missions de recrutement par approche directe et accompagnement au changement organisationnel.',
+          tasks: [
+            'Clôture réussie de 45 mandats de cadres dirigeants (C-Level) en 3 ans',
+            'Réalisation d\'audits organisationnels et baromètres climat social pour 12 groupes du CAC 40'
+          ]
+        },
+        {
+          id: 'exp_cmp2',
+          position: 'Chargée de Recrutement & Mobilité',
+          company: 'Biomérieux France',
+          city: 'Marcy-l\'Étoile',
+          startDate: '2016',
+          endDate: '2020',
+          current: false,
+          description: 'Gestion du plan de recrutement des ingénieurs R&D et techniciens de laboratoire.',
+          tasks: [
+            'Recrutement de 130 collaborateurs annuels sur profils scientifiques rares'
+          ]
+        }
+      ],
+      educations: [
+        {
+          id: 'edu_cmp1',
+          degree: 'Master 2 Psychologie du Travail & Ressources Humaines',
+          institution: 'Université Lumière Lyon 2',
+          city: 'Lyon',
+          startDate: '2014',
+          endDate: '2016',
+          current: false
+        }
+      ],
+      skills: [
+        { id: 'sk_cmp1', name: 'Chasse de Têtes & Approche Directe', level: 5 },
+        { id: 'sk_cmp2', name: 'Évaluation des Compétences & Assessment', level: 5 },
+        { id: 'sk_cmp3', name: 'Gestion des Relations Sociales & CSE', level: 4 },
+        { id: 'sk_cmp4', name: 'Stratégie de Marque Employeur', level: 4 }
+      ],
+      languages: [
+        { id: 'lang_cmp1', language: 'Français', level: 'Langue maternelle' },
+        { id: 'lang_cmp2', language: 'Anglais', level: 'Courant (C1)' },
+        { id: 'lang_cmp3', language: 'Espagnol', level: 'Intermédiaire (B2)' }
+      ],
+      certifications: [
+        { id: 'cert_cmp1', title: 'Praticien Certifié SOSIE & MBTI Niveau II', organization: 'Pearson TalentLens', date: '2021' }
+      ],
+      projects: [],
+      theme: {
+        primaryColor: '#0d9488',
+        fontFamily: 'sans',
+        spacing: 'normal',
+        showPhoto: true
+      }
+    }
+  },
+
+  {
+    id: 'timeline',
+    name: '14. Chrono Timeline',
+    title: 'Timeline Verticale Continue',
+    subtitle: 'Fil conducteur temporel valorisant l\'évolution de carrière et les jalons clés',
+    badge: 'Storytelling',
+    badgeType: 'tech',
+    categories: ['all', 'modern', 'tech', 'professional'],
+    style: 'Ligne temporelle continue avec nœuds chronologiques et jalons de carrière',
+    typography: 'Modern Sans',
+    recommendedFor: 'Ingénieurs, Chefs de Projet, Développeurs et profils à forte évolution',
+    recommendedRoles: ['Lead Developer', 'Chef de Projet IT', 'Ingénieur Systèmes', 'Scrum Master'],
+    defaultColor: '#2563eb',
+    atsScore: 98,
+    layoutType: 'single-column',
+    highlights: [
+      'Storytelling visuel mettant en relief chaque étape de votre parcours',
+      'Nœuds temporels clairs avec dates en évidence',
+      'Parfait pour les profils ayant une progression régulière'
+    ],
+    sampleCV: {
+      id: 'sample_timeline',
+      title: 'CV Lead Architecte Cloud & DevOps (Exemple)',
+      templateId: 'timeline',
+      isPaid: true,
+      language: 'fr',
+      personalInfo: {
+        firstName: 'Maxime',
+        lastName: 'Renard',
+        title: 'Lead Architecte Cloud & DevOps Engineer',
+        email: 'maxime.renard@cloud-arch.io',
+        phone: '+33 6 88 99 00 11',
+        city: 'Nantes',
+        country: 'France',
+        linkedin: 'linkedin.com/in/maxime-renard-cloud',
+        github: 'github.com/maximerenard'
+      },
+      summary: 'Architecte Cloud avec 9 ans d\'expérience dans la conception d\'infrastructures hautement disponibles sur AWS et Kubernetes. Passionné d\'automatisation CI/CD et d\'Infrastructure as Code.',
+      experiences: [
+        {
+          id: 'exp_t1',
+          position: 'Lead Cloud Architect & DevOps Lead',
+          company: 'Fintech Scale Platform',
+          city: 'Nantes',
+          startDate: '2021',
+          endDate: '',
+          current: true,
+          description: 'Architecture des clusters Kubernetes de production et supervision d\'une équipe de 6 ingénieurs DevOps.',
+          tasks: [
+            'Migration sans interruption de service de 80 microservices vers AWS EKS multi-région',
+            'Réduction des coûts d\'infrastructure Cloud de 28% via le FinOps et les instances Spot',
+            'Mise en place de pipelines CI/CD GitLab automatisés avec 0 temps d\'arrêt'
+          ]
+        },
+        {
+          id: 'exp_t2',
+          position: 'Ingénieur Systèmes & Cloud AWS',
+          company: 'Capgemini Technology',
+          city: 'Rennes',
+          startDate: '2017',
+          endDate: '2021',
+          current: false,
+          description: 'Déploiement d\'environnements Cloud sécurisés pour des clients du secteur bancaire.',
+          tasks: [
+            'Automatisation complète de 40 architectures avec Terraform et Ansible'
+          ]
+        },
+        {
+          id: 'exp_t3',
+          position: 'Administrateur Systèmes Linux',
+          company: 'OVHcloud',
+          city: 'Roubaix',
+          startDate: '2015',
+          endDate: '2017',
+          current: false,
+          description: 'Maintien en conditions opérationnelles des serveurs de virtualisation OpenStack.',
+          tasks: [
+            'Gestion d\'un parc de plus de 2 000 serveurs physiques et résolution d\'incidents'
+          ]
+        }
+      ],
+      educations: [
+        {
+          id: 'edu_t1',
+          degree: 'Diplôme d\'Ingénieur en Informatique & Réseaux',
+          institution: 'IMT Atlantique',
+          city: 'Nantes',
+          startDate: '2012',
+          endDate: '2015',
+          current: false
+        }
+      ],
+      skills: [
+        { id: 'sk_t1', name: 'AWS Cloud Architecture (EKS, RDS, S3)', level: 5 },
+        { id: 'sk_t2', name: 'Terraform, OpenTofu & Ansible (IaC)', level: 5 },
+        { id: 'sk_t3', name: 'Docker, Kubernetes & Helm Charts', level: 5 },
+        { id: 'sk_t4', name: 'Prometheus, Grafana & Datadog Observability', level: 4 }
+      ],
+      languages: [
+        { id: 'lang_t1', language: 'Français', level: 'Langue maternelle' },
+        { id: 'lang_t2', language: 'Anglais', level: 'Professionnel courant (C1)' }
+      ],
+      certifications: [
+        { id: 'cert_t1', title: 'AWS Certified Solutions Architect - Professional', organization: 'Amazon Web Services', date: '2023' },
+        { id: 'cert_t2', title: 'Certified Kubernetes Administrator (CKA)', organization: 'Cloud Native Computing Foundation', date: '2022' }
+      ],
+      projects: [],
+      theme: {
+        primaryColor: '#2563eb',
+        fontFamily: 'sans',
+        spacing: 'normal',
+        showPhoto: true
+      }
+    }
+  },
+
+  {
+    id: 'nordic',
+    name: '15. Nordic Éditorial',
+    title: 'Minimaliste Noir & Blanc Premium',
+    subtitle: 'Élégance intemporelle, typographie éditoriale raffinée et aérée',
+    badge: 'Haute Couture',
+    badgeType: 'clean',
+    categories: ['all', 'minimal', 'executive', 'ats'],
+    style: 'Design éditorial scandinave 100% monochrome avec structure numérotée',
+    typography: 'Serif Éditorial & Sans Léger',
+    recommendedFor: 'Architectes, Avocats, Direction, Édition, Luxe, Conseil Stratégique',
+    recommendedRoles: ['Directeur Conseil', 'Architecte D.E.', 'Avocat Collaborateur', 'Designer Stratégique'],
+    defaultColor: '#18181b',
+    atsScore: 100,
+    layoutType: 'single-column',
+    highlights: [
+      'Lisibilité absolue et sobriété prestigieuse',
+      '100% monochrome compatible toute impression noir & blanc',
+      'Score ATS maximal de 100%'
+    ],
+    sampleCV: {
+      id: 'sample_nordic',
+      title: 'CV Directeur Conseil & Stratégie (Exemple)',
+      templateId: 'nordic',
+      isPaid: true,
+      language: 'fr',
+      personalInfo: {
+        firstName: 'Hélène',
+        lastName: 'de Montmirail',
+        title: 'Directrice de Conseil en Stratégie & Gouvernance',
+        email: 'h.montmirail@cabinet-conseil.com',
+        phone: '+33 6 11 22 33 44',
+        city: 'Paris',
+        country: 'France',
+        linkedin: 'linkedin.com/in/helene-de-montmirail'
+      },
+      summary: 'Directrice de mission en stratégie d\'entreprise et gouvernance avec 12 ans de pratique au sein de cabinets de premier plan. Conseil des Comex sur les fusions-acquisitions, le positionnement de marque et la responsabilité sociétale.',
+      experiences: [
+        {
+          id: 'exp_n1',
+          position: 'Directrice Associée Conseil Stratégie',
+          company: 'Baudelaire & Partners',
+          city: 'Paris',
+          startDate: '2019',
+          endDate: '',
+          current: true,
+          description: 'Supervision des missions de conseil auprès des directions générales du luxe et de l\'industrie.',
+          tasks: [
+            'Pilotage de 18 opérations de fusion-acquisition totalisant plus de 450 M€ d\'actifs',
+            'Définition et déploiement de feuilles de route stratégiques à 5 ans pour 4 groupes internationaux'
+          ]
+        },
+        {
+          id: 'exp_n2',
+          position: 'Manager Stratégie & Organisation',
+          company: 'Roland Berger France',
+          city: 'Paris',
+          startDate: '2014',
+          endDate: '2019',
+          current: false,
+          description: 'Cadrage stratégique et optimisation des modèles opérationnels.',
+          tasks: [
+            'Gestion d\'équipes pluridisciplinaires de 8 consultants seniors'
+          ]
+        }
+      ],
+      educations: [
+        {
+          id: 'edu_n1',
+          degree: 'Master Grande École - Majeure Stratégie & Finance',
+          institution: 'HEC Paris',
+          city: 'Jouy-en-Josas',
+          startDate: '2009',
+          endDate: '2013',
+          current: false
+        }
+      ],
+      skills: [
+        { id: 'sk_n1', name: 'Stratégie de Croissance & M&A' },
+        { id: 'sk_n2', name: 'Gouvernance d\'Entreprise & Conseil d\'Administration' },
+        { id: 'sk_n3', name: 'Transformation Digitale & RSE' },
+        { id: 'sk_n4', name: 'Management d\'Équipes Pluridisciplinaires' }
+      ],
+      languages: [
+        { id: 'lang_n1', language: 'Français', level: 'Langue maternelle' },
+        { id: 'lang_n2', language: 'Anglais', level: 'Bilingue (C2)' },
+        { id: 'lang_n3', language: 'Italien', level: 'Courant (C1)' }
+      ],
+      certifications: [
+        { id: 'cert_n1', title: 'Certificat d\'Administrateur de Sociétés (IFA)', organization: 'Sciences Po Paris', date: '2022' }
+      ],
+      projects: [],
+      theme: {
+        primaryColor: '#18181b',
+        fontFamily: 'serif',
+        spacing: 'spacious',
+        showPhoto: true
+      }
+    }
+  },
+
+  {
+    id: 'infographic',
+    name: '16. Graphique & Projets',
+    title: 'Créatif avec Sidebar Colorée',
+    subtitle: 'Bande latérale vibrante et présentation visuelle de vos réalisations',
+    badge: 'Créatif & Projets',
+    badgeType: 'creative',
+    categories: ['all', 'creative', 'modern', 'tech'],
+    style: 'Sidebar dynamique à fort contraste et modules de réalisations',
+    typography: 'Plus Jakarta Sans',
+    recommendedFor: 'Designers, Graphistes, Frontend Developers, Métiers créatifs et digitaux',
+    recommendedRoles: ['UI/UX Designer', 'Directeur Artistique Digital', 'Motion Designer', 'Product Designer'],
+    defaultColor: '#8b5cf6',
+    atsScore: 96,
+    layoutType: '2-columns',
+    highlights: [
+      'Présentation graphique percutante de vos projets phares',
+      'Sidebar vibrante avec jauges et indicateurs visuels',
+      'Idéal pour les métiers de l\'image et du digital'
+    ],
+    sampleCV: {
+      id: 'sample_infographic',
+      title: 'CV Lead Product & UI/UX Designer (Exemple)',
+      templateId: 'infographic',
+      isPaid: true,
+      language: 'fr',
+      personalInfo: {
+        firstName: 'Lucas',
+        lastName: 'Vasseur',
+        title: 'Lead Product & UI/UX Designer',
+        email: 'lucas.vasseur@design-studio.fr',
+        phone: '+33 6 77 88 99 00',
+        city: 'Bordeaux',
+        country: 'France',
+        linkedin: 'linkedin.com/in/lucas-vasseur-design',
+        website: 'lucasvasseur.design'
+      },
+      summary: 'Product Designer avec 8 ans d\'expérience dans la conception d\'expériences mobiles et web centrées sur l\'utilisateur. Expert en design systems, prototypage avancé et tests utilisateurs.',
+      experiences: [
+        {
+          id: 'exp_inf1',
+          position: 'Lead Product Designer',
+          company: 'Krea Digital Studio',
+          city: 'Bordeaux',
+          startDate: '2021',
+          endDate: '',
+          current: true,
+          description: 'Direction de la conception UI/UX pour des applications SaaS et e-commerce d\'envergure.',
+          tasks: [
+            'Création et gouvernance d\'un Design System Figma utilisé par 40 développeurs',
+            'Augmentation de 42% du taux de complétion sur l\'onboarding mobile client',
+            'Animation d\'ateliers de Design Thinking et de tests utilisateurs réguliers'
+          ]
+        },
+        {
+          id: 'exp_inf2',
+          position: 'Senior UI/UX Designer',
+          company: 'Agence Vibe Interactive',
+          city: 'Paris',
+          startDate: '2017',
+          endDate: '2021',
+          current: false,
+          description: 'Conception de plateformes web interactives et d\'identités de marque.',
+          tasks: [
+            'Livraison de 25 projets web récompensés par des Awwwards et FWA'
+          ]
+        }
+      ],
+      educations: [
+        {
+          id: 'edu_inf1',
+          degree: 'Master Design d\'Interaction & UX',
+          institution: 'Gobelins, l\'école de l\'image',
+          city: 'Paris',
+          startDate: '2014',
+          endDate: '2017',
+          current: false
+        }
+      ],
+      skills: [
+        { id: 'sk_inf1', name: 'Figma, Design Systems & Variables', level: 5 },
+        { id: 'sk_inf2', name: 'Prototypage Interactif & Micro-interactions', level: 5 },
+        { id: 'sk_inf3', name: 'User Research, Personas & Wireframing', level: 5 },
+        { id: 'sk_inf4', name: 'HTML, CSS, Tailwind & Design Tokens', level: 4 }
+      ],
+      languages: [
+        { id: 'lang_inf1', language: 'Français', level: 'Langue maternelle' },
+        { id: 'lang_inf2', language: 'Anglais', level: 'Courant (C1)' }
+      ],
+      certifications: [
+        { id: 'cert_inf1', title: 'Nielsen Norman Group UX Master Certified', organization: 'NN/g', date: '2023' }
+      ],
+      projects: [
+        {
+          id: 'proj_inf1',
+          title: 'Design System FinTech Cosmos',
+          description: 'Système complet de composants multi-plateformes avec documentation interactive sous Storybook.',
+          link: 'https://cosmos-design.dev'
+        }
+      ],
+      theme: {
+        primaryColor: '#8b5cf6',
+        fontFamily: 'sans',
+        spacing: 'normal',
+        showPhoto: true
+      }
+    }
+  },
+  {
+    id: 'stockholm-modern',
+    name: '17. Stockholm Modern',
+    title: 'Stockholm Modern',
+    subtitle: 'Design scandinave 2 colonnes avec barre latérale douce à 8% et hiérarchie épurée',
+    badge: 'Nouveau',
+    badgeType: 'clean',
+    categories: ['all', 'modern', 'professional', 'ats'],
+    style: 'Grille 2 colonnes avec sidebar pastel contrastée et typographie nordique',
+    typography: 'Sans-serif moderne et fluide',
+    recommendedFor: 'Product Managers, consultants, analystes, profils d\'ingénierie et de gestion',
+    recommendedRoles: ['Product Manager', 'Data Scientist', 'Consultant Stratégie', 'Architecte Logiciel', 'Chef de Projet'],
+    defaultColor: '#0f766e',
+    atsScore: 99,
+    layoutType: '2-columns',
+    highlights: [
+      'Barre latérale 4 colonnes teintée avec photo circulaire et coordonnées',
+      'Puces de compétences et certifications intégrées dans la sidebar',
+      'Colonne de contenu principale 8 colonnes claire et aérée',
+      'Icônes Lucide coordonnées à la teinte primaire'
+    ],
+    sampleCV: {
+      id: 'sample_stockholm',
+      title: 'CV Stockholm Modern (Exemple)',
+      templateId: 'stockholm-modern',
+      isPaid: true,
+      language: 'fr',
+      personalInfo: {
+        firstName: 'Sarah',
+        lastName: 'Lindqvist',
+        title: 'Lead Product Manager',
+        email: 'sarah.lindqvist@example.com',
+        phone: '+33 6 12 34 56 78',
+        city: 'Paris',
+        country: 'France',
+        linkedin: 'linkedin.com/in/sarah-lindqvist',
+        website: 'sarahlindqvist.io',
+        photoUrl: 'https://images.unsplash.com/photo-1573496359142-b8d87734a5a2?w=400&auto=format&fit=crop&q=80'
+      },
+      summary: 'Product Manager passionnée avec 8 ans d\'expérience dans le SaaS B2B. Expertise en découverte produit, alignement stratégique et déploiement de fonctionnalités scalables à fort impact.',
+      experiences: [
+        {
+          id: 'exp_st1',
+          position: 'Lead Product Manager',
+          company: 'Nordic Cloud Technologies',
+          city: 'Paris',
+          startDate: '2021',
+          endDate: '',
+          current: true,
+          description: 'Direction de la feuille de route produit pour la plateforme analytique d\'entreprise.',
+          tasks: [
+            'Hausse de 35% de l\'adoption utilisateur sur le nouveau module de reporting en temps réel',
+            'Management transverse d\'une équipe produit de 14 ingénieurs, designers et data analysts'
+          ]
+        },
+        {
+          id: 'exp_st2',
+          position: 'Senior Product Owner',
+          company: 'Fintech Skapa',
+          city: 'Stockholm / Remote',
+          startDate: '2018',
+          endDate: '2021',
+          current: false,
+          description: 'Gestion du cycle de vie du produit d\'encaissement sécurisé.',
+          tasks: [
+            'Lancement réussi dans 6 nouveaux pays européens en conformité bancaire stricte'
+          ]
+        }
+      ],
+      educations: [
+        {
+          id: 'edu_st1',
+          degree: 'Master Management & Nouvelles Technologies',
+          institution: 'KTH Royal Institute & HEC Paris',
+          city: 'Stockholm',
+          startDate: '2016',
+          endDate: '2018',
+          current: false
+        }
+      ],
+      skills: [
+        { id: 'sk_st1', name: 'Product Discovery', level: 5 },
+        { id: 'sk_st2', name: 'Roadmap & OKRs', level: 5 },
+        { id: 'sk_st3', name: 'Data Analysis (SQL, Mixpanel)', level: 4 },
+        { id: 'sk_st4', name: 'Agile & Scrum', level: 5 }
+      ],
+      languages: [
+        { id: 'lang_st1', language: 'Français', level: 'Langue maternelle' },
+        { id: 'lang_st2', language: 'Anglais', level: 'Bilingue (C2)' },
+        { id: 'lang_st3', language: 'Suédois', level: 'Intermédiaire (B1)' }
+      ],
+      certifications: [
+        { id: 'cert_st1', title: 'Certified Scrum Product Owner (CSPO)', organization: 'Scrum Alliance', date: '2022' }
+      ],
+      projects: [
+        {
+          id: 'proj_st1',
+          title: 'Plateforme Analytics NextGen',
+          description: 'Refonte complète de l\'architecture métrique réduisant la latence de tableau de bord de 60%.',
+          link: 'https://github.com/example/analytics'
+        }
+      ],
+      theme: {
+        primaryColor: '#0f766e',
+        fontFamily: 'sans',
+        spacing: 'normal',
+        showPhoto: true
+      }
+    }
+  },
+  {
+    id: 'casablanca-bilingual',
+    name: '18. Casablanca Bilingue',
+    title: 'Casablanca Bilingue',
+    subtitle: 'Mise en page 2 colonnes avec support bilingue et RTL intégré',
+    badge: 'RTL & Bilingue',
+    badgeType: 'clean',
+    categories: ['all', 'modern', 'professional', 'ats'],
+    style: 'Format 2 colonnes élégant avec prise en charge naturelle des profils multilingues et arabes',
+    typography: 'Sans-serif moderne bilingue',
+    recommendedFor: 'Cadres internationaux, profils bilingues français/arabe/anglais, export et MENA',
+    recommendedRoles: ['Responsable Commercial Export', 'Directeur de Filiale', 'Juriste International', 'Consultant MENA'],
+    defaultColor: '#0f766e',
+    atsScore: 99,
+    layoutType: '2-columns',
+    highlights: [
+      'Structure 2 colonnes parfaitement adaptée aux contextes multilingues',
+      'Support complet de l\'écriture RTL ou LTR selon la langue choisie',
+      'Palette de couleurs apaisante et professionnelle',
+      'Idéal pour candidater en France, en Europe et dans le monde arabe'
+    ],
+    sampleCV: {
+      id: 'sample_casa',
+      title: 'CV Casablanca Bilingue (Exemple)',
+      templateId: 'casablanca-bilingual',
+      isPaid: true,
+      language: 'fr',
+      personalInfo: {
+        firstName: 'Youssef',
+        lastName: 'El Mansouri',
+        title: 'Directeur Commercial International & MENA',
+        email: 'youssef.elmansouri@example.com',
+        phone: '+212 6 61 23 45 67',
+        city: 'Casablanca',
+        country: 'Maroc',
+        linkedin: 'linkedin.com/in/youssef-elmansouri',
+        photoUrl: 'https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=400&auto=format&fit=crop&q=80'
+      },
+      summary: 'Dirigeant commercial trilingue avec 12 ans d\'expérience dans l\'expansion de marchés internationaux, la négociation de partenariats stratégiques et la direction d\'équipes multiculturelles.',
+      experiences: [
+        {
+          id: 'exp_ca1',
+          position: 'Directeur Régional Export',
+          company: 'Atlas Global Trade',
+          city: 'Casablanca / Paris',
+          startDate: '2020',
+          endDate: '',
+          current: true,
+          description: 'Pilotage des activités commerciales pour l\'Europe et l\'Afrique du Nord.',
+          tasks: [
+            'Croissance de +45% du chiffre d\'affaires export en 3 ans sur la zone MENA',
+            'Encadrement d\'une équipe de 18 responsables de comptes et chargés d\'affaires'
+          ]
+        }
+      ],
+      educations: [
+        {
+          id: 'edu_ca1',
+          degree: 'Master Affaires Internationales & Négociation',
+          institution: 'ESCP Business School / ISCAE',
+          city: 'Paris & Casablanca',
+          startDate: '2010',
+          endDate: '2013',
+          current: false
+        }
+      ],
+      skills: [
+        { id: 'sk_ca1', name: 'Négociation Grands Comptes', level: 5 },
+        { id: 'sk_ca2', name: 'Développement International & Export', level: 5 },
+        { id: 'sk_ca3', name: 'Management d\'Équipes Multiculturelles', level: 5 }
+      ],
+      languages: [
+        { id: 'lang_ca1', language: 'Français', level: 'Bilingue / Langue d\'affaires' },
+        { id: 'lang_ca2', language: 'Arabe', level: 'Langue maternelle' },
+        { id: 'lang_ca3', language: 'Anglais', level: 'Courant (C1)' }
+      ],
+      certifications: [
+        { id: 'cert_ca1', title: 'International Business Strategy Certification', organization: 'INSEAD', date: '2021' }
+      ],
+      projects: [],
+      theme: {
+        primaryColor: '#0f766e',
+        fontFamily: 'sans',
+        spacing: 'normal',
+        showPhoto: true
+      }
+    }
+  },
+  {
+    id: 'zurich-executive',
+    name: '19. Zurich Exécutif',
+    title: 'Zurich Exécutif',
+    subtitle: 'En-tête centré haut de gamme avec bordure d’accentuation et puces d’alignement',
+    badge: 'Haute Direction',
+    badgeType: 'executive',
+    categories: ['all', 'executive', 'professional', 'ats'],
+    style: 'En-tête centré institutionnel avec ligne de contact équilibrée et séparateurs discrets',
+    typography: 'Typographie institutionnelle et élégante',
+    recommendedFor: 'Dirigeants d\'entreprise, directeurs financiers, juristes, médecins et cadres supérieurs',
+    recommendedRoles: ['Chief Executive Officer', 'Directeur Administratif & Financier', 'Directeur Juridique', 'Partner'],
+    defaultColor: '#0f766e',
+    atsScore: 100,
+    layoutType: 'single-column',
+    highlights: [
+      'En-tête centré statutaire avec ligne de démarcation sous le titre',
+      'Puces typographiques d\'alignement sur les coordonnées',
+      'Organisation chronologique classique hautement valorisée en comité de direction',
+      'Lisibilité maximale et rendu papier exceptionnel'
+    ],
+    sampleCV: {
+      id: 'sample_zurich',
+      title: 'CV Zurich Exécutif (Exemple)',
+      templateId: 'zurich-executive',
+      isPaid: true,
+      language: 'fr',
+      personalInfo: {
+        firstName: 'Henri',
+        lastName: 'De Montmirail',
+        title: 'Directeur Général & Administrateur',
+        email: 'henri.montmirail@example.com',
+        phone: '+41 22 789 01 23',
+        city: 'Genève / Paris',
+        country: 'Suisse',
+        linkedin: 'linkedin.com/in/henri-montmirail'
+      },
+      summary: 'Dirigeant d\'entreprise chevronné cumulant 20 ans d\'expérience dans la gouvernance, les fusions-acquisitions et la restructuration d\'entreprises industrielles et de services financiers en Europe.',
+      experiences: [
+        {
+          id: 'exp_zu1',
+          position: 'Directeur Général (CEO)',
+          company: 'Helvetia Industrial Group',
+          city: 'Zurich / Genève',
+          startDate: '2019',
+          endDate: '',
+          current: true,
+          description: 'Responsabilité de la direction générale du groupe (1 200 collaborateurs, CA : 380 M€).',
+          tasks: [
+            'Redressement de la marge d\'EBITDA de 8,2% à 14,5% sur 4 exercices consécutifs',
+            'Acquisition et intégration réussie de deux filiales en Allemagne et aux Pays-Bas'
+          ]
+        },
+        {
+          id: 'exp_zu2',
+          position: 'Directeur Financier Groupe (CFO)',
+          company: 'Alpen Capital Partners',
+          city: 'Genève',
+          startDate: '2013',
+          endDate: '2019',
+          current: false,
+          description: 'Supervision financière, trésorerie et relations investisseurs.',
+          tasks: [
+            'Levée de fonds obligataire de 150 M€ avec sursouscription de 1,8x'
+          ]
+        }
+      ],
+      educations: [
+        {
+          id: 'edu_zu1',
+          degree: 'MBA Exécutif',
+          institution: 'IMD Lausanne',
+          city: 'Lausanne',
+          startDate: '2008',
+          endDate: '2010',
+          current: false
+        },
+        {
+          id: 'edu_zu2',
+          degree: 'Diplôme d\'Ingénieur Civil & Économie',
+          institution: 'EPFL',
+          city: 'Lausanne',
+          startDate: '2000',
+          endDate: '2005',
+          current: false
+        }
+      ],
+      skills: [
+        { id: 'sk_zu1', name: 'Gouvernance & Conseils d\'Administration', level: 5 },
+        { id: 'sk_zu2', name: 'Fusions & Acquisitions (M&A)', level: 5 },
+        { id: 'sk_zu3', name: 'Stratégie de Croissance & Restructuration', level: 5 }
+      ],
+      languages: [
+        { id: 'lang_zu1', language: 'Français', level: 'Langue maternelle' },
+        { id: 'lang_zu2', language: 'Anglais', level: 'Bilingue d\'affaires (C2)' },
+        { id: 'lang_zu3', language: 'Allemand', level: 'Courant professionnel' }
+      ],
+      certifications: [
+        { id: 'cert_zu1', title: 'Certificat d\'Administrateur de Sociétés (IFA)', organization: 'Sciences Po / IFA', date: '2018' }
+      ],
+      projects: [],
+      theme: {
+        primaryColor: '#0f766e',
+        fontFamily: 'serif',
+        spacing: 'normal',
+        showPhoto: false
+      }
+    }
+  },
+  {
+    id: 'dubai-luxury-rtl',
+    name: '20. Dubai Luxury RTL',
+    title: 'Dubai Luxury RTL',
+    subtitle: 'Conception exécutive haut de gamme avec support arabe et RTL de droite à gauche',
+    badge: 'Support Arabe & RTL',
+    badgeType: 'executive',
+    categories: ['all', 'executive', 'ats'],
+    style: 'Format exécutif haut de gamme optimisé pour l’arabe et la disposition droite-à-gauche',
+    typography: 'Typographie soignée compatible polices arabes et latines',
+    recommendedFor: 'Cadres dirigeants, diplomates, consultants et professionnels du Golfe et du Moyen-Orient',
+    recommendedRoles: ['Directeur Général', 'Consultant Stratégie', 'Senior Banker', 'Directeur de Programme'],
+    defaultColor: '#0f766e',
+    atsScore: 100,
+    layoutType: 'single-column',
+    highlights: [
+      'Alignement et flux de lecture natif de droite à gauche (RTL)',
+      'En-tête centré prestigieux avec séparateurs dorés ou émeraude',
+      'Format idéal pour les marchés de Dubaï, Riyad, Doha et la région MENA',
+      'Compatibilité totale bilingue français / arabe / anglais'
+    ],
+    sampleCV: {
+      id: 'sample_dubai',
+      title: 'CV Dubai Luxury RTL (Exemple)',
+      templateId: 'dubai-luxury-rtl',
+      isPaid: true,
+      language: 'fr',
+      personalInfo: {
+        firstName: 'Tariq',
+        lastName: 'Al-Mansour',
+        title: 'Directeur des Investissements & Stratégie MENA',
+        email: 'tariq.almansour@example.com',
+        phone: '+971 50 123 4567',
+        city: 'Dubaï',
+        country: 'Émirats Arabes Unis',
+        linkedin: 'linkedin.com/in/tariq-almansour'
+      },
+      summary: 'Conseiller financier et gestionnaire de fonds d\'investissement avec 15 ans de pratique dans la gestion d\'actifs, le Private Equity et les infrastructures d\'envergure au Moyen-Orient.',
+      experiences: [
+        {
+          id: 'exp_du1',
+          position: 'Managing Director - Private Equity',
+          company: 'Emirates Investment Fund',
+          city: 'Dubaï (DIFC)',
+          startDate: '2019',
+          endDate: '',
+          current: true,
+          description: 'Gestion d\'un portefeuille d\'investissements technologiques et énergétiques de 1,2 milliard de dollars.',
+          tasks: [
+            'Génération d\'un TRI moyen net de 19,4% sur les cessions stratégiques',
+            'Supervision des comités d\'investissement et des négociations souveraines'
+          ]
+        }
+      ],
+      educations: [
+        {
+          id: 'edu_du1',
+          degree: 'Master Finance & Économie',
+          institution: 'London School of Economics (LSE)',
+          city: 'Londres',
+          startDate: '2006',
+          endDate: '2008',
+          current: false
+        }
+      ],
+      skills: [
+        { id: 'sk_du1', name: 'Private Equity & M&A', level: 5 },
+        { id: 'sk_du2', name: 'Asset Management', level: 5 },
+        { id: 'sk_du3', name: 'Sovereign Wealth Funds Relations', level: 5 }
+      ],
+      languages: [
+        { id: 'lang_du1', language: 'Arabe', level: 'Langue maternelle' },
+        { id: 'lang_du2', language: 'Anglais', level: 'Bilingue (C2)' },
+        { id: 'lang_du3', language: 'Français', level: 'Courant professionnel' }
+      ],
+      certifications: [
+        { id: 'cert_du1', title: 'Chartered Financial Analyst (CFA)', organization: 'CFA Institute', date: '2012' }
+      ],
+      projects: [],
+      theme: {
+        primaryColor: '#0f766e',
+        fontFamily: 'sans',
+        spacing: 'normal',
+        showPhoto: false
+      }
+    }
+  },
+  {
+    id: 'silicon-tech',
+    name: '21. Silicon Tech ATS',
+    title: 'Silicon Tech ATS',
+    subtitle: 'Format compact 1-page épuré ultra-compatible avec les scanners ATS',
+    badge: '1-Page ATS 100%',
+    badgeType: 'ats',
+    categories: ['all', 'tech', 'ats', 'minimal'],
+    style: 'En-tête asymétrique épuré, métriques de résultats et parsing ATS irréprochable',
+    typography: 'Sans-serif ou Monospace moderne',
+    recommendedFor: 'Développeurs logiciels, ingénieurs cloud, devops, data engineers et startups tech',
+    recommendedRoles: ['Senior Software Engineer', 'Cloud Architect', 'DevOps Lead', 'Machine Learning Engineer'],
+    defaultColor: '#0f766e',
+    atsScore: 100,
+    layoutType: 'single-column',
+    highlights: [
+      'En-tête asymétrique ultra-net avec coordonnées condensées à droite',
+      'Structure standardisée conçue pour franchir tous les ATS (Workday, Taleo, Greenhouse)',
+      'Optimisé pour présenter les réalisations quantifiées et stacks technologiques',
+      'Format idéal 1-page pour les candidatures dans les entreprises tech et startups'
+    ],
+    sampleCV: {
+      id: 'sample_silicon',
+      title: 'CV Silicon Tech ATS (Exemple)',
+      templateId: 'silicon-tech',
+      isPaid: true,
+      language: 'fr',
+      personalInfo: {
+        firstName: 'Marc',
+        lastName: 'Vandamme',
+        title: 'Senior Staff Software Engineer',
+        email: 'marc.vandamme@example.com',
+        phone: '+33 6 98 76 54 32',
+        city: 'Paris / Remote',
+        country: 'France',
+        linkedin: 'linkedin.com/in/marc-vandamme',
+        website: 'github.com/marcvandamme'
+      },
+      summary: 'Ingénieur logiciel sénior fort de 10 ans d\'expertise dans la conception de systèmes distribués à très haute disponibilité, micro-services en Go/Rust et architectures Kubernetes.',
+      experiences: [
+        {
+          id: 'exp_si1',
+          position: 'Senior Staff Software Engineer',
+          company: 'ScaleMesh Distributed Labs',
+          city: 'Paris / San Francisco',
+          startDate: '2021',
+          endDate: '',
+          current: true,
+          description: 'Conception de l\'infrastructure réseau de nouvelle génération traitant 150k requêtes/seconde.',
+          tasks: [
+            'Réduction de 40% des coûts d\'infrastructure cloud AWS grâce à une refonte de cluster EKS',
+            'Mentorat technique auprès de 12 ingénieurs séniors et animation de la guilde Backend'
+          ]
+        },
+        {
+          id: 'exp_si2',
+          position: 'Lead Backend Developer',
+          company: 'Datastream Platform',
+          city: 'Paris',
+          startDate: '2017',
+          endDate: '2021',
+          current: false,
+          description: 'Développement de pipelines de traitement de données temps-réel.',
+          tasks: [
+            'Migration d\'un monolithe legacy vers 8 micro-services Go avec latence P99 < 15ms'
+          ]
+        }
+      ],
+      educations: [
+        {
+          id: 'edu_si1',
+          degree: 'Diplôme d\'Ingénieur Informatique & Systèmes Distribués',
+          institution: 'CentraleSupélec',
+          city: 'Paris',
+          startDate: '2012',
+          endDate: '2015',
+          current: false
+        }
+      ],
+      skills: [
+        { id: 'sk_si1', name: 'Go, Rust, TypeScript, Python', level: 5 },
+        { id: 'sk_si2', name: 'Kubernetes, Docker, Terraform, AWS', level: 5 },
+        { id: 'sk_si3', name: 'PostgreSQL, Redis, Kafka, gRPC', level: 5 },
+        { id: 'sk_si4', name: 'Distributed Systems & Observability', level: 5 }
+      ],
+      languages: [
+        { id: 'lang_si1', language: 'Français', level: 'Langue maternelle' },
+        { id: 'lang_si2', language: 'Anglais', level: 'Courant bilingue (C2)' }
+      ],
+      certifications: [
+        { id: 'cert_si1', title: 'AWS Certified Solutions Architect – Professional', organization: 'Amazon Web Services', date: '2023' },
+        { id: 'cert_si2', title: 'Certified Kubernetes Administrator (CKA)', organization: 'Linux Foundation', date: '2022' }
+      ],
+      projects: [
+        {
+          id: 'proj_si1',
+          title: 'FastMesh Proxy Open-Source',
+          description: 'Proxy réseau haute performance écrit en Rust avec plus de 2 500 étoiles GitHub.',
+          link: 'https://github.com/example/fastmesh'
+        }
+      ],
+      theme: {
+        primaryColor: '#0f766e',
+        fontFamily: 'mono',
+        spacing: 'compact',
+        showPhoto: false
+      }
+    }
   }
 ];
 
@@ -1185,3 +2226,4 @@ export function getTemplateById(id: TemplateId = 'modern'): TemplateDefinition {
   const found = TEMPLATES_CATALOG.find((t) => t.id === id);
   return found || TEMPLATES_CATALOG[0];
 }
+

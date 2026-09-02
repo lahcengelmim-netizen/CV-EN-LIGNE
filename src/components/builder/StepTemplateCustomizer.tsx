@@ -25,10 +25,45 @@ const TEMPLATES: Array<{
     previewBg: 'from-blue-600 to-indigo-700'
   },
   {
+    id: 'bold',
+    name: 'Bold Impact (Énergique)',
+    badge: 'Tendance 2026',
+    description: 'Bandeau percutant et typographie moderne pour profils dynamiques et marketing.',
+    previewBg: 'from-indigo-600 to-violet-800'
+  },
+  {
+    id: 'compact',
+    name: 'Studio Pro (Photo & Colonne)',
+    badge: 'Double Colonne',
+    description: 'Colonne latérale douce avec photo studio et jauges précises de compétences.',
+    previewBg: 'from-teal-600 to-emerald-800'
+  },
+  {
+    id: 'timeline',
+    name: 'Chrono Timeline',
+    badge: 'Storytelling Tech',
+    description: 'Ligne temporelle continue avec jalons de carrière et progression claire.',
+    previewBg: 'from-blue-700 to-sky-800'
+  },
+  {
+    id: 'nordic',
+    name: 'Nordic Éditorial',
+    badge: 'Haute Couture B&W',
+    description: 'Monochrome épuré scandinave et typographie raffinée pour cadres et direction.',
+    previewBg: 'from-zinc-800 to-neutral-950'
+  },
+  {
+    id: 'infographic',
+    name: 'Graphique & Projets',
+    badge: 'Créatif Vibrant',
+    description: 'Sidebar dynamique colorée et présentation visuelle de vos réalisations.',
+    previewBg: 'from-violet-600 to-fuchsia-800'
+  },
+  {
     id: 'classic',
     name: 'Classique & Élégant',
     badge: 'ATS Optimisé',
-    description: 'Mise en page épurée et intemporelle, recommandée pour les postes juridiques, bancaires et administratifs.',
+    description: 'Mise en page épurée et intemporelle, recommandée pour finance, droit et administration.',
     previewBg: 'from-slate-800 to-slate-900'
   },
   {
@@ -42,15 +77,64 @@ const TEMPLATES: Array<{
     id: 'professional',
     name: 'Corporate Exécutif',
     badge: 'Cadre & Manager',
-    description: 'Bandeau supérieur impactant, mise en page équilibrée pour profils confirmés et managers.',
+    description: 'Bandeau supérieur impactant, mise en page équilibrée pour profils confirmés.',
     previewBg: 'from-teal-700 to-emerald-900'
   },
   {
     id: 'creative',
     name: 'Créatif & Dynamique',
-    badge: 'Design & Marketing',
-    description: 'Cartes adoucies, touches de couleur moderne et badges pour métiers de la communication et design.',
+    badge: 'Design & Com',
+    description: 'Cartes adoucies, touches de couleur moderne et badges pour métiers créatifs.',
     previewBg: 'from-purple-600 to-pink-600'
+  },
+  {
+    id: 'executive',
+    name: 'Exécutif & Conseil',
+    badge: 'Direction',
+    description: 'Structure haut de gamme pour postes de direction et comités de direction.',
+    previewBg: 'from-stone-800 to-stone-950'
+  },
+  {
+    id: 'ats',
+    name: 'ATS Scanner Friendly',
+    badge: '100% ATS',
+    description: 'Format texte direct optimisé pour traverser tous les robots de recrutement.',
+    previewBg: 'from-slate-700 to-slate-800'
+  },
+  {
+    id: 'stockholm-modern',
+    name: 'Stockholm Modern (2 Colonnes)',
+    badge: 'Design Scandinave',
+    description: 'Barre latérale teintée à 8% avec photo ronde, badges de compétences et colonne principale 8 col.',
+    previewBg: 'from-teal-700 to-emerald-900'
+  },
+  {
+    id: 'casablanca-bilingual',
+    name: 'Casablanca Bilingue (RTL/LTR)',
+    badge: 'Bilingue & RTL',
+    description: 'Structure 2 colonnes avec support bilingue et orientation droite-à-gauche intégrée.',
+    previewBg: 'from-emerald-700 to-teal-900'
+  },
+  {
+    id: 'zurich-executive',
+    name: 'Zurich Exécutif (Centré)',
+    badge: 'Haute Direction',
+    description: 'En-tête centré statutaire avec ligne d’accentuation et puces typographiques d’alignement.',
+    previewBg: 'from-slate-800 to-emerald-950'
+  },
+  {
+    id: 'dubai-luxury-rtl',
+    name: 'Dubai Luxury (RTL Arabe)',
+    badge: 'Arabe & RTL',
+    description: 'Conception exécutive haut de gamme optimisée pour les marchés du Golfe et l’écriture arabe.',
+    previewBg: 'from-teal-800 to-slate-900'
+  },
+  {
+    id: 'silicon-tech',
+    name: 'Silicon Tech (1-Page ATS)',
+    badge: '1-Page ATS',
+    description: 'En-tête asymétrique épuré et lecture linéaire 100% compatible avec les scanners ATS.',
+    previewBg: 'from-cyan-800 to-slate-900'
   }
 ];
 

@@ -29,8 +29,8 @@ export const adminService = {
   },
 
   getHeaders(): Record<string, string> {
-    const token = this.getStoredToken() || 'admin_token_active';
-    const email = this.getStoredAdminEmail() || ADMIN_EMAIL;
+    const token = this.getStoredToken() || '';
+    const email = this.getStoredAdminEmail() || '';
     return {
       'Content-Type': 'application/json',
       'x-admin-email': email,
@@ -47,23 +47,14 @@ export const adminService = {
         body: JSON.stringify({ email, password })
       });
       const data = await res.json();
-      if (res.ok && data.success) {
-        this.setAdminSession(data.token || 'admin_token_active', email);
+      if (res.ok && data.success && data.token) {
+        this.setAdminSession(data.token, email);
         return { success: true, token: data.token, user: data.user };
       }
-      return { success: false, error: data.error || 'Identifiants administrateur non valides.' };
+      return { success: false, error: data.error || 'Identifiants administrateur non valides (mot de passe incorrect).' };
     } catch (err: any) {
-      // Fallback verification for demo resilience
-      if (this.isAdminEmail(email)) {
-        const token = 'admin_token_' + Date.now();
-        this.setAdminSession(token, email);
-        return {
-          success: true,
-          token,
-          user: { id: 'usr_admin_1', email: ADMIN_EMAIL, firstName: 'Lahcen', lastName: 'Gelmim', role: 'admin' }
-        };
-      }
-      return { success: false, error: 'Connexion impossible. Vérifiez les accès.' };
+      console.error('Admin authentication request error:', err);
+      return { success: false, error: 'Connexion au serveur impossible. Veuillez vérifier votre connexion.' };
     }
   },
 

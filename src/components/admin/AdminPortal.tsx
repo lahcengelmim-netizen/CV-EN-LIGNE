@@ -30,10 +30,8 @@ export const AdminPortal: React.FC<AdminPortalProps> = ({ onBackToSite, currentU
   useEffect(() => {
     const checkAdmin = async () => {
       const storedToken = adminService.getStoredToken();
-      const storedEmail = adminService.getStoredAdminEmail();
-      const userEmail = currentUser?.email || storedEmail;
 
-      if (storedToken || (userEmail && adminService.isAdminEmail(userEmail))) {
+      if (storedToken) {
         setIsAuthenticated(true);
         loadStats();
       } else {

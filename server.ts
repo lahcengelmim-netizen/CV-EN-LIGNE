@@ -2,6 +2,7 @@ import express, { Request, Response } from 'express';
 import path from 'path';
 import { fileURLToPath } from 'url';
 import dotenv from 'dotenv';
+import crypto from 'crypto';
 import { GoogleGenAI } from '@google/genai';
 import { createServer as createViteServer } from 'vite';
 
@@ -412,22 +413,53 @@ let serverSettings = {
   coverLetterEnabled: true
 };
 
-// Admin authentication middleware helper
+// Secure Admin Credentials & Active Session Store
+const ADMIN_EMAIL = (process.env.ADMIN_EMAIL || 'lahcengelmim@gmail.com').toLowerCase().trim();
+const ADMIN_PASSWORD = process.env.ADMIN_PASSWORD || 'AdminCV2026!';
+
+// In-memory cryptographically verified admin sessions: token -> { email: string, expiresAt: number }
+const activeAdminSessions = new Map<string, { email: string; expiresAt: number }>();
+
+function verifyAdminCredentials(inputEmail?: string, inputPassword?: string): boolean {
+  if (!inputEmail || !inputPassword) return false;
+  if (inputEmail.toLowerCase().trim() !== ADMIN_EMAIL) return false;
+
+  const expectedBuf = Buffer.from(ADMIN_PASSWORD, 'utf8');
+  const inputBuf = Buffer.from(inputPassword, 'utf8');
+
+  if (expectedBuf.length !== inputBuf.length) {
+    // Constant-time dummy comparison to mitigate timing attacks
+    crypto.timingSafeEqual(expectedBuf, expectedBuf);
+    return false;
+  }
+
+  return crypto.timingSafeEqual(expectedBuf, inputBuf);
+}
+
+// Admin authentication middleware helper - strictly validates cryptographic session token
 function verifyAdminRequest(req: Request): boolean {
-  const adminEmail = req.headers['x-admin-email'] || req.query.admin_email || (req.body && req.body.adminEmail);
   const authHeader = req.headers['authorization'];
-  
-  // 1. Explicit admin email check
-  if (adminEmail === 'lahcengelmim@gmail.com') return true;
-  
-  // 2. Bearer token matching admin signature
-  if (authHeader && authHeader.includes('admin_token')) return true;
+  const adminTokenHeader = req.headers['x-admin-token'] as string | undefined;
 
-  // 3. User session check
-  const userHeader = req.headers['x-user-email'];
-  if (userHeader === 'lahcengelmim@gmail.com') return true;
+  let token: string | null = null;
+  if (authHeader && authHeader.startsWith('Bearer ')) {
+    token = authHeader.substring(7).trim();
+  } else if (adminTokenHeader) {
+    token = adminTokenHeader.trim();
+  }
 
-  return false;
+  if (!token) return false;
+
+  const session = activeAdminSessions.get(token);
+  if (!session) return false;
+
+  // Check token expiration (24h)
+  if (Date.now() > session.expiresAt) {
+    activeAdminSessions.delete(token);
+    return false;
+  }
+
+  return true;
 }
 
 // --- API ROUTES ---
@@ -1114,36 +1146,45 @@ app.post('/api/contact', (req: Request, res: Response) => {
 // Verify Admin Status
 app.post('/api/admin/verify', (req: Request, res: Response) => {
   const { email, password } = req.body;
-  
-  if (email === 'lahcengelmim@gmail.com' || (email && req.headers['x-admin-token'])) {
-    const token = 'admin_token_' + Buffer.from(`admin:${email}:${Date.now()}`).toString('base64');
-    return res.json({
-      success: true,
-      isAdmin: true,
-      token,
-      user: {
-        id: 'usr_admin_1',
-        email: 'lahcengelmim@gmail.com',
-        firstName: 'Lahcen',
-        lastName: 'Gelmim',
-        role: 'admin'
-      }
+
+  if (!email || !password) {
+    return res.status(403).json({
+      success: false,
+      isAdmin: false,
+      error: 'Identifiants incomplets. Email et mot de passe administrateur sont requis.'
     });
   }
 
-  // Check generic authorization header
-  if (verifyAdminRequest(req)) {
-    return res.json({
-      success: true,
-      isAdmin: true,
-      token: 'admin_token_active'
+  // Strictly verify email and password
+  if (!verifyAdminCredentials(email, password)) {
+    return res.status(403).json({
+      success: false,
+      isAdmin: false,
+      error: 'Identifiants administrateur incorrects. Accès refusé.'
     });
   }
 
-  return res.status(403).json({
-    success: false,
-    isAdmin: false,
-    error: 'Accès réservé exclusivement aux administrateurs autorisés.'
+  // Generate high-entropy cryptographic session token
+  const token = 'adm_sess_' + crypto.randomBytes(32).toString('hex');
+  const expiresAt = Date.now() + 24 * 60 * 60 * 1000; // 24 hours validity
+
+  activeAdminSessions.set(token, {
+    email: ADMIN_EMAIL,
+    expiresAt
+  });
+
+  return res.json({
+    success: true,
+    isAdmin: true,
+    token,
+    expiresAt,
+    user: {
+      id: 'usr_admin_1',
+      email: ADMIN_EMAIL,
+      firstName: 'Lahcen',
+      lastName: 'Gelmim',
+      role: 'admin'
+    }
   });
 });
 
