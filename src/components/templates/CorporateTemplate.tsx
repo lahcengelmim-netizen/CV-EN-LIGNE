@@ -1,5 +1,6 @@
 import React from 'react';
 import { CVData, LanguageCode } from '../../types';
+import { getProfilePhoto } from '../../lib/defaultAvatar';
 import { Mail, Phone, MapPin, Globe, Linkedin, Briefcase, GraduationCap, Award, Building2, CheckCircle2 } from 'lucide-react';
 
 interface TemplateProps {
@@ -17,12 +18,12 @@ export const CorporateTemplate: React.FC<TemplateProps> = ({ data, lang = 'fr' }
       <div className="w-full md:w-5/16 bg-slate-900 text-white p-6 sm:p-7 space-y-6 flex flex-col justify-between shrink-0">
         <div className="space-y-6">
           {/* Photo */}
-          {theme?.showPhoto && personalInfo.photoUrl && (
+          {theme?.showPhoto && (
             <div className="flex justify-center">
               <div className="w-28 h-28 rounded-xl overflow-hidden border-2 border-blue-400 shadow-lg">
                 <img
-                  src={personalInfo.photoUrl}
-                  alt={`${personalInfo.firstName} ${personalInfo.lastName}`}
+                  src={getProfilePhoto(personalInfo.photoUrl)}
+                  alt={`${personalInfo.firstName || 'Profil'} ${personalInfo.lastName || ''}`}
                   className="w-full h-full object-cover"
                 />
               </div>

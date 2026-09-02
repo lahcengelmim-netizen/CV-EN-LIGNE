@@ -97,7 +97,7 @@ export const App: React.FC = () => {
   }, [user]);
 
   // Handle new CV creation
-  const handleCreateNewCV = (templateId: TemplateId = 'modern') => {
+  const handleCreateNewCV = (templateId: TemplateId = 'stockholm-modern') => {
     const tmplDef = getTemplateById(templateId);
     const newCV: CVData = {
       id: 'cv_' + Math.random().toString(36).substring(2, 9),
@@ -126,7 +126,7 @@ export const App: React.FC = () => {
       certifications: [],
       projects: [],
       theme: {
-        primaryColor: tmplDef.defaultColor || '#2563eb',
+        primaryColor: tmplDef.defaultColor || '#0f766e',
         fontFamily: templateId === 'classic' ? 'serif' : templateId === 'minimal' ? 'mono' : 'sans',
         spacing: 'normal',
         showPhoto: templateId !== 'classic' && templateId !== 'minimal'
@@ -199,7 +199,7 @@ export const App: React.FC = () => {
           user={user}
           onOpenAuth={() => setIsAuthModalOpen(true)}
           onSignOut={handleSignOut}
-          onNewCV={() => handleCreateNewCV('modern')}
+          onNewCV={() => handleCreateNewCV('stockholm-modern')}
         />
       )}
 
@@ -207,7 +207,7 @@ export const App: React.FC = () => {
       <main className="flex-1">
         {currentView === 'landing' && (
           <LandingPage
-            onStartCV={(tmpl) => handleCreateNewCV(tmpl || 'modern')}
+            onStartCV={(tmpl) => handleCreateNewCV(tmpl || 'stockholm-modern')}
             lang={lang}
           />
         )}
@@ -216,7 +216,7 @@ export const App: React.FC = () => {
           <Dashboard
             cvList={cvList}
             onSelectCV={handleSelectCV}
-            onNewCV={() => handleCreateNewCV('modern')}
+            onNewCV={() => handleCreateNewCV('stockholm-modern')}
             onDuplicateCV={handleDuplicateCV}
             onDeleteCV={handleDeleteCV}
             lang={lang}

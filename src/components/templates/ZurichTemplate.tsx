@@ -1,5 +1,6 @@
 import React from 'react';
 import { CVData } from '../../types';
+import { getProfilePhoto } from '../../lib/defaultAvatar';
 import { 
   Mail, 
   Phone, 
@@ -147,11 +148,11 @@ export const ZurichTemplate: React.FC<TemplateProps> = ({ data }) => {
     >
       {/* Centered Executive Header */}
       <div className="text-center pb-5 mb-5 border-b-2" style={{ borderColor: primaryColor }}>
-        {theme?.showPhoto !== false && personalInfo.photoUrl && (
+        {theme?.showPhoto !== false && (
           <div className="flex justify-center mb-3">
             <img
-              src={personalInfo.photoUrl}
-              alt={`${personalInfo.firstName} ${personalInfo.lastName}`}
+              src={getProfilePhoto(personalInfo.photoUrl)}
+              alt={`${personalInfo.firstName || 'Profil'} ${personalInfo.lastName || ''}`}
               referrerPolicy="no-referrer"
               className="w-20 h-20 rounded-full object-cover border-2 shadow-sm"
               style={{ borderColor: primaryColor }}

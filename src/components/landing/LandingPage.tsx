@@ -181,51 +181,115 @@ export const LandingPage: React.FC<LandingPageProps> = ({ onStartCV, lang = 'fr'
       <section className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <div className="text-center space-y-3 mb-12">
           <h2 className="text-3xl font-black text-slate-900 tracking-tight">Pourquoi choisir CV EN LIGNE ?</h2>
-          <p className="text-xs sm:text-sm text-slate-500">
-            Comparez notre solution avec les méthodes classiques et les abonnements coûteux.
+          <p className="text-xs sm:text-sm text-slate-500 max-w-xl mx-auto">
+            Comparez notre solution transparente avec les méthodes classiques et les abonnements mensuels coûteux.
           </p>
         </div>
 
-        <div className="bg-white rounded-3xl border border-slate-200 overflow-x-auto shadow-xs">
-          <table className="w-full text-left text-xs sm:text-sm">
+        <div className="bg-white rounded-3xl border border-slate-200 overflow-x-auto shadow-sm">
+          <table className="w-full text-left text-xs sm:text-sm border-collapse">
             <thead>
-              <tr className="border-b border-slate-200 bg-slate-50 text-slate-700">
-                <th className="p-4 sm:p-5 font-bold">Critères</th>
-                <th className="p-4 sm:p-5 font-bold text-slate-400">Word / Modèle manuel</th>
-                <th className="p-4 sm:p-5 font-bold text-slate-400">Sites à abonnement (29€/mois)</th>
-                <th className="p-4 sm:p-5 font-bold text-blue-600 bg-blue-50/60">CV EN LIGNE</th>
+              <tr className="border-b border-slate-200 bg-slate-50/90 text-slate-800">
+                <th className="p-4 sm:p-5 font-bold text-slate-900 w-1/4">Critères</th>
+                <th className="p-4 sm:p-5 font-bold text-slate-700 w-1/4">Word / Modèle manuel</th>
+                <th className="p-4 sm:p-5 font-bold text-slate-700 w-1/4">Sites à abonnement ($29/mois)</th>
+                <th className="p-4 sm:p-5 font-bold bg-blue-50/90 border-x-2 border-t-2 border-blue-300 w-1/4">
+                  <div className="flex flex-wrap items-center gap-2">
+                    <span className="text-base font-black text-blue-900 tracking-tight">CV EN LIGNE</span>
+                    <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded-full bg-blue-600 text-white text-[10px] font-black uppercase tracking-wider shadow-2xs">
+                      <Sparkles className="w-3 h-3 text-amber-300" />
+                      Recommandé
+                    </span>
+                  </div>
+                </th>
               </tr>
             </thead>
-            <tbody className="divide-y divide-slate-100 text-slate-600">
+            <tbody className="divide-y divide-slate-100 text-slate-700">
               <tr>
                 <td className="p-4 sm:p-5 font-semibold text-slate-900">Prix transparent</td>
-                <td className="p-4 sm:p-5 text-slate-500">Gratuit mais difficile</td>
-                <td className="p-4 sm:p-5 text-red-500 font-semibold">Abonnement reconduit automatiquement</td>
-                <td className="p-4 sm:p-5 text-emerald-600 font-bold bg-blue-50/30">$1.99 Pass Flash (Achat Unique)</td>
+                <td className="p-4 sm:p-5 text-slate-700 font-medium">Gratuit mais chronophage</td>
+                <td className="p-4 sm:p-5 text-rose-600 font-semibold">Abonnement $29/mois reconduit automatiquement</td>
+                <td className="p-4 sm:p-5 bg-blue-50/60 border-x-2 border-blue-300">
+                  <div className="flex flex-col">
+                    <div className="flex items-baseline gap-1.5">
+                      <span className="text-base font-black text-blue-900">$1.99</span>
+                      <span className="text-xs font-bold text-blue-700">Pass Flash</span>
+                    </div>
+                    <span className="text-[11px] font-bold text-emerald-700">Achat unique sans abonnement caché</span>
+                  </div>
+                </td>
               </tr>
               <tr>
                 <td className="p-4 sm:p-5 font-semibold text-slate-900">Assistant IA de valorisation</td>
-                <td className="p-4 sm:p-5"><XIcon className="w-4 h-4 text-slate-300" /></td>
-                <td className="p-4 sm:p-5 text-slate-500">Souvent basique ou absent</td>
-                <td className="p-4 sm:p-5 text-emerald-600 font-bold bg-blue-50/30"><Check className="w-4 h-4 text-emerald-600" /></td>
+                <td className="p-4 sm:p-5">
+                  <span className="inline-flex items-center justify-center w-6 h-6 rounded-full bg-slate-100 text-slate-600" title="Non inclus">
+                    <XIcon className="w-4 h-4 stroke-[2.5]" />
+                  </span>
+                </td>
+                <td className="p-4 sm:p-5 text-slate-700 font-medium">Souvent basique ou absent</td>
+                <td className="p-4 sm:p-5 bg-blue-50/60 border-x-2 border-blue-300">
+                  <div className="flex items-center gap-2">
+                    <span className="inline-flex items-center justify-center w-6 h-6 rounded-full bg-emerald-100 text-emerald-700 shadow-2xs">
+                      <Check className="w-4 h-4 stroke-[3]" />
+                    </span>
+                    <span className="font-bold text-slate-900">Inclus (Gemini IA Pro)</span>
+                  </div>
+                </td>
               </tr>
               <tr>
                 <td className="p-4 sm:p-5 font-semibold text-slate-900">Mise en page automatique A4</td>
-                <td className="p-4 sm:p-5"><XIcon className="w-4 h-4 text-slate-300" /></td>
-                <td className="p-4 sm:p-5"><Check className="w-4 h-4 text-emerald-600" /></td>
-                <td className="p-4 sm:p-5 text-emerald-600 font-bold bg-blue-50/30"><Check className="w-4 h-4 text-emerald-600" /></td>
+                <td className="p-4 sm:p-5">
+                  <span className="inline-flex items-center justify-center w-6 h-6 rounded-full bg-slate-100 text-slate-600" title="Non inclus">
+                    <XIcon className="w-4 h-4 stroke-[2.5]" />
+                  </span>
+                </td>
+                <td className="p-4 sm:p-5">
+                  <span className="inline-flex items-center justify-center w-6 h-6 rounded-full bg-emerald-100 text-emerald-700 shadow-2xs">
+                    <Check className="w-4 h-4 stroke-[3]" />
+                  </span>
+                </td>
+                <td className="p-4 sm:p-5 bg-blue-50/60 border-x-2 border-blue-300">
+                  <div className="flex items-center gap-2">
+                    <span className="inline-flex items-center justify-center w-6 h-6 rounded-full bg-emerald-100 text-emerald-700 shadow-2xs">
+                      <Check className="w-4 h-4 stroke-[3]" />
+                    </span>
+                    <span className="font-bold text-slate-900">Format A4 & ATS certifié</span>
+                  </div>
+                </td>
               </tr>
               <tr>
                 <td className="p-4 sm:p-5 font-semibold text-slate-900">Lettre de motivation IA incluse</td>
-                <td className="p-4 sm:p-5"><XIcon className="w-4 h-4 text-slate-300" /></td>
-                <td className="p-4 sm:p-5 text-slate-400">Option payante supplémentaire</td>
-                <td className="p-4 sm:p-5 text-emerald-600 font-bold bg-blue-50/30">Inclus (2 générations)</td>
+                <td className="p-4 sm:p-5">
+                  <span className="inline-flex items-center justify-center w-6 h-6 rounded-full bg-slate-100 text-slate-600" title="Non inclus">
+                    <XIcon className="w-4 h-4 stroke-[2.5]" />
+                  </span>
+                </td>
+                <td className="p-4 sm:p-5 text-slate-700 font-medium">Option payante supplémentaire</td>
+                <td className="p-4 sm:p-5 bg-blue-50/60 border-x-2 border-blue-300">
+                  <div className="flex items-center gap-2">
+                    <span className="inline-flex items-center justify-center w-6 h-6 rounded-full bg-emerald-100 text-emerald-700 shadow-2xs">
+                      <Check className="w-4 h-4 stroke-[3]" />
+                    </span>
+                    <span className="font-bold text-slate-900">Inclus (Générateur ciblé)</span>
+                  </div>
+                </td>
               </tr>
               <tr>
                 <td className="p-4 sm:p-5 font-semibold text-slate-900">Modifications gratuites futures</td>
-                <td className="p-4 sm:p-5"><Check className="w-4 h-4 text-emerald-600" /></td>
-                <td className="p-4 sm:p-5 text-red-500">Bloqué si l'abonnement expire</td>
-                <td className="p-4 sm:p-5 text-emerald-600 font-bold bg-blue-50/30">Illimitées à vie</td>
+                <td className="p-4 sm:p-5">
+                  <span className="inline-flex items-center justify-center w-6 h-6 rounded-full bg-slate-100 text-slate-700">
+                    <Check className="w-4 h-4 stroke-[2.5]" />
+                  </span>
+                </td>
+                <td className="p-4 sm:p-5 text-rose-600 font-semibold">Bloqué si l'abonnement expire</td>
+                <td className="p-4 sm:p-5 bg-blue-50/60 border-x-2 border-b-2 border-blue-300">
+                  <div className="flex items-center gap-2">
+                    <span className="inline-flex items-center justify-center w-6 h-6 rounded-full bg-emerald-100 text-emerald-700 shadow-2xs">
+                      <Check className="w-4 h-4 stroke-[3]" />
+                    </span>
+                    <span className="font-bold text-slate-900">Modifications illimitées à vie</span>
+                  </div>
+                </td>
               </tr>
             </tbody>
           </table>

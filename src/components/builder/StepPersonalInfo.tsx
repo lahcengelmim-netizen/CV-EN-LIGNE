@@ -2,6 +2,7 @@ import React, { useRef } from 'react';
 import { PersonalInfo, LanguageCode } from '../../types';
 import { translations } from '../../lib/translations';
 import { Camera, User, Mail, Phone, MapPin, Globe, Linkedin, Upload, Trash2 } from 'lucide-react';
+import { DEFAULT_AVATAR_PLACEHOLDER } from '../../lib/defaultAvatar';
 
 interface Props {
   info: PersonalInfo;
@@ -42,11 +43,11 @@ export const StepPersonalInfo: React.FC<Props> = ({ info, onChange, lang = 'fr' 
       {/* Photo Uploader */}
       <div className="flex flex-col sm:flex-row items-center gap-6 p-4 bg-slate-50 rounded-2xl border border-slate-200/80">
         <div className="relative group">
-          <div className="w-24 h-24 rounded-2xl overflow-hidden bg-slate-200 border-2 border-slate-300 flex items-center justify-center text-slate-400">
+          <div className="w-24 h-24 rounded-2xl overflow-hidden bg-slate-100 border-2 border-slate-300 flex items-center justify-center text-slate-400">
             {info.photoUrl ? (
               <img src={info.photoUrl} alt="Aperçu" className="w-full h-full object-cover" />
             ) : (
-              <User className="w-10 h-10" />
+              <img src={DEFAULT_AVATAR_PLACEHOLDER} alt="Silhouette provisoire" className="w-full h-full object-cover" />
             )}
           </div>
           <button

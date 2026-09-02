@@ -1,5 +1,6 @@
 import React from 'react';
 import { CVData, LanguageCode } from '../../types';
+import { getProfilePhoto } from '../../lib/defaultAvatar';
 import { Mail, Phone, MapPin, Globe, Linkedin, Sparkles, Briefcase, GraduationCap, Award } from 'lucide-react';
 
 interface TemplateProps {
@@ -17,12 +18,12 @@ export const CreativeTemplate: React.FC<TemplateProps> = ({ data, lang = 'fr' })
         {/* Creative Top Card */}
         <div className="flex flex-col sm:flex-row items-center sm:items-start justify-between gap-6 pb-6 border-b border-slate-100">
           <div className="flex flex-col sm:flex-row items-center gap-6 text-center sm:text-left">
-            {theme?.showPhoto && personalInfo.photoUrl && (
+            {theme?.showPhoto && (
               <div 
                 className="w-24 h-24 sm:w-28 sm:h-28 rounded-3xl overflow-hidden p-1 shadow-md shrink-0"
                 style={{ backgroundColor: primaryColor }}
               >
-                <img src={personalInfo.photoUrl} alt="Photo" className="w-full h-full object-cover rounded-2xl" />
+                <img src={getProfilePhoto(personalInfo.photoUrl)} alt="Photo" className="w-full h-full object-cover rounded-2xl" />
               </div>
             )}
             <div>

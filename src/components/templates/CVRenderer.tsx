@@ -19,6 +19,7 @@ import { InfographicTemplate } from './InfographicTemplate';
 import { StockholmTemplate } from './StockholmTemplate';
 import { ZurichTemplate } from './ZurichTemplate';
 import { SiliconTemplate } from './SiliconTemplate';
+import { getEffectiveCVData } from '../../lib/cvDataUtils';
 
 export interface CVRendererProps {
   data?: CVData;
@@ -28,6 +29,7 @@ export interface CVRendererProps {
   zoom?: number;
   id?: string;
   className?: string;
+  disableAutoFallback?: boolean;
 }
 
 export const CVRenderer: React.FC<CVRendererProps> = ({
@@ -37,14 +39,17 @@ export const CVRenderer: React.FC<CVRendererProps> = ({
   scale = 1,
   zoom,
   id = 'cv-printable-document',
-  className = ''
+  className = '',
+  disableAutoFallback = false
 }) => {
-  const activeData = data || cv;
+  const rawData = data || cv;
   const effectiveScale = zoom !== undefined ? zoom : scale;
 
-  if (!activeData) {
+  if (!rawData) {
     return null;
   }
+
+  const activeData = disableAutoFallback ? rawData : getEffectiveCVData(rawData);
 
   const templateMap: Record<TemplateId, React.FC<{ data: CVData }>> = {
     modern: ModernTemplate,
@@ -70,7 +75,7 @@ export const CVRenderer: React.FC<CVRendererProps> = ({
     'silicon-tech': SiliconTemplate,
   };
 
-  const SelectedTemplate = templateMap[activeData.templateId] || ModernTemplate;
+  const SelectedTemplate = templateMap[activeData.templateId] || StockholmTemplate || ModernTemplate;
 
   // Watermark is only shown if explicitly asked or if not paid during draft preview
   const isWatermarked = showWatermark && !activeData.isPaid;

@@ -1,5 +1,6 @@
 import React from 'react';
 import { CVData } from '../../types';
+import { getProfilePhoto } from '../../lib/defaultAvatar';
 import { 
   Mail, 
   Phone, 
@@ -145,11 +146,11 @@ export const StockholmTemplate: React.FC<TemplateProps> = ({ data }) => {
           className={`col-span-12 sm:col-span-4 p-6 ${isRtl ? 'border-l' : 'border-r'} border-neutral-200 text-neutral-800 space-y-5`}
           style={{ backgroundColor: `${primaryColor}08` }}
         >
-          {theme?.showPhoto !== false && personalInfo.photoUrl && (
+          {theme?.showPhoto !== false && (
             <div className="flex justify-center">
               <img
-                src={personalInfo.photoUrl}
-                alt={`${personalInfo.firstName} ${personalInfo.lastName}`}
+                src={getProfilePhoto(personalInfo.photoUrl)}
+                alt={`${personalInfo.firstName || 'Profil'} ${personalInfo.lastName || ''}`}
                 referrerPolicy="no-referrer"
                 className="w-24 h-24 rounded-full object-cover border-2 shadow-sm"
                 style={{ borderColor: primaryColor }}

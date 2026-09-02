@@ -51,7 +51,7 @@ interface CVBuilderProps {
 const DEFAULT_CV: CVData = {
   id: 'cv_' + Math.random().toString(36).substring(2, 9),
   title: 'Mon CV Professionnel',
-  templateId: 'modern',
+  templateId: 'stockholm-modern',
   isPaid: false,
   language: 'fr',
   personalInfo: {
@@ -139,7 +139,7 @@ const DEFAULT_CV: CVData = {
     { id: 'proj_1', title: 'Plateforme SaaS de Facturation', description: 'Application complète en micro-services utilisée par 500+ PME.' }
   ],
   theme: {
-    primaryColor: '#2563eb',
+    primaryColor: '#0f766e',
     fontFamily: 'sans',
     spacing: 'normal',
     showPhoto: true
