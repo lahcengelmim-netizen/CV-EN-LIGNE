@@ -54,9 +54,9 @@ export const ProfessionalTemplate: React.FC<TemplateProps> = ({ data, lang = 'fr
           </div>
         )}
 
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
+        <div className="grid grid-cols-3 gap-8">
           {/* Main 2-columns (Experiences) */}
-          <div className="md:col-span-2 space-y-6">
+          <div className="col-span-2 space-y-6">
             {experiences && experiences.length > 0 && (
               <div>
                 <h2 className="text-xs font-black uppercase tracking-widest text-slate-400 mb-4 pb-1 border-b border-slate-200 flex items-center gap-2">

@@ -55,9 +55,9 @@ export const CreativeTemplate: React.FC<TemplateProps> = ({ data, lang = 'fr' })
         )}
 
         {/* 2 Column Main Content */}
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
+        <div className="grid grid-cols-3 gap-8">
           {/* Main (Exp & Proj) */}
-          <div className="md:col-span-2 space-y-6">
+          <div className="col-span-2 space-y-6">
             {experiences && experiences.length > 0 && (
               <div>
                 <h2 className="text-xs font-black uppercase tracking-widest text-slate-400 mb-4 flex items-center gap-2">

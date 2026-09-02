@@ -12,9 +12,9 @@ export const ModernTemplate: React.FC<TemplateProps> = ({ data }) => {
   const primaryColor = theme?.primaryColor || '#2563eb';
 
   return (
-    <div className="w-full bg-white text-slate-800 min-h-[297mm] flex flex-col md:flex-row shadow-sm font-sans">
+    <div className="w-full bg-white text-slate-800 min-h-[297mm] flex flex-row shadow-sm font-sans">
       {/* Left Sidebar */}
-      <div className="w-full md:w-1/3 p-6 sm:p-8 text-white flex flex-col justify-between shrink-0" style={{ backgroundColor: primaryColor }}>
+      <div className="w-1/3 p-6 sm:p-8 text-white flex flex-col justify-between shrink-0" style={{ backgroundColor: primaryColor }}>
         <div>
           {/* Photo */}
           {theme?.showPhoto && (
@@ -29,10 +29,10 @@ export const ModernTemplate: React.FC<TemplateProps> = ({ data }) => {
             </div>
           )}
 
-          {/* Name & Title on Mobile if stacked, or top sidebar */}
-          <div className="text-center md:text-left mb-6">
+          {/* Name & Title on top sidebar */}
+          <div className="text-left mb-6">
             <h1 className="text-2xl font-black tracking-tight leading-tight">
-              {personalInfo.firstName} <br className="hidden md:inline" />
+              {personalInfo.firstName} <br className="inline" />
               {personalInfo.lastName}
             </h1>
             {personalInfo.title && (
@@ -123,7 +123,7 @@ export const ModernTemplate: React.FC<TemplateProps> = ({ data }) => {
         </div>
 
         {/* Footer branding */}
-        <div className="pt-6 text-[10px] text-white/40 text-center md:text-left">
+        <div className="pt-6 text-[10px] text-white/40 text-left">
           CV certifié professionnel
         </div>
       </div>

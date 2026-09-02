@@ -96,10 +96,12 @@ export const App: React.FC = () => {
     refreshCVList();
   }, [user]);
 
-  // Handle new CV creation
+  // Handle new CV creation with full template layout & sample data
   const handleCreateNewCV = (templateId: TemplateId = 'stockholm-modern') => {
     const tmplDef = getTemplateById(templateId);
+    const sample = tmplDef.sampleCV;
     const newCV: CVData = {
+      ...sample,
       id: 'cv_' + Math.random().toString(36).substring(2, 9),
       userId: user?.id,
       title: `Mon CV (${tmplDef.name})`,
@@ -107,29 +109,20 @@ export const App: React.FC = () => {
       isPaid: false,
       language: lang,
       personalInfo: {
-        firstName: '',
-        lastName: '',
-        title: '',
-        email: user?.email || '',
-        phone: '',
-        city: '',
-        country: '',
-        linkedin: '',
-        website: '',
-        photoUrl: ''
+        ...sample.personalInfo,
+        email: user?.email || sample.personalInfo?.email || '',
       },
-      summary: '',
-      experiences: [],
-      educations: [],
-      skills: [],
-      languages: [],
-      certifications: [],
-      projects: [],
+      experiences: sample.experiences ? JSON.parse(JSON.stringify(sample.experiences)) : [],
+      educations: sample.educations ? JSON.parse(JSON.stringify(sample.educations)) : [],
+      skills: sample.skills ? JSON.parse(JSON.stringify(sample.skills)) : [],
+      languages: sample.languages ? JSON.parse(JSON.stringify(sample.languages)) : [],
+      certifications: sample.certifications ? JSON.parse(JSON.stringify(sample.certifications)) : [],
+      projects: sample.projects ? JSON.parse(JSON.stringify(sample.projects)) : [],
       theme: {
-        primaryColor: tmplDef.defaultColor || '#0f766e',
-        fontFamily: templateId === 'classic' ? 'serif' : templateId === 'minimal' ? 'mono' : 'sans',
-        spacing: 'normal',
-        showPhoto: templateId !== 'classic' && templateId !== 'minimal'
+        primaryColor: tmplDef.defaultColor || sample.theme?.primaryColor || '#0f766e',
+        fontFamily: sample.theme?.fontFamily || (templateId === 'classic' ? 'serif' : templateId === 'minimal' ? 'mono' : 'sans'),
+        spacing: sample.theme?.spacing || 'normal',
+        showPhoto: sample.theme?.showPhoto !== undefined ? sample.theme.showPhoto : (templateId !== 'classic' && templateId !== 'minimal')
       },
       createdAt: new Date().toISOString(),
       updatedAt: new Date().toISOString()

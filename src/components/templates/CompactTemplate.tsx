@@ -12,9 +12,9 @@ export const CompactTemplate: React.FC<TemplateProps> = ({ data, lang = 'fr' }) 
   const primaryColor = theme?.primaryColor || '#0d9488'; // Modern Teal
 
   return (
-    <div className="w-full bg-white text-slate-800 min-h-[297mm] flex flex-col md:flex-row font-sans select-text">
+    <div className="w-full bg-white text-slate-800 min-h-[297mm] flex flex-row font-sans select-text">
       {/* Left Column (Photo, Contact, Skills, Languages, Education) */}
-      <div className="w-full md:w-[35%] bg-slate-50 border-r border-slate-200/80 p-6 sm:p-7 flex flex-col justify-between shrink-0 space-y-6">
+      <div className="w-[35%] bg-slate-50 border-r border-slate-200/80 p-6 sm:p-7 flex flex-col justify-between shrink-0 space-y-6">
         <div className="space-y-6">
           {/* Photo Frame */}
           {theme?.showPhoto && personalInfo.photoUrl ? (

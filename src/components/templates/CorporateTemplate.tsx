@@ -13,9 +13,9 @@ export const CorporateTemplate: React.FC<TemplateProps> = ({ data, lang = 'fr' }
   const primaryColor = theme?.primaryColor || '#1e3a8a'; // Deep Corporate Blue
 
   return (
-    <div className="w-full bg-white text-slate-800 min-h-[297mm] flex flex-col md:flex-row font-sans select-text">
+    <div className="w-full bg-white text-slate-800 min-h-[297mm] flex flex-row font-sans select-text">
       {/* 1. Left Corporate Rail */}
-      <div className="w-full md:w-5/16 bg-slate-900 text-white p-6 sm:p-7 space-y-6 flex flex-col justify-between shrink-0">
+      <div className="w-[32%] bg-slate-900 text-white p-6 sm:p-7 space-y-6 flex flex-col justify-between shrink-0">
         <div className="space-y-6">
           {/* Photo */}
           {theme?.showPhoto && (
@@ -117,7 +117,7 @@ export const CorporateTemplate: React.FC<TemplateProps> = ({ data, lang = 'fr' }
       </div>
 
       {/* 2. Right Main Corporate Content */}
-      <div className="w-full md:w-11/16 p-7 sm:p-9 space-y-6 flex-1">
+      <div className="w-[68%] p-7 sm:p-9 space-y-6 flex-1">
         {/* Top Candidate Heading */}
         <div className="border-b-2 border-slate-900 pb-4 space-y-1">
           <h1 className="text-3xl sm:text-4xl font-black tracking-tight text-slate-900 uppercase">

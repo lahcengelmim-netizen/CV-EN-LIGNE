@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useRef, useCallback } from 'react';
 import { CVData, LanguageCode, TemplateId, CVTheme, UserPassState } from '../../types';
 import { translations } from '../../lib/translations';
 import { storageService } from '../../lib/supabase';
@@ -146,6 +146,9 @@ const DEFAULT_CV: CVData = {
   }
 };
 
+const A4_WIDTH = 794;
+const A4_HEIGHT = 1123;
+
 export const CVBuilder: React.FC<CVBuilderProps> = ({
   initialCv,
   lang = 'fr',
@@ -156,7 +159,112 @@ export const CVBuilder: React.FC<CVBuilderProps> = ({
   const [cv, setCv] = useState<CVData>(initialCv || DEFAULT_CV);
   const [currentStep, setCurrentStep] = useState(1);
   const [mobileTab, setMobileTab] = useState<'form' | 'preview'>('form');
-  const [zoomScale, setZoomScale] = useState(0.85);
+  
+  // Smart auto-fit scale states for full A4 visibility
+  const [autoScale, setAutoScale] = useState<number>(0.55);
+  const [manualScale, setManualScale] = useState<number | null>(null);
+  const [isAutoFit, setIsAutoFit] = useState<boolean>(true);
+  const [docHeight, setDocHeight] = useState<number>(A4_HEIGHT);
+
+  const previewContainerRef = useRef<HTMLDivElement>(null);
+  const cvDocRef = useRef<HTMLDivElement>(null);
+
+  const currentScale = isAutoFit || manualScale === null ? autoScale : manualScale;
+
+  const calculateAutoScale = useCallback(() => {
+    const container = previewContainerRef.current;
+    if (!container) return;
+
+    const containerW = container.clientWidth;
+    const containerH = container.clientHeight;
+
+    if (containerW <= 0 || containerH <= 0) return;
+
+    // Measure document scrollHeight if rendered
+    let measuredH = A4_HEIGHT;
+    if (cvDocRef.current) {
+      const sh = cvDocRef.current.scrollHeight;
+      if (sh > A4_HEIGHT) {
+        measuredH = sh;
+      }
+    }
+    setDocHeight(measuredH);
+
+    // Padding inside container so the A4 paper has margins around it
+    const paddingX = 24; // 12px each side
+    const paddingY = 24; // 12px each side
+
+    const availableW = Math.max(80, containerW - paddingX);
+    const availableH = Math.max(80, containerH - paddingY);
+
+    const scaleW = availableW / A4_WIDTH;
+    const scaleH = availableH / measuredH;
+
+    // Fit BOTH width and height completely so the entire A4 sheet is visible from top to bottom
+    const fitScale = Math.min(scaleW, scaleH);
+    const clampedScale = Math.max(0.2, Math.min(1.2, Number(fitScale.toFixed(3))));
+
+    setAutoScale(clampedScale);
+  }, []);
+
+  const handleZoomIn = () => {
+    setIsAutoFit(false);
+    setManualScale((prev) => {
+      const base = prev ?? autoScale;
+      return Math.min(1.3, Number((base + 0.05).toFixed(2)));
+    });
+  };
+
+  const handleZoomOut = () => {
+    setIsAutoFit(false);
+    setManualScale((prev) => {
+      const base = prev ?? autoScale;
+      return Math.max(0.25, Number((base - 0.05).toFixed(2)));
+    });
+  };
+
+  const handleResetToAutoFit = () => {
+    setIsAutoFit(true);
+    setManualScale(null);
+    calculateAutoScale();
+  };
+
+  // ResizeObserver on the container to recalculate auto-scale whenever dimensions change
+  useEffect(() => {
+    calculateAutoScale();
+
+    const container = previewContainerRef.current;
+    if (!container) return;
+
+    const observer = new ResizeObserver(() => {
+      calculateAutoScale();
+    });
+    observer.observe(container);
+    window.addEventListener('resize', calculateAutoScale);
+
+    return () => {
+      observer.disconnect();
+      window.removeEventListener('resize', calculateAutoScale);
+    };
+  }, [calculateAutoScale]);
+
+  // Recalculate auto-scale when template, theme, content, or mobile tab switches
+  useEffect(() => {
+    const timer = setTimeout(() => {
+      calculateAutoScale();
+    }, 50);
+    return () => clearTimeout(timer);
+  }, [
+    cv.templateId, 
+    cv.theme?.spacing, 
+    cv.theme?.fontFamily, 
+    cv.experiences?.length, 
+    cv.educations?.length, 
+    cv.skills?.length, 
+    mobileTab, 
+    calculateAutoScale
+  ]);
+
   const [isSaving, setIsSaving] = useState(false);
   const [lastSaved, setLastSaved] = useState<Date>(new Date());
   const [showPaymentModal, setShowPaymentModal] = useState(false);
@@ -170,6 +278,12 @@ export const CVBuilder: React.FC<CVBuilderProps> = ({
   const currentTemplateDef = getTemplateById(cv.templateId);
 
   // Sync and evaluate pass on mount and when CV email changes
+  useEffect(() => {
+    if (initialCv) {
+      setCv(initialCv);
+    }
+  }, [initialCv?.id, initialCv?.updatedAt]);
+
   useEffect(() => {
     const current = passService.getLocalPass();
     setPassState(current);
@@ -565,7 +679,7 @@ export const CVBuilder: React.FC<CVBuilderProps> = ({
                   className="px-6 py-2.5 bg-emerald-600 hover:bg-emerald-700 text-white rounded-xl text-xs font-bold shadow-xs transition-colors flex items-center gap-1.5"
                 >
                   <Download className="w-4 h-4" />
-                  <span>{cv.isPaid ? 'Télécharger en PDF HD' : 'Finaliser & Télécharger (2 $)'}</span>
+                  <span>{cv.isPaid ? 'Télécharger en PDF HD' : 'Finaliser & Télécharger ($1.99)'}</span>
                 </button>
               )}
             </div>
@@ -584,31 +698,59 @@ export const CVBuilder: React.FC<CVBuilderProps> = ({
                     <span className="relative inline-flex rounded-full h-2 w-2 bg-emerald-500"></span>
                   </span>
                   <span className="font-bold text-xs text-slate-800">Aperçu en direct (A4)</span>
-                  <span className="text-[10px] text-slate-400">Rendu temps réel</span>
+                  <span className={`text-[10px] px-1.5 py-0.5 rounded font-medium ${
+                    isAutoFit 
+                      ? 'text-emerald-700 bg-emerald-50 border border-emerald-200/60' 
+                      : 'text-slate-500 bg-slate-100'
+                  }`}>
+                    {isAutoFit ? 'Page entière cadrée' : 'Zoom personnalisé'}
+                  </span>
                 </div>
 
-                {/* Zoom Controls */}
+                {/* Zoom Controls with Auto-Fit */}
                 <div className="flex items-center gap-1 bg-slate-100 p-0.5 rounded-xl border border-slate-200/60">
                   <button
-                    onClick={() => setZoomScale((s) => Math.max(0.45, Number((s - 0.05).toFixed(2))))}
+                    type="button"
+                    onClick={handleZoomOut}
                     className="p-1 text-slate-600 hover:text-slate-900 hover:bg-white rounded-lg transition-colors cursor-pointer"
                     title="Zoom arrière"
                   >
                     <ZoomOut className="w-3.5 h-3.5" />
                   </button>
+
                   <button
-                    onClick={() => setZoomScale(0.85)}
-                    className="px-1.5 py-0.5 text-[10px] font-mono font-bold text-slate-700 hover:text-blue-600 cursor-pointer"
-                    title="Réinitialiser zoom"
+                    type="button"
+                    onClick={handleResetToAutoFit}
+                    className={`px-2 py-0.5 text-[10px] font-mono font-bold rounded-lg transition-colors cursor-pointer ${
+                      isAutoFit 
+                        ? 'bg-blue-600 text-white shadow-2xs' 
+                        : 'text-slate-700 hover:bg-white hover:text-blue-600'
+                    }`}
+                    title="Cliquer pour réajuster la page entière (Auto-fit)"
                   >
-                    {Math.round(zoomScale * 100)}%
+                    {Math.round(currentScale * 100)}%{isAutoFit ? ' • Auto' : ''}
                   </button>
+
                   <button
-                    onClick={() => setZoomScale((s) => Math.min(1.2, Number((s + 0.05).toFixed(2))))}
+                    type="button"
+                    onClick={handleZoomIn}
                     className="p-1 text-slate-600 hover:text-slate-900 hover:bg-white rounded-lg transition-colors cursor-pointer"
                     title="Zoom avant"
                   >
                     <ZoomIn className="w-3.5 h-3.5" />
+                  </button>
+
+                  <button
+                    type="button"
+                    onClick={handleResetToAutoFit}
+                    className={`p-1 rounded-lg transition-colors cursor-pointer ml-0.5 ${
+                      isAutoFit 
+                        ? 'text-blue-600 bg-blue-50 hover:bg-blue-100' 
+                        : 'text-slate-500 hover:text-slate-800 hover:bg-white'
+                    }`}
+                    title="Ajuster toute la page au cadre disponible"
+                  >
+                    <Maximize2 className="w-3.5 h-3.5" />
                   </button>
                 </div>
               </div>
@@ -617,7 +759,7 @@ export const CVBuilder: React.FC<CVBuilderProps> = ({
               <div className="flex items-center justify-between pt-2 border-t border-slate-100">
                 <div className="flex items-center gap-2">
                   <div
-                    className="w-3.5 h-3.5 rounded-full shadow-2xs border border-white"
+                    className="w-3.5 h-3.5 rounded-full shadow-2xs border border-white shrink-0"
                     style={{ backgroundColor: cv.theme.primaryColor }}
                   />
                   <span className="text-xs font-semibold text-slate-700 truncate max-w-[160px]">
@@ -639,14 +781,41 @@ export const CVBuilder: React.FC<CVBuilderProps> = ({
               </div>
             </div>
 
-            {/* Live Document Paper Container with Scrollable Container */}
-            <div className="bg-slate-300/70 p-3 sm:p-5 rounded-3xl border border-slate-300 overflow-x-auto flex justify-center max-h-[calc(100vh-175px)] overflow-y-auto shadow-inner">
-              <div className="shadow-2xl rounded-lg overflow-hidden bg-white max-w-full">
-                <CVRenderer
-                  data={cv}
-                  showWatermark={!cv.isPaid}
-                  scale={zoomScale}
-                />
+            {/* Live Document Paper Frame: Auto-fits full A4 document without clipping */}
+            <div 
+              ref={previewContainerRef}
+              className="bg-slate-200/80 p-3 sm:p-4 rounded-3xl border border-slate-300/90 flex items-center justify-center h-[calc(100vh-190px)] min-h-[520px] overflow-auto shadow-inner relative select-none"
+            >
+              {/* Scaled bounding frame that matches exact visual size of scaled A4 page */}
+              <div
+                style={{
+                  width: `${Math.round(A4_WIDTH * currentScale)}px`,
+                  height: `${Math.round(docHeight * currentScale)}px`,
+                  transition: isAutoFit ? 'width 0.12s ease-out, height 0.12s ease-out' : 'none',
+                }}
+                className="relative shrink-0 shadow-2xl rounded-sm overflow-hidden bg-white ring-1 ring-black/5"
+              >
+                {/* Full unscaled A4 page document (794px width, minHeight 1123px) scaled via transform */}
+                <div
+                  ref={cvDocRef}
+                  style={{
+                    width: `${A4_WIDTH}px`,
+                    minHeight: `${A4_HEIGHT}px`,
+                    height: `${docHeight}px`,
+                    transform: `scale(${currentScale})`,
+                    transformOrigin: 'top left',
+                    position: 'absolute',
+                    top: 0,
+                    left: 0,
+                  }}
+                  className="bg-white"
+                >
+                  <CVRenderer
+                    data={cv}
+                    showWatermark={!cv.isPaid}
+                    scale={1}
+                  />
+                </div>
               </div>
             </div>
           </div>

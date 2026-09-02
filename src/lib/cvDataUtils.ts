@@ -4,8 +4,8 @@ import { getProfilePhoto } from './defaultAvatar';
 
 /**
  * Returns effective CVData for live rendering and preview.
- * Merges user-entered data with standard realistic sample data when fields are empty.
- * In real-time, whenever the user types in any section, their inputs immediately replace the sample data.
+ * Ensures the preview is always complete, formatted according to the selected template,
+ * and updates seamlessly in direct real-time as the user edits any field in the form.
  */
 export function getEffectiveCVData(cv: CVData): CVData {
   if (!cv) return cv;
@@ -15,21 +15,36 @@ export function getEffectiveCVData(cv: CVData): CVData {
   const sample = templateDef.sampleCV;
 
   // 1. Personal Info
-  const userPI = cv.personalInfo || {} as any;
-  const samplePI = sample.personalInfo || {} as any;
+  const userPI = cv.personalInfo || ({} as any);
+  const samplePI = sample.personalInfo || ({} as any);
 
-  const firstName = userPI.firstName?.trim() ? userPI.firstName : samplePI.firstName;
-  const lastName = userPI.lastName?.trim() ? userPI.lastName : samplePI.lastName;
-  const title = userPI.title?.trim() ? userPI.title : samplePI.title;
-  const email = userPI.email?.trim() ? userPI.email : samplePI.email;
-  const phone = userPI.phone?.trim() ? userPI.phone : samplePI.phone;
-  const city = userPI.city?.trim() ? userPI.city : samplePI.city;
-  const country = userPI.country?.trim() ? userPI.country : samplePI.country;
-  const linkedin = userPI.linkedin?.trim() ? userPI.linkedin : samplePI.linkedin;
-  const website = userPI.website?.trim() ? userPI.website : samplePI.website;
+  // If user has entered a value (even empty string when deliberately cleared), respect it,
+  // but if both firstName & lastName are empty/whitespace, provide readable placeholders so the header stays structured
+  const hasUserFirstName = userPI.firstName !== undefined;
+  const hasUserLastName = userPI.lastName !== undefined;
 
-  // Photo: user uploaded photo takes precedence, otherwise provisional placeholder photo
-  const photoUrl = getProfilePhoto(userPI.photoUrl);
+  let firstName = hasUserFirstName ? userPI.firstName : (samplePI.firstName || 'Prénom');
+  let lastName = hasUserLastName ? userPI.lastName : (samplePI.lastName || 'Nom');
+
+  // If both are empty strings (e.g. fresh empty state), show helpful placeholder names
+  if (!firstName?.trim() && !lastName?.trim()) {
+    firstName = samplePI.firstName || 'Prénom';
+    lastName = samplePI.lastName || 'Nom';
+  }
+
+  const title = userPI.title !== undefined 
+    ? userPI.title 
+    : (samplePI.title || 'Titre Professionnel');
+
+  const email = userPI.email !== undefined ? userPI.email : (samplePI.email || '');
+  const phone = userPI.phone !== undefined ? userPI.phone : (samplePI.phone || '');
+  const city = userPI.city !== undefined ? userPI.city : (samplePI.city || '');
+  const country = userPI.country !== undefined ? userPI.country : (samplePI.country || '');
+  const linkedin = userPI.linkedin !== undefined ? userPI.linkedin : (samplePI.linkedin || '');
+  const website = userPI.website !== undefined ? userPI.website : (samplePI.website || '');
+
+  // Photo: user uploaded photo takes precedence, otherwise fallback to sample / avatar placeholder
+  const photoUrl = getProfilePhoto(userPI.photoUrl || samplePI.photoUrl);
 
   const effectivePersonalInfo = {
     ...samplePI,
@@ -47,81 +62,69 @@ export function getEffectiveCVData(cv: CVData): CVData {
   };
 
   // 2. Summary
-  const effectiveSummary = cv.summary && cv.summary.trim() ? cv.summary : sample.summary;
+  const effectiveSummary = cv.summary !== undefined ? cv.summary : (sample.summary || '');
 
   // 3. Experiences
-  const hasUserExperiences =
-    Array.isArray(cv.experiences) &&
-    cv.experiences.length > 0 &&
-    cv.experiences.some(
-      (e) =>
-        (e.position && e.position.trim()) ||
-        ((e as any).jobTitle && (e as any).jobTitle.trim()) ||
-        (e.company && e.company.trim()) ||
-        ((e as any).employer && (e as any).employer.trim()) ||
-        (e.description && e.description.trim()) ||
-        (Array.isArray(e.tasks) && e.tasks.length > 0)
-    );
-  const effectiveExperiences = hasUserExperiences ? cv.experiences : sample.experiences;
+  let effectiveExperiences: any[] = [];
+  if (Array.isArray(cv.experiences)) {
+    if (cv.experiences.length > 0) {
+      effectiveExperiences = cv.experiences.map((exp) => ({
+        ...exp,
+        position: exp.position || (exp as any).jobTitle || 'Intitulé du poste',
+        company: exp.company || (exp as any).employer || 'Entreprise',
+        startDate: exp.startDate || '2022',
+        endDate: exp.endDate || '',
+        current: exp.current || false,
+        description: exp.description || '',
+        tasks: Array.isArray(exp.tasks) ? exp.tasks.filter((t) => t && t.trim()) : []
+      }));
+    } else {
+      effectiveExperiences = [];
+    }
+  } else {
+    effectiveExperiences = sample.experiences || [];
+  }
 
   // 4. Educations
-  const hasUserEducations =
-    Array.isArray(cv.educations) &&
-    cv.educations.length > 0 &&
-    cv.educations.some(
-      (e) =>
-        (e.degree && e.degree.trim()) ||
-        (e.institution && e.institution.trim()) ||
-        ((e as any).school && (e as any).school.trim())
-    );
-  const effectiveEducations = hasUserEducations ? cv.educations : sample.educations;
+  let effectiveEducations: any[] = [];
+  if (Array.isArray(cv.educations)) {
+    if (cv.educations.length > 0) {
+      effectiveEducations = cv.educations.map((edu) => ({
+        ...edu,
+        degree: edu.degree || 'Diplôme ou Formation',
+        institution: edu.institution || (edu as any).school || 'Établissement',
+        startDate: edu.startDate || '2020',
+        endDate: edu.endDate || '2022',
+        city: edu.city || '',
+        description: edu.description || ''
+      }));
+    } else {
+      effectiveEducations = [];
+    }
+  } else {
+    effectiveEducations = sample.educations || [];
+  }
 
   // 5. Skills
-  const hasUserSkills =
-    Array.isArray(cv.skills) &&
-    cv.skills.length > 0 &&
-    cv.skills.some((s) => s.name && s.name.trim());
-  const effectiveSkills = hasUserSkills ? cv.skills : sample.skills;
+  const effectiveSkills = Array.isArray(cv.skills) ? cv.skills : (sample.skills || []);
 
   // 6. Languages
-  const hasUserLanguages =
-    Array.isArray(cv.languages) &&
-    cv.languages.length > 0 &&
-    cv.languages.some(
-      (l) =>
-        (l.language && l.language.trim()) ||
-        ((l as any).name && (l as any).name.trim())
-    );
-  const effectiveLanguages = hasUserLanguages ? cv.languages : sample.languages;
+  const effectiveLanguages = Array.isArray(cv.languages) ? cv.languages : (sample.languages || []);
 
   // 7. Certifications
-  const hasUserCertifications =
-    Array.isArray(cv.certifications) &&
-    cv.certifications.length > 0 &&
-    cv.certifications.some(
-      (c) =>
-        (c.title && c.title.trim()) ||
-        ((c as any).name && (c as any).name.trim())
-    );
-  const effectiveCertifications = hasUserCertifications
-    ? cv.certifications
-    : sample.certifications || [];
+  const effectiveCertifications = Array.isArray(cv.certifications) ? cv.certifications : (sample.certifications || []);
 
   // 8. Projects
-  const hasUserProjects =
-    Array.isArray(cv.projects) &&
-    cv.projects.length > 0 &&
-    cv.projects.some((p) => p.title && p.title.trim());
-  const effectiveProjects = hasUserProjects
-    ? cv.projects
-    : sample.projects || [];
+  const effectiveProjects = Array.isArray(cv.projects) ? cv.projects : (sample.projects || []);
 
   // 9. Theme & Primary Color
   const effectiveTheme = {
     ...sample.theme,
     ...cv.theme,
     primaryColor: cv.theme?.primaryColor || templateDef.defaultColor || '#0f766e',
-    showPhoto: cv.theme?.showPhoto !== undefined ? cv.theme.showPhoto : sample.theme.showPhoto,
+    showPhoto: cv.theme?.showPhoto !== undefined ? cv.theme.showPhoto : (sample.theme?.showPhoto !== false),
+    fontFamily: cv.theme?.fontFamily || sample.theme?.fontFamily || 'sans',
+    spacing: cv.theme?.spacing || sample.theme?.spacing || 'normal',
   };
 
   return {

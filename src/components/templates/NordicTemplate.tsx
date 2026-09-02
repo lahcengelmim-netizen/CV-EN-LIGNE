@@ -79,11 +79,11 @@ export const NordicTemplate: React.FC<TemplateProps> = ({ data, lang = 'fr' }) =
       <div className="pt-6 space-y-7">
         {/* Profile Summary */}
         {summary && (
-          <div className="grid grid-cols-1 md:grid-cols-12 gap-4 items-baseline">
-            <div className="md:col-span-3 text-[11px] font-bold tracking-widest uppercase text-zinc-400">
+          <div className="grid grid-cols-12 gap-4 items-baseline">
+            <div className="col-span-3 text-[11px] font-bold tracking-widest uppercase text-zinc-400">
               01 / {sectionTitles?.profile || 'Profil'}
             </div>
-            <div className="md:col-span-9">
+            <div className="col-span-9">
               <p className="text-xs sm:text-sm text-zinc-700 leading-relaxed font-light">
                 {summary}
               </p>
@@ -93,12 +93,12 @@ export const NordicTemplate: React.FC<TemplateProps> = ({ data, lang = 'fr' }) =
 
         {/* Experiences */}
         {experiences && experiences.length > 0 && (
-          <div className="grid grid-cols-1 md:grid-cols-12 gap-4 items-baseline pt-4 border-t border-zinc-100">
-            <div className="md:col-span-3 text-[11px] font-bold tracking-widest uppercase text-zinc-400">
+          <div className="grid grid-cols-12 gap-4 items-baseline pt-4 border-t border-zinc-100">
+            <div className="col-span-3 text-[11px] font-bold tracking-widest uppercase text-zinc-400">
               02 / {sectionTitles?.experience || 'Expériences'}
             </div>
 
-            <div className="md:col-span-9 space-y-6">
+            <div className="col-span-9 space-y-6">
               {experiences.map((exp) => (
                 <div key={exp.id} className="space-y-1.5">
                   <div className="flex flex-col sm:flex-row sm:items-baseline justify-between gap-1">
@@ -134,12 +134,12 @@ export const NordicTemplate: React.FC<TemplateProps> = ({ data, lang = 'fr' }) =
 
         {/* Education */}
         {educations && educations.length > 0 && (
-          <div className="grid grid-cols-1 md:grid-cols-12 gap-4 items-baseline pt-4 border-t border-zinc-100">
-            <div className="md:col-span-3 text-[11px] font-bold tracking-widest uppercase text-zinc-400">
+          <div className="grid grid-cols-12 gap-4 items-baseline pt-4 border-t border-zinc-100">
+            <div className="col-span-3 text-[11px] font-bold tracking-widest uppercase text-zinc-400">
               03 / {sectionTitles?.education || 'Formation'}
             </div>
 
-            <div className="md:col-span-9 space-y-4">
+            <div className="col-span-9 space-y-4">
               {educations.map((edu) => (
                 <div key={edu.id} className="flex flex-col sm:flex-row sm:items-baseline justify-between gap-1">
                   <div>
@@ -157,12 +157,12 @@ export const NordicTemplate: React.FC<TemplateProps> = ({ data, lang = 'fr' }) =
 
         {/* Skills & Languages */}
         {((skills && skills.length > 0) || (languages && languages.length > 0)) && (
-          <div className="grid grid-cols-1 md:grid-cols-12 gap-4 items-baseline pt-4 border-t border-zinc-100">
-            <div className="md:col-span-3 text-[11px] font-bold tracking-widest uppercase text-zinc-400">
+          <div className="grid grid-cols-12 gap-4 items-baseline pt-4 border-t border-zinc-100">
+            <div className="col-span-3 text-[11px] font-bold tracking-widest uppercase text-zinc-400">
               04 / {sectionTitles?.skills || 'Expertise'}
             </div>
 
-            <div className="md:col-span-9 grid grid-cols-1 sm:grid-cols-2 gap-6">
+            <div className="col-span-9 grid grid-cols-1 sm:grid-cols-2 gap-6">
               {/* Skills text list */}
               {skills && skills.length > 0 && (
                 <div className="space-y-2">
@@ -197,12 +197,12 @@ export const NordicTemplate: React.FC<TemplateProps> = ({ data, lang = 'fr' }) =
 
         {/* Certifications & Projects */}
         {(certifications?.length > 0 || projects?.length > 0) && (
-          <div className="grid grid-cols-1 md:grid-cols-12 gap-4 items-baseline pt-4 border-t border-zinc-100">
-            <div className="md:col-span-3 text-[11px] font-bold tracking-widest uppercase text-zinc-400">
+          <div className="grid grid-cols-12 gap-4 items-baseline pt-4 border-t border-zinc-100">
+            <div className="col-span-3 text-[11px] font-bold tracking-widest uppercase text-zinc-400">
               05 / Distinctions
             </div>
 
-            <div className="md:col-span-9 grid grid-cols-1 sm:grid-cols-2 gap-4 text-xs">
+            <div className="col-span-9 grid grid-cols-1 sm:grid-cols-2 gap-4 text-xs">
               {certifications && certifications.map((c) => (
                 <div key={c.id} className="p-2.5 bg-zinc-50 rounded border border-zinc-100 font-light">
                   <div className="font-medium text-zinc-900">{c.title}</div>

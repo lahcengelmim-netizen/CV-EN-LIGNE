@@ -59,9 +59,9 @@ export const ElegantTemplate: React.FC<TemplateProps> = ({ data, lang = 'fr' }) 
             </div>
           )}
 
-          <div className="grid grid-cols-1 md:grid-cols-12 gap-8 pt-2">
+          <div className="grid grid-cols-12 gap-8 pt-2">
             {/* Left Main (8 cols) */}
-            <div className="md:col-span-8 space-y-6">
+            <div className="col-span-8 space-y-6">
               {/* Experience */}
               {experiences && experiences.length > 0 && (
                 <div className="space-y-4">
@@ -129,7 +129,7 @@ export const ElegantTemplate: React.FC<TemplateProps> = ({ data, lang = 'fr' }) 
             </div>
 
             {/* Right Aside (4 cols) */}
-            <div className="md:col-span-4 space-y-6">
+            <div className="col-span-4 space-y-6">
               {/* Education */}
               {educations && educations.length > 0 && (
                 <div className="space-y-3">

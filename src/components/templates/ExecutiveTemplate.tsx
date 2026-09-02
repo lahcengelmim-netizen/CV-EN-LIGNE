@@ -98,9 +98,9 @@ export const ExecutiveTemplate: React.FC<TemplateProps> = ({ data, lang = 'fr' }
           </div>
         )}
 
-        <div className="grid grid-cols-1 md:grid-cols-12 gap-8">
+        <div className="grid grid-cols-12 gap-8">
           {/* Main Experience Column (7 cols) */}
-          <div className="md:col-span-7 space-y-6">
+          <div className="col-span-7 space-y-6">
             {/* Experience Section */}
             {experiences && experiences.length > 0 && (
               <div className="space-y-4">
@@ -175,7 +175,7 @@ export const ExecutiveTemplate: React.FC<TemplateProps> = ({ data, lang = 'fr' }
           </div>
 
           {/* Right Sidebar Column (5 cols) */}
-          <div className="md:col-span-5 space-y-6">
+          <div className="col-span-5 space-y-6">
             {/* Core Competencies Matrix */}
             {skills && skills.length > 0 && (
               <div className="space-y-3">

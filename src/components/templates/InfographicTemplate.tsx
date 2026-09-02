@@ -12,10 +12,10 @@ export const InfographicTemplate: React.FC<TemplateProps> = ({ data, lang = 'fr'
   const primaryColor = theme?.primaryColor || '#8b5cf6'; // Creative Violet
 
   return (
-    <div className="w-full bg-slate-50 text-slate-800 min-h-[297mm] flex flex-col md:flex-row font-sans select-text">
+    <div className="w-full bg-slate-50 text-slate-800 min-h-[297mm] flex flex-row font-sans select-text">
       {/* 1. Creative Vibrant Sidebar */}
       <div 
-        className="w-full md:w-[36%] p-7 text-white flex flex-col justify-between shrink-0 space-y-6 shadow-md"
+        className="w-[36%] p-7 text-white flex flex-col justify-between shrink-0 space-y-6 shadow-md"
         style={{ 
           background: `linear-gradient(175deg, ${primaryColor} 0%, #3b0764 100%)` 
         }}
