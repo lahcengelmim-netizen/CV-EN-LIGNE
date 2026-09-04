@@ -26,12 +26,12 @@ export const Navbar = ({
             e.preventDefault();
             onNavigate && onNavigate('home');
           }}
-          className="flex items-center gap-3 cursor-pointer select-none"
+          className="flex items-center gap-3 cursor-pointer select-none shrink-0"
         >
           <img 
             src="/logo.jpg" 
             alt="CV EN LIGNE" 
-            className="h-10 w-auto object-contain" 
+            className="h-12 w-auto object-contain max-h-full block" 
           />
         </a>
 

@@ -41,12 +41,12 @@ export const Navbar: React.FC<NavbarProps> = ({
             e.preventDefault();
             onNavigate('landing');
           }}
-          className="flex items-center gap-2.5 cursor-pointer group"
+          className="flex items-center gap-2.5 cursor-pointer group shrink-0"
         >
           <img 
             src="/logo.jpg" 
             alt="CV EN LIGNE" 
-            className="h-10 w-auto object-contain" 
+            className="h-12 w-auto object-contain max-h-full block" 
           />
         </a>
 
