@@ -1,7 +1,7 @@
 import React from 'react';
 import { LanguageCode } from '../../types';
 import { translations } from '../../lib/translations';
-import { FileText, Sparkles, User, LogOut, Globe, Plus, LayoutDashboard, Shield } from 'lucide-react';
+import { Sparkles, User, LogOut, Globe, Plus, LayoutDashboard, Shield } from 'lucide-react';
 import { adminService } from '../../lib/adminService';
 import { LanguageSelector } from '../common/LanguageSelector';
 
@@ -35,23 +35,20 @@ export const Navbar: React.FC<NavbarProps> = ({
     <header className="sticky top-0 z-40 bg-white/90 backdrop-blur-md border-b border-slate-200/80 transition-all">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 h-16 flex items-center justify-between gap-4">
         {/* Brand Logo */}
-        <div 
-          onClick={() => onNavigate('landing')}
+        <a 
+          href="/"
+          onClick={(e) => {
+            e.preventDefault();
+            onNavigate('landing');
+          }}
           className="flex items-center gap-2.5 cursor-pointer group"
         >
-          <div className="w-10 h-10 rounded-xl bg-gradient-to-tr from-blue-600 to-indigo-600 text-white flex items-center justify-center shadow-md group-hover:scale-105 transition-transform">
-            <FileText className="w-5 h-5" />
-          </div>
-          <div>
-            <div className="font-black text-lg text-slate-900 tracking-tight flex items-center gap-1.5">
-              <span>CV EN LIGNE</span>
-              <span className="px-1.5 py-0.2 bg-blue-100 text-blue-800 text-[10px] font-bold rounded">IA</span>
-            </div>
-            <p className="text-[10px] text-slate-400 font-medium hidden sm:block -mt-0.5">
-              {t.brandTagline}
-            </p>
-          </div>
-        </div>
+          <img 
+            src="/logo.jpg" 
+            alt="CV EN LIGNE" 
+            className="h-10 w-auto object-contain" 
+          />
+        </a>
 
         {/* Navigation Links */}
         <nav className="hidden md:flex items-center gap-6 text-xs font-semibold text-slate-600">

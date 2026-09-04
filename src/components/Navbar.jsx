@@ -20,25 +20,20 @@ export const Navbar = ({
     <header className="sticky top-0 z-40 bg-white/95 backdrop-blur-md border-b border-slate-200 shadow-sm">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 h-16 flex items-center justify-between gap-4">
         {/* Logo & Titre */}
-        <div 
-          onClick={() => onNavigate && onNavigate('home')}
+        <a 
+          href="/"
+          onClick={(e) => {
+            e.preventDefault();
+            onNavigate && onNavigate('home');
+          }}
           className="flex items-center gap-3 cursor-pointer select-none"
         >
-          <div className="w-10 h-10 rounded-xl bg-blue-600 text-white flex items-center justify-center font-black shadow-md">
-            CV
-          </div>
-          <div>
-            <div className="font-extrabold text-lg text-slate-900 tracking-tight flex items-center gap-1.5">
-              <span>CV EN LIGNE</span>
-              <span className="bg-blue-100 text-blue-700 text-[10px] font-bold px-1.5 py-0.5 rounded">
-                PRO
-              </span>
-            </div>
-            <p className="text-[11px] text-slate-400 font-medium hidden sm:block">
-              {t('nav.tagline', 'Créateur de CV professionnel')}
-            </p>
-          </div>
-        </div>
+          <img 
+            src="/logo.jpg" 
+            alt="CV EN LIGNE" 
+            className="h-10 w-auto object-contain" 
+          />
+        </a>
 
         {/* Liens de navigation (Interface traduite) */}
         <nav className="hidden md:flex items-center gap-6 text-sm font-semibold text-slate-600">
