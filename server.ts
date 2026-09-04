@@ -415,7 +415,26 @@ let serverSettings = {
 
 // Secure Admin Credentials & Active Session Store
 const ADMIN_EMAIL = (process.env.ADMIN_EMAIL || 'lahcengelmim@gmail.com').toLowerCase().trim();
-const ADMIN_PASSWORD = process.env.ADMIN_PASSWORD || 'AdminCV2026!';
+
+let adminPassword = process.env.ADMIN_PASSWORD;
+let isGeneratedAdminPassword = false;
+
+if (!adminPassword) {
+  adminPassword = crypto.randomBytes(16).toString('hex');
+  isGeneratedAdminPassword = true;
+}
+
+const ADMIN_PASSWORD = adminPassword;
+
+if (isGeneratedAdminPassword) {
+  console.warn(
+    `\n⚠️  [SECURITY WARNING] ADMIN_PASSWORD environment variable is not set!\n` +
+    `   A temporary random one-time admin password was generated for this session:\n` +
+    `   Admin Email:    ${ADMIN_EMAIL}\n` +
+    `   Admin Password: ${ADMIN_PASSWORD}\n` +
+    `   Please set a secure ADMIN_PASSWORD in your environment variables for production.\n`
+  );
+}
 
 // In-memory cryptographically verified admin sessions: token -> { email: string, expiresAt: number }
 const activeAdminSessions = new Map<string, { email: string; expiresAt: number }>();
@@ -756,10 +775,126 @@ Réponds STRICTEMENT en JSON :
   }
 });
 
-// 5. Payment Order Creation & Verification (Pass Flash $1.99 / Pass Pro 7J $3.99 / Monthly $7.99 / Annual $39.99)
-app.post('/api/payment/create-order', (req: Request, res: Response) => {
+// 5. PayPal API Helper Functions & Real Orders v2 Integration
+function getPayPalConfig() {
+  const clientId = (process.env.PAYPAL_CLIENT_ID || '').trim();
+  const secret = (process.env.PAYPAL_SECRET || '').trim();
+  const mode = (process.env.PAYPAL_MODE || 'sandbox').trim().toLowerCase();
+  const isConfigured = Boolean(clientId && secret);
+  const baseUrl = mode === 'production' 
+    ? 'https://api-m.paypal.com' 
+    : 'https://api-m.sandbox.paypal.com';
+
+  return { clientId, secret, mode, isConfigured, baseUrl };
+}
+
+async function getPayPalAccessToken(): Promise<string> {
+  const { clientId, secret, baseUrl, isConfigured } = getPayPalConfig();
+  if (!isConfigured) {
+    throw new Error('PAYPAL_NOT_CONFIGURED');
+  }
+
+  const basicAuth = Buffer.from(`${clientId}:${secret}`).toString('base64');
+  const response = await fetch(`${baseUrl}/v1/oauth2/token`, {
+    method: 'POST',
+    headers: {
+      'Authorization': `Basic ${basicAuth}`,
+      'Content-Type': 'application/x-www-form-urlencoded'
+    },
+    body: 'grant_type=client_credentials'
+  });
+
+  if (!response.ok) {
+    const errorText = await response.text();
+    console.error('[PayPal] Failed to obtain access token:', errorText);
+    throw new Error(`PayPal Auth Error (${response.status}): ${errorText}`);
+  }
+
+  const tokenData = await response.json() as { access_token: string };
+  return tokenData.access_token;
+}
+
+async function createPayPalV2Order(amount: number, currency: string, planName: string, customMeta: any) {
+  const { baseUrl } = getPayPalConfig();
+  const accessToken = await getPayPalAccessToken();
+
+  const response = await fetch(`${baseUrl}/v2/checkout/orders`, {
+    method: 'POST',
+    headers: {
+      'Authorization': `Bearer ${accessToken}`,
+      'Content-Type': 'application/json'
+    },
+    body: JSON.stringify({
+      intent: 'CAPTURE',
+      purchase_units: [
+        {
+          description: planName,
+          custom_id: JSON.stringify(customMeta),
+          amount: {
+            currency_code: currency,
+            value: amount.toFixed(2)
+          }
+        }
+      ]
+    })
+  });
+
+  const orderData = await response.json() as any;
+  if (!response.ok) {
+    console.error('[PayPal] Create order failed:', orderData);
+    throw new Error(orderData.message || 'Erreur lors de la création de la commande PayPal.');
+  }
+
+  return orderData;
+}
+
+async function capturePayPalV2Order(orderId: string) {
+  const { baseUrl } = getPayPalConfig();
+  const accessToken = await getPayPalAccessToken();
+
+  const response = await fetch(`${baseUrl}/v2/checkout/orders/${encodeURIComponent(orderId)}/capture`, {
+    method: 'POST',
+    headers: {
+      'Authorization': `Bearer ${accessToken}`,
+      'Content-Type': 'application/json'
+    }
+  });
+
+  const captureData = await response.json() as any;
+  if (!response.ok) {
+    console.error('[PayPal] Capture order failed:', captureData);
+    throw new Error(captureData.message || 'Erreur lors de la capture de la commande PayPal.');
+  }
+
+  return captureData;
+}
+
+// Payment Configuration Endpoint (Client checks whether real credentials exist)
+app.get('/api/payment/config', (req: Request, res: Response) => {
+  const { isConfigured, mode, clientId } = getPayPalConfig();
+  res.json({
+    configured: isConfigured,
+    mode,
+    clientId: clientId || process.env.VITE_PAYPAL_CLIENT_ID || '',
+    currency: serverSettings.currency || 'USD'
+  });
+});
+
+// Order Creation Endpoint (Gated by PayPal Configuration)
+app.post('/api/payment/create-order', async (req: Request, res: Response) => {
   try {
     const { cvId, cvTitle, userId, userEmail, userName, planType = 'single_cv' } = req.body;
+    const { isConfigured } = getPayPalConfig();
+
+    // 1. Gate: if PAYPAL_CLIENT_ID/PAYPAL_SECRET are not set, return sandbox not configured response
+    if (!isConfigured) {
+      return res.status(503).json({
+        success: false,
+        configured: false,
+        code: 'PAYPAL_NOT_CONFIGURED',
+        error: 'Sandbox PayPal non configurée : veuillez définir PAYPAL_CLIENT_ID et PAYPAL_SECRET dans les variables d\'environnement pour activer PayPal.'
+      });
+    }
 
     let amount = 1.99;
     let planName = 'Pass Flash (1 Téléchargement)';
@@ -783,13 +918,21 @@ app.post('/api/payment/create-order', (req: Request, res: Response) => {
     }
 
     const currency = serverSettings.currency || 'USD';
-    const orderId = `ord_${planType.substring(0, 2)}_${Math.random().toString(36).substring(2, 9)}_${Date.now()}`;
-
-    res.json({
-      success: true,
-      orderId,
+    const customMeta = {
       cvId: cvId || 'all_cvs',
-      cvTitle: cvTitle || (planType === 'single_cv' || planType === 'flash' ? 'CV Professionnel' : planName),
+      userId: userId || 'guest',
+      userEmail: userEmail || '',
+      planType
+    };
+
+    const paypalOrder = await createPayPalV2Order(amount, currency, planName, customMeta);
+
+    return res.json({
+      success: true,
+      configured: true,
+      orderId: paypalOrder.id,
+      cvId: cvId || 'all_cvs',
+      cvTitle: cvTitle || planName,
       planType,
       planName,
       amount,
@@ -797,16 +940,20 @@ app.post('/api/payment/create-order', (req: Request, res: Response) => {
       description
     });
   } catch (error: any) {
-    res.status(500).json({ error: 'Impossible d\'initier la commande.' });
+    console.error('[Payment] Create Order error:', error);
+    return res.status(500).json({
+      success: false,
+      error: error?.message || 'Impossible d\'initier la commande PayPal.'
+    });
   }
 });
 
-app.post('/api/payment/verify', (req: Request, res: Response) => {
+// Capture & Verification Handler
+async function handleOrderCapture(req: Request, res: Response) {
   try {
     const {
       orderId,
       cvId,
-      paymentMethod = 'Carte Bancaire (Stripe/CB)',
       userId = 'guest',
       userEmail = '',
       userName = '',
@@ -815,7 +962,33 @@ app.post('/api/payment/verify', (req: Request, res: Response) => {
     } = req.body;
 
     if (!orderId) {
-      return res.status(400).json({ error: 'Identifiant de commande manquant.' });
+      return res.status(400).json({ success: false, verified: false, error: 'Identifiant de commande manquant.' });
+    }
+
+    const { isConfigured } = getPayPalConfig();
+
+    // 2. Gate: if credentials are not set, return sandbox not configured response
+    if (!isConfigured) {
+      return res.status(503).json({
+        success: false,
+        verified: false,
+        configured: false,
+        code: 'PAYPAL_NOT_CONFIGURED',
+        error: 'Sandbox PayPal non configurée : aucun crédit ni téléchargement ne peut être accordé sans capture PayPal réelle.'
+      });
+    }
+
+    // 3. Real PayPal Capture via Orders v2 API
+    const captureResult = await capturePayPalV2Order(orderId);
+
+    // CRITICAL: Strictly ensure status is COMPLETED before granting any credit
+    if (!captureResult || captureResult.status !== 'COMPLETED') {
+      return res.status(402).json({
+        success: false,
+        verified: false,
+        status: captureResult?.status || 'FAILED',
+        error: `Paiement PayPal non complété (statut: ${captureResult?.status || 'INCONNU'}). Aucun crédit de téléchargement n'a été accordé.`
+      });
     }
 
     let amount = 1.99;
@@ -856,7 +1029,7 @@ app.post('/api/payment/verify', (req: Request, res: Response) => {
 
     const targetCvId = cvId || 'cv_unlimited';
     const verificationToken = `token_paid_${Buffer.from(`${targetCvId}:${planType}:${Date.now()}`).toString('base64')}`;
-    const reference = `REF-TX-${Math.floor(100000 + Math.random() * 900000)}`;
+    const reference = captureResult.id || `PAYPAL-${orderId}`;
     const now = new Date();
 
     const newPaymentRecord: ServerPaymentRecord = {
@@ -874,12 +1047,12 @@ app.post('/api/payment/verify', (req: Request, res: Response) => {
       status: 'succeeded',
       reference,
       createdAt: now.toISOString(),
-      paymentMethod
+      paymentMethod: 'PayPal (Orders v2)'
     };
 
     serverPayments.unshift(newPaymentRecord);
 
-    // Update or create user record in server database
+    // Update or create user record in server database ONLY on COMPLETED capture
     let userRecord = serverUsers.find(u => (userId && userId !== 'guest' && u.id === userId) || (userEmail && u.email.toLowerCase() === userEmail.toLowerCase()));
     const subscriptionStart = now.toISOString();
     const subscriptionEnd = subscriptionDurationDays > 0 
@@ -920,9 +1093,10 @@ app.post('/api/payment/verify', (req: Request, res: Response) => {
       });
     }
 
-    res.json({
+    return res.json({
       success: true,
       verified: true,
+      status: 'COMPLETED',
       cvId: targetCvId,
       orderId,
       planType,
@@ -940,9 +1114,17 @@ app.post('/api/payment/verify', (req: Request, res: Response) => {
       canDownload: true
     });
   } catch (error: any) {
-    res.status(500).json({ error: 'Échec de la validation du paiement.' });
+    console.error('[Payment] Capture Order error:', error);
+    return res.status(500).json({
+      success: false,
+      verified: false,
+      error: error?.message || 'Erreur lors de la capture du paiement PayPal.'
+    });
   }
-});
+}
+
+app.post('/api/payment/capture-order', handleOrderCapture);
+app.post('/api/payment/verify', handleOrderCapture);
 
 // 5.b User Pass Status Verification Endpoint
 app.post('/api/user/pass-status', (req: Request, res: Response) => {
@@ -1711,8 +1893,16 @@ async function start() {
     });
   }
 
-  app.listen(PORT, '0.0.0.0', () => {
+  const server = app.listen(PORT, '0.0.0.0', () => {
     console.log(`🚀 CV EN LIGNE Server running on port ${PORT}`);
+  });
+
+  server.on('error', (err: any) => {
+    if (err.code === 'EADDRINUSE') {
+      console.warn(`[WARN] Port ${PORT} is already in use by another running instance.`);
+    } else {
+      console.error('[ERROR] Server error:', err);
+    }
   });
 }
 
