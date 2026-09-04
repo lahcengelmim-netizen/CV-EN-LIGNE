@@ -44,6 +44,21 @@ export const AdminPortal: React.FC<AdminPortalProps> = ({ onBackToSite, currentU
     checkAdmin();
   }, [currentUser]);
 
+  // Auto-refresh stats when on dashboard tab
+  useEffect(() => {
+    if (!isAuthenticated) return;
+
+    // Initial load
+    loadStats();
+
+    // Live refresh every 4 seconds
+    const interval = setInterval(() => {
+      loadStats();
+    }, 4000);
+
+    return () => clearInterval(interval);
+  }, [isAuthenticated, currentTab]);
+
   const loadStats = async () => {
     const data = await adminService.getStats();
     if (data) {
@@ -97,7 +112,7 @@ export const AdminPortal: React.FC<AdminPortalProps> = ({ onBackToSite, currentU
       unreadMessagesCount={unreadCount}
     >
       {currentTab === 'dashboard' && (
-        <AdminDashboardView stats={stats} onNavigate={setCurrentTab} />
+        <AdminDashboardView stats={stats} onNavigate={setCurrentTab} onRefresh={loadStats} />
       )}
       {currentTab === 'users' && <AdminUsersView />}
       {currentTab === 'cvs' && <AdminCVsView />}

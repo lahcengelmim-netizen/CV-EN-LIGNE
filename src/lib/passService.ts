@@ -3,13 +3,13 @@ import { PassType, UserPassState } from '../types';
 const LOCAL_STORAGE_PASS_KEY = 'cvenligne_active_user_pass_v1';
 
 export const DEFAULT_PASS_STATE: UserPassState = {
-  activePass: 'none',
-  downloadCredits: 0,
+  activePass: 'free',
+  downloadCredits: 999999,
   passExpiresAt: null,
-  unlockedCoverLetters: false,
+  unlockedCoverLetters: true,
   totalDownloads: 0,
-  isUnlimited: false,
-  canDownload: false,
+  isUnlimited: true,
+  canDownload: true,
   canEdit: true
 };
 
@@ -30,59 +30,16 @@ export const passService = {
   },
 
   /**
-   * Evaluate if a pass is still valid based on expiration date or credits
+   * Evaluate if a pass is still valid - during the Free Test Phase, all passes are 100% free, active, and unlimited
    */
   evaluatePassValidity(pass: UserPassState): UserPassState {
-    const now = new Date().getTime();
-
-    // 1. Time-based passes (Pro 7 days, Monthly 30 days, Annual 365 days)
-    if (['pro', 'monthly', 'yearly', 'annual'].includes(pass.activePass)) {
-      if (pass.passExpiresAt) {
-        const expiryTime = new Date(pass.passExpiresAt).getTime();
-        if (now > expiryTime) {
-          // Pass has expired
-          return {
-            ...pass,
-            activePass: 'none',
-            downloadCredits: 0,
-            isUnlimited: false,
-            canDownload: false,
-            unlockedCoverLetters: false,
-            canEdit: true
-          };
-        }
-      }
-      // Valid unlimited pass
-      return {
-        ...pass,
-        isUnlimited: true,
-        canDownload: true,
-        unlockedCoverLetters: true,
-        canEdit: true
-      };
-    }
-
-    // 2. Pass Flash ($1.99 - Single Purchase - 1 Download Credit)
-    if (pass.activePass === 'flash' || pass.activePass === 'single_cv') {
-      const hasCredit = (pass.downloadCredits || 0) >= 1;
-      return {
-        ...pass,
-        activePass: 'flash',
-        isUnlimited: false,
-        canDownload: hasCredit,
-        unlockedCoverLetters: false,
-        canEdit: hasCredit // Once consumed (0 credit), edits are locked without a new pass
-      };
-    }
-
-    // 3. No pass
     return {
       ...pass,
-      activePass: 'none',
-      downloadCredits: 0,
-      isUnlimited: false,
-      canDownload: false,
-      unlockedCoverLetters: false,
+      activePass: 'free',
+      downloadCredits: 999999,
+      isUnlimited: true,
+      canDownload: true,
+      unlockedCoverLetters: true,
       canEdit: true
     };
   },
@@ -188,8 +145,7 @@ export const passService = {
   },
 
   /**
-   * Consume download credit (e.g. Flash Pass 1 -> 0, or Unlimited + 1 count)
-   * Enforces backend decrement and database persistence
+   * Consume download credit - in Free Test Phase, all downloads are 100% free and unlimited
    */
   async consumeDownload(params: {
     cvId?: string;
@@ -204,82 +160,36 @@ export const passService = {
   }> {
     const currentPass = this.getLocalPass();
 
-    // 1. Initial check
-    if (!currentPass.canDownload && currentPass.downloadCredits <= 0 && !currentPass.isUnlimited) {
-      return {
-        success: false,
-        remainingCredits: 0,
-        activePass: 'none',
-        requirePass: true,
-        error: currentPass.activePass === 'flash'
-          ? 'Votre crédit de téléchargement Pass Flash a été utilisé. Achetez un nouveau pass pour continuer.'
-          : 'Aucun pass actif. Veuillez choisir un pass pour télécharger votre CV.'
-      };
-    }
-
-    // 2. Call backend consumer
+    // Call backend consumer to notify and track download
     try {
-      const res = await fetch('/api/user/consume-download', {
+      await fetch('/api/user/consume-download', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
           cvId: params.cvId,
           userId: params.userId,
           userEmail: params.userEmail,
-          currentPassType: currentPass.activePass
+          currentPassType: 'free'
         })
       });
-
-      const data = await res.json();
-
-      if (!res.ok || !data.success) {
-        return {
-          success: false,
-          remainingCredits: data.remainingCredits || 0,
-          activePass: data.activePass || 'none',
-          requirePass: data.requirePass || true,
-          error: data.error || 'Impossible de valider le téléchargement.'
-        };
-      }
-
-      // Update local pass from server response
-      const updated = this.saveLocalPass({
-        downloadCredits: data.remainingCredits,
-        activePass: data.activePass,
-        totalDownloads: (currentPass.totalDownloads || 0) + 1,
-        canEdit: data.canEdit ?? (data.remainingCredits > 0 || currentPass.isUnlimited)
-      });
-
-      return {
-        success: true,
-        remainingCredits: updated.downloadCredits,
-        activePass: updated.activePass
-      };
     } catch (err) {
-      console.warn('Backend download consume failed, applying client fallback decrement:', err);
-      
-      // Resilient fallback decrement for Flash Pass
-      if (currentPass.activePass === 'flash' || currentPass.activePass === 'single_cv') {
-        const remaining = Math.max(0, currentPass.downloadCredits - 1);
-        const updated = this.saveLocalPass({
-          downloadCredits: remaining,
-          activePass: remaining > 0 ? 'flash' : 'none',
-          canDownload: remaining > 0,
-          canEdit: remaining > 0,
-          totalDownloads: (currentPass.totalDownloads || 0) + 1
-        });
-        return {
-          success: true,
-          remainingCredits: updated.downloadCredits,
-          activePass: updated.activePass
-        };
-      }
-
-      return {
-        success: true,
-        remainingCredits: currentPass.downloadCredits,
-        activePass: currentPass.activePass
-      };
+      console.warn('Backend consume-download notification error (harmless in free mode):', err);
     }
+
+    const updated = this.saveLocalPass({
+      downloadCredits: 999999,
+      activePass: 'free',
+      isUnlimited: true,
+      canDownload: true,
+      canEdit: true,
+      unlockedCoverLetters: true,
+      totalDownloads: (currentPass.totalDownloads || 0) + 1
+    });
+
+    return {
+      success: true,
+      remainingCredits: 999999,
+      activePass: 'free'
+    };
   }
 };

@@ -9,6 +9,7 @@ import {
   CheckCircle2
 } from 'lucide-react';
 import { adminService } from '../../lib/adminService';
+import { activityTracker } from '../../lib/activityTracker';
 
 interface AdminLoginModalProps {
   isOpen: boolean;
@@ -37,6 +38,14 @@ export const AdminLoginModal: React.FC<AdminLoginModalProps> = ({
     setLoading(false);
 
     if (res.success) {
+      activityTracker.updateUser({
+        userId: 'usr_admin',
+        userEmail: email,
+        userName: 'Lahcen (Super Admin)',
+        role: 'admin'
+      });
+      activityTracker.logAction('login', 'Connexion Administrateur', `Connexion au tableau de bord (${email})`);
+      activityTracker.sendHeartbeat('/admin', 'Portail Administrateur', 'Connecté au Tableau de Bord Admin');
       onSuccess();
       onClose();
     } else {

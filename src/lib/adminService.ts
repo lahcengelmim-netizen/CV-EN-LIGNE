@@ -276,5 +276,19 @@ export const adminService = {
       console.error('Error updating admin settings:', err);
       return false;
     }
+  },
+
+  async resetStats(): Promise<{ success: boolean; message?: string }> {
+    try {
+      const res = await fetch('/api/admin/reset-stats', {
+        method: 'POST',
+        headers: this.getHeaders()
+      });
+      const json = await res.json();
+      return { success: Boolean(res.ok && json.success), message: json.message };
+    } catch (err) {
+      console.error('Error resetting admin stats:', err);
+      return { success: false, message: 'Erreur de connexion au serveur.' };
+    }
   }
 };

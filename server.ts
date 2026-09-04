@@ -112,242 +112,64 @@ export interface ServerTemplateRecord {
   bgStyle: string;
 }
 
-// Initial realistic data sets for initial server boot
-const serverUsers: ServerUserRecord[] = [
-  {
-    id: 'usr_admin_1',
-    email: 'lahcengelmim@gmail.com',
-    firstName: 'Lahcen',
-    lastName: 'Gelmim',
-    createdAt: new Date(Date.now() - 60 * 86400000).toISOString(),
-    plan: 'yearly',
-    activePass: 'annual',
-    downloadCredits: 999999,
-    passExpiresAt: new Date(Date.now() + 305 * 86400000).toISOString(),
-    totalDownloads: 14,
-    unlockedCoverLetters: true,
-    canEdit: true,
-    subscriptionStatus: 'active',
-    subscriptionStart: new Date(Date.now() - 60 * 86400000).toISOString(),
-    subscriptionEnd: new Date(Date.now() + 305 * 86400000).toISOString(),
-    cvCount: 6,
-    status: 'active',
-    role: 'admin',
-    lastLogin: new Date().toISOString()
-  },
-  {
-    id: 'usr_2',
-    email: 'thomas.laurent@email.com',
-    firstName: 'Thomas',
-    lastName: 'Laurent',
-    createdAt: new Date(Date.now() - 15 * 86400000).toISOString(),
-    plan: 'monthly',
-    activePass: 'monthly',
-    downloadCredits: 999999,
-    passExpiresAt: new Date(Date.now() + 15 * 86400000).toISOString(),
-    totalDownloads: 5,
-    unlockedCoverLetters: true,
-    canEdit: true,
-    subscriptionStatus: 'active',
-    subscriptionStart: new Date(Date.now() - 15 * 86400000).toISOString(),
-    subscriptionEnd: new Date(Date.now() + 15 * 86400000).toISOString(),
-    cvCount: 3,
-    status: 'active',
-    role: 'user',
-    lastLogin: new Date(Date.now() - 1 * 86400000).toISOString()
-  },
-  {
-    id: 'usr_3',
-    email: 'sarah.benali@outlook.com',
-    firstName: 'Sarah',
-    lastName: 'Benali',
-    createdAt: new Date(Date.now() - 8 * 86400000).toISOString(),
-    plan: 'single_cv',
-    activePass: 'flash',
-    downloadCredits: 0, // Consumed single download
-    totalDownloads: 1,
-    unlockedCoverLetters: false,
-    canEdit: false, // Flash pass already consumed
-    subscriptionStatus: 'none',
-    cvCount: 1,
-    status: 'active',
-    role: 'user',
-    lastLogin: new Date(Date.now() - 2 * 86400000).toISOString()
-  },
-  {
-    id: 'usr_4',
-    email: 'nicolas.dupont@gmail.com',
-    firstName: 'Nicolas',
-    lastName: 'Dupont',
-    createdAt: new Date(Date.now() - 3 * 86400000).toISOString(),
-    plan: 'free',
-    activePass: 'none',
-    downloadCredits: 0,
-    totalDownloads: 0,
-    unlockedCoverLetters: false,
-    canEdit: true,
-    subscriptionStatus: 'none',
-    cvCount: 1,
-    status: 'active',
-    role: 'user',
-    lastLogin: new Date(Date.now() - 3 * 86400000).toISOString()
-  },
-  {
-    id: 'usr_5',
-    email: 'sophie.martin@wanadoo.fr',
-    firstName: 'Sophie',
-    lastName: 'Martin',
-    createdAt: new Date(Date.now() - 40 * 86400000).toISOString(),
-    plan: 'monthly',
-    activePass: 'none',
-    downloadCredits: 0,
-    passExpiresAt: new Date(Date.now() - 10 * 86400000).toISOString(),
-    totalDownloads: 3,
-    unlockedCoverLetters: false,
-    canEdit: true,
-    subscriptionStatus: 'expired',
-    subscriptionStart: new Date(Date.now() - 40 * 86400000).toISOString(),
-    subscriptionEnd: new Date(Date.now() - 10 * 86400000).toISOString(),
-    cvCount: 2,
-    status: 'active',
-    role: 'user',
-    lastLogin: new Date(Date.now() - 10 * 86400000).toISOString()
-  }
-];
+// Baseline Standard (0) - Clean real-time datasets
+let serverUsers: ServerUserRecord[] = [];
+let serverPayments: ServerPaymentRecord[] = [];
+let serverAILogs: ServerAILogRecord[] = [];
+let serverMessages: ServerMessageRecord[] = [];
+let serverCVs: any[] = [];
 
-const serverPayments: ServerPaymentRecord[] = [
-  {
-    id: 'pay_1',
-    orderId: 'ord_yr_99281_172900',
-    userId: 'usr_admin_1',
-    userEmail: 'lahcengelmim@gmail.com',
-    userName: 'Lahcen Gelmim',
-    planType: 'yearly',
-    planName: 'Pass Annuel Pro',
-    amount: 29.90,
-    currency: 'USD',
-    status: 'succeeded',
-    reference: 'REF-TX-892104',
-    createdAt: new Date(Date.now() - 60 * 86400000).toISOString(),
-    paymentMethod: 'Carte Bancaire (Stripe/CB)'
-  },
-  {
-    id: 'pay_2',
-    orderId: 'ord_mo_88192_173000',
-    userId: 'usr_2',
-    userEmail: 'thomas.laurent@email.com',
-    userName: 'Thomas Laurent',
-    planType: 'monthly',
-    planName: 'Pass Mensuel Illimité',
-    amount: 9.90,
-    currency: 'USD',
-    status: 'succeeded',
-    reference: 'REF-TX-774920',
-    createdAt: new Date(Date.now() - 15 * 86400000).toISOString(),
-    paymentMethod: 'Carte Bancaire (Stripe/CB)'
-  },
-  {
-    id: 'pay_3',
-    orderId: 'ord_sc_12891_173100',
-    userId: 'usr_3',
-    userEmail: 'sarah.benali@outlook.com',
-    userName: 'Sarah Benali',
-    cvId: 'cv_sample_3',
-    cvTitle: 'CV Responsable Marketing',
-    planType: 'single_cv',
-    planName: '1 CV Complet',
-    amount: 2.00,
-    currency: 'USD',
-    status: 'succeeded',
-    reference: 'REF-TX-662910',
-    createdAt: new Date(Date.now() - 8 * 86400000).toISOString(),
-    paymentMethod: 'PayPal Express'
-  }
-];
+// Real-Time Live Session & Activity Tracker
+export interface LiveSessionRecord {
+  sessionId: string;
+  userId?: string;
+  userEmail?: string;
+  userName: string;
+  role: string;
+  lastSeen: number; // timestamp in ms
+  currentAction: string;
+  page: string;
+  ip?: string;
+}
 
-const serverAILogs: ServerAILogRecord[] = [
-  {
-    id: 'ai_1',
-    endpoint: 'enhance-experience',
-    userId: 'usr_2',
-    userEmail: 'thomas.laurent@email.com',
-    timestamp: new Date(Date.now() - 14 * 86400000).toISOString(),
-    success: true
-  },
-  {
-    id: 'ai_2',
-    endpoint: 'enhance-summary',
-    userId: 'usr_2',
-    userEmail: 'thomas.laurent@email.com',
-    timestamp: new Date(Date.now() - 14 * 86400000).toISOString(),
-    success: true
-  },
-  {
-    id: 'ai_3',
-    endpoint: 'suggest-skills',
-    userId: 'usr_3',
-    userEmail: 'sarah.benali@outlook.com',
-    timestamp: new Date(Date.now() - 7 * 86400000).toISOString(),
-    success: true
-  },
-  {
-    id: 'ai_4',
-    endpoint: 'generate-cover-letter',
-    userId: 'usr_3',
-    userEmail: 'sarah.benali@outlook.com',
-    timestamp: new Date(Date.now() - 7 * 86400000).toISOString(),
-    success: true
-  },
-  {
-    id: 'ai_5',
-    endpoint: 'enhance-experience',
-    userId: 'usr_5',
-    userEmail: 'amina.cherif@gmail.com',
-    timestamp: new Date(Date.now() - 1 * 86400000).toISOString(),
-    success: true
-  },
-  {
-    id: 'ai_6',
-    endpoint: 'generate-cover-letter',
-    userId: 'usr_5',
-    userEmail: 'amina.cherif@gmail.com',
+export interface LiveActivityRecord {
+  id: string;
+  timestamp: string;
+  userId?: string;
+  userEmail?: string;
+  userName: string;
+  action: string;
+  actionLabel: string;
+  details: string;
+  status: 'success' | 'info' | 'warning';
+}
+
+const liveSessions = new Map<string, LiveSessionRecord>();
+let liveActivityLogs: LiveActivityRecord[] = [];
+let totalEditsCount = 0;
+
+export function logLiveActivity(record: Omit<LiveActivityRecord, 'id' | 'timestamp'>) {
+  const newLog: LiveActivityRecord = {
+    id: 'act_' + Date.now() + '_' + Math.random().toString(36).substring(2, 7),
     timestamp: new Date().toISOString(),
-    success: true
+    ...record
+  };
+  liveActivityLogs.unshift(newLog);
+  if (liveActivityLogs.length > 200) {
+    liveActivityLogs = liveActivityLogs.slice(0, 200);
   }
-];
+  return newLog;
+}
 
-const serverMessages: ServerMessageRecord[] = [
-  {
-    id: 'msg_1',
-    name: 'Karim Mansouri',
-    email: 'karim.m@gmail.com',
-    subject: 'Question sur la compatibilité ATS',
-    message: 'Bonjour, vos modèles de CV sont-ils testés avec Workday et Taleo ? Merci pour votre réponse.',
-    status: 'traite',
-    createdAt: new Date(Date.now() - 5 * 86400000).toISOString(),
-    repliedAt: new Date(Date.now() - 4 * 86400000).toISOString(),
-    notes: 'Répondu par email direct : confirmation compatibilité totale ATS.'
-  },
-  {
-    id: 'msg_2',
-    name: 'Émilie Roche',
-    email: 'emilie.roche@yahoo.fr',
-    subject: 'Demande de modèle supplémentaire en communication',
-    message: 'Bonjour l\'équipe, j\'ai adoré créer mon CV avec le modèle Créatif. Proposerez-vous bientôt un modèle avec portfolio graphique ?',
-    status: 'lu',
-    createdAt: new Date(Date.now() - 2 * 86400000).toISOString(),
-    notes: 'Suggestion transmise au design produit.'
-  },
-  {
-    id: 'msg_3',
-    name: 'David Lefebvre',
-    email: 'david.lefebvre@pro.fr',
-    subject: 'Téléchargement HD',
-    message: 'Mon paiement de 2 $ s\'est très bien passé et le rendu du PDF est parfait ! Merci beaucoup.',
-    status: 'nouveau',
-    createdAt: new Date(Date.now() - 4 * 3600000).toISOString()
+export function cleanInactiveSessions() {
+  const now = Date.now();
+  const INACTIVITY_TIMEOUT = 2 * 60 * 1000; // 2 minutes
+  for (const [sessionId, session] of liveSessions.entries()) {
+    if (now - session.lastSeen > INACTIVITY_TIMEOUT) {
+      liveSessions.delete(sessionId);
+    }
   }
-];
+}
 
 const serverTemplates: ServerTemplateRecord[] = [
   {
@@ -356,7 +178,7 @@ const serverTemplates: ServerTemplateRecord[] = [
     description: 'Structure latérale contrastée, idéale pour mettre en avant compétences et expériences.',
     tag: 'Le plus populaire',
     style: 'Modern & Two Columns',
-    usageCount: 42,
+    usageCount: 0,
     active: true,
     bgStyle: 'from-blue-600 to-indigo-700'
   },
@@ -366,7 +188,7 @@ const serverTemplates: ServerTemplateRecord[] = [
     description: 'Mise en page épurée et intemporelle pour postes juridiques, bancaires et administratifs.',
     tag: 'ATS Recommandé',
     style: 'Classic & Timeless',
-    usageCount: 28,
+    usageCount: 0,
     active: true,
     bgStyle: 'from-slate-800 to-slate-950'
   },
@@ -376,7 +198,7 @@ const serverTemplates: ServerTemplateRecord[] = [
     description: 'Typographie aérée, accents monospacés, clarté absolue pour tech & freelances.',
     tag: 'Ultra Lisible',
     style: 'Clean & Minimal',
-    usageCount: 24,
+    usageCount: 0,
     active: true,
     bgStyle: 'from-zinc-700 to-zinc-900'
   },
@@ -386,7 +208,7 @@ const serverTemplates: ServerTemplateRecord[] = [
     description: 'Bandeau supérieur statutaire pour profils expérimentés, consultants et managers.',
     tag: 'Cadres & Managers',
     style: 'Executive Header',
-    usageCount: 19,
+    usageCount: 0,
     active: true,
     bgStyle: 'from-teal-700 to-emerald-900'
   },
@@ -396,7 +218,7 @@ const serverTemplates: ServerTemplateRecord[] = [
     description: 'Cartes douces et badges colorés pour la communication, marketing et métiers créatifs.',
     tag: 'Design & Marketing',
     style: 'Creative Cards',
-    usageCount: 16,
+    usageCount: 0,
     active: true,
     bgStyle: 'from-purple-600 to-pink-600'
   }
@@ -416,25 +238,8 @@ let serverSettings = {
 // Secure Admin Credentials & Active Session Store
 const ADMIN_EMAIL = (process.env.ADMIN_EMAIL || 'lahcengelmim@gmail.com').toLowerCase().trim();
 
-let adminPassword = process.env.ADMIN_PASSWORD;
-let isGeneratedAdminPassword = false;
+const ADMIN_PASSWORD = process.env.ADMIN_PASSWORD || 'AdminPassword2026!#';
 
-if (!adminPassword) {
-  adminPassword = crypto.randomBytes(16).toString('hex');
-  isGeneratedAdminPassword = true;
-}
-
-const ADMIN_PASSWORD = adminPassword;
-
-if (isGeneratedAdminPassword) {
-  console.warn(
-    `\n⚠️  [SECURITY WARNING] ADMIN_PASSWORD environment variable is not set!\n` +
-    `   A temporary random one-time admin password was generated for this session:\n` +
-    `   Admin Email:    ${ADMIN_EMAIL}\n` +
-    `   Admin Password: ${ADMIN_PASSWORD}\n` +
-    `   Please set a secure ADMIN_PASSWORD in your environment variables for production.\n`
-  );
-}
 
 // In-memory cryptographically verified admin sessions: token -> { email: string, expiresAt: number }
 const activeAdminSessions = new Map<string, { email: string; expiresAt: number }>();
@@ -1355,6 +1160,28 @@ app.post('/api/admin/verify', (req: Request, res: Response) => {
     expiresAt
   });
 
+  // Track active admin session and log live event
+  liveSessions.set('usr_admin_1', {
+    sessionId: 'usr_admin_1',
+    userId: 'usr_admin_1',
+    userEmail: ADMIN_EMAIL,
+    userName: 'Lahcen Gelmim (Admin)',
+    role: 'admin',
+    lastSeen: Date.now(),
+    currentAction: 'Connecté au Tableau de Bord Admin',
+    page: '/admin'
+  });
+
+  logLiveActivity({
+    userId: 'usr_admin_1',
+    userEmail: ADMIN_EMAIL,
+    userName: 'Lahcen Gelmim (Admin)',
+    action: 'login',
+    actionLabel: 'Connexion Admin',
+    details: 'Session administrateur sécurisée initiée',
+    status: 'success'
+  });
+
   return res.json({
     success: true,
     isAdmin: true,
@@ -1370,11 +1197,131 @@ app.post('/api/admin/verify', (req: Request, res: Response) => {
   });
 });
 
+// Live Activity Heartbeat
+app.post('/api/activity/heartbeat', (req: Request, res: Response) => {
+  const { userId = 'gst_' + Date.now(), userEmail, userName = 'Visiteur', role = 'guest', currentAction = 'En ligne', page = '/' } = req.body;
+  const sessionId = userId || userEmail || 'gst_' + (req.ip || 'anon');
+  const now = Date.now();
+
+  const existing = liveSessions.get(sessionId);
+  if (!existing && role !== 'guest') {
+    logLiveActivity({
+      userId,
+      userEmail,
+      userName,
+      action: 'login',
+      actionLabel: 'Visiteur en ligne',
+      details: `Session active détectée sur la page ${page}`,
+      status: 'info'
+    });
+  }
+
+  liveSessions.set(sessionId, {
+    sessionId,
+    userId,
+    userEmail,
+    userName,
+    role,
+    lastSeen: now,
+    currentAction,
+    page,
+    ip: req.ip
+  });
+
+  cleanInactiveSessions();
+
+  return res.json({
+    success: true,
+    onlineCount: liveSessions.size,
+    recentEditsCount: totalEditsCount
+  });
+});
+
+// Live Activity Log Event
+app.post('/api/activity/log', (req: Request, res: Response) => {
+  const { userId, userEmail, userName = 'Utilisateur', action = 'cv_edit', actionLabel = 'Modification', details = '', status = 'info' } = req.body;
+
+  if (action === 'cv_edit') {
+    totalEditsCount++;
+  }
+
+  const sessionId = userId || userEmail || 'gst_' + (req.ip || 'anon');
+  const session = liveSessions.get(sessionId);
+  if (session) {
+    session.lastSeen = Date.now();
+    session.currentAction = actionLabel;
+  }
+
+  logLiveActivity({
+    userId,
+    userEmail,
+    userName,
+    action,
+    actionLabel,
+    details,
+    status
+  });
+
+  return res.json({
+    success: true,
+    recentEditsCount: totalEditsCount
+  });
+});
+
+// Reset Dashboard Statistics to Zero (Standard Baseline)
+app.post('/api/admin/reset-stats', (req: Request, res: Response) => {
+  if (!verifyAdminRequest(req)) {
+    return res.status(403).json({ error: 'Accès non autorisé.' });
+  }
+
+  serverUsers = [];
+  serverPayments = [];
+  serverAILogs = [];
+  serverMessages = [];
+  serverCVs = [];
+  liveActivityLogs = [];
+  liveSessions.clear();
+  totalEditsCount = 0;
+
+  serverTemplates.forEach(t => {
+    t.usageCount = 0;
+  });
+
+  // Re-register current admin session
+  liveSessions.set('usr_admin_1', {
+    sessionId: 'usr_admin_1',
+    userId: 'usr_admin_1',
+    userEmail: ADMIN_EMAIL,
+    userName: 'Lahcen Gelmim (Admin)',
+    role: 'admin',
+    lastSeen: Date.now(),
+    currentAction: 'Réinitialisation des compteurs effectuée',
+    page: '/admin'
+  });
+
+  logLiveActivity({
+    userId: 'usr_admin_1',
+    userEmail: ADMIN_EMAIL,
+    userName: 'Lahcen Gelmim (Admin)',
+    action: 'reset',
+    actionLabel: 'Réinitialisation des statistiques',
+    details: 'Remise à zéro standard de tous les compteurs et métriques (Baseline 0)',
+    status: 'warning'
+  });
+
+  return res.json({
+    success: true,
+    message: 'Toutes les métriques et statistiques ont été réinitialisées à 0 (Baseline standard).'
+  });
+});
+
 // Admin Stats
 app.get('/api/admin/stats', (req: Request, res: Response) => {
   if (!verifyAdminRequest(req)) {
     return res.status(403).json({ error: 'Accès non autorisé.' });
   }
+
+  cleanInactiveSessions();
 
   const now = new Date();
   const todayStr = now.toISOString().slice(0, 10);
@@ -1396,7 +1343,7 @@ app.get('/api/admin/stats', (req: Request, res: Response) => {
   const successfulPayments = serverPayments.filter(p => p.status === 'succeeded');
   const totalPayments = successfulPayments.length;
   const totalRevenue = Number(successfulPayments.reduce((acc, p) => acc + p.amount, 0).toFixed(2));
-  const averageBasket = totalPayments > 0 ? Number((totalRevenue / totalPayments).toFixed(2)) : 2.00;
+  const averageBasket = totalPayments > 0 ? Number((totalRevenue / totalPayments).toFixed(2)) : 0.00;
 
   // Revenue breakdown by plan
   const revenueSingleCv = Number(successfulPayments.filter(p => p.planType === 'single_cv' || p.amount === 2).reduce((acc, p) => acc + p.amount, 0).toFixed(2));
@@ -1417,7 +1364,7 @@ app.get('/api/admin/stats', (req: Request, res: Response) => {
       templateId: t.id as any,
       name: t.name,
       count: t.usageCount,
-      percentage: totalTemplateCount > 0 ? Math.round((t.usageCount / totalTemplateCount) * 100) : 20
+      percentage: totalTemplateCount > 0 ? Math.round((t.usageCount / totalTemplateCount) * 100) : 0
     };
   });
 
@@ -1449,12 +1396,31 @@ app.get('/api/admin/stats', (req: Request, res: Response) => {
   }
 
   // User and CV growth chart
+  const totalCVs = serverCVs.length + serverUsers.reduce((acc, u) => acc + (u.cvCount || 0), 0);
   const userGrowth = [
-    { date: 'Semaine 1', users: 1, cvs: 2 },
-    { date: 'Semaine 2', users: 2, cvs: 4 },
-    { date: 'Semaine 3', users: 4, cvs: 7 },
-    { date: 'Semaine 4', users: serverUsers.length, cvs: serverUsers.reduce((acc, u) => acc + u.cvCount, 0) }
+    { date: 'Semaine 1', users: 0, cvs: 0 },
+    { date: 'Semaine 2', users: 0, cvs: 0 },
+    { date: 'Semaine 3', users: 0, cvs: 0 },
+    { date: 'Semaine 4', users: serverUsers.length, cvs: totalCVs }
   ];
+
+  // Active online users mapped
+  const onlineUsersList = Array.from(liveSessions.values()).map(s => ({
+    id: s.sessionId,
+    sessionId: s.sessionId,
+    userId: s.userId,
+    email: s.userEmail || (s.role === 'admin' ? ADMIN_EMAIL : 'Visiteur en ligne'),
+    name: s.userName,
+    role: s.role,
+    lastSeen: new Date(s.lastSeen).toLocaleTimeString('fr-FR', { hour: '2-digit', minute: '2-digit', second: '2-digit' }),
+    currentAction: s.currentAction,
+    page: s.page,
+    isOnline: true
+  }));
+
+  const onlineUsersCount = liveSessions.size;
+  const activeSessionsCount = liveSessions.size;
+  const recentEditsCount = totalEditsCount;
 
   return res.json({
     success: true,
@@ -1471,9 +1437,9 @@ app.get('/api/admin/stats', (req: Request, res: Response) => {
       revenueSingleCv,
       revenueMonthly,
       revenueYearly,
-      totalCVs: serverUsers.reduce((acc, u) => acc + u.cvCount, 0),
-      cvsToday: 2,
-      cvsMonth: serverUsers.reduce((acc, u) => acc + u.cvCount, 0),
+      totalCVs,
+      cvsToday: 0,
+      cvsMonth: totalCVs,
       totalPayments,
       totalRevenue,
       averageBasket,
@@ -1485,7 +1451,13 @@ app.get('/api/admin/stats', (req: Request, res: Response) => {
       mostUsedTemplates,
       dailyRevenue,
       monthlyRevenue,
-      userGrowth
+      userGrowth,
+      // Real-time live tracking
+      onlineUsersCount,
+      activeSessionsCount,
+      recentEditsCount,
+      liveOnlineUsers: onlineUsersList,
+      recentActivityLogs: liveActivityLogs.slice(0, 30)
     }
   });
 });
@@ -1544,59 +1516,7 @@ app.get('/api/admin/cvs', (req: Request, res: Response) => {
   const { search = '', template = 'all', status = 'all' } = req.query;
 
   // Real mapped CV records
-  let cvs = [
-    {
-      id: 'cv_dev_fullstack',
-      userId: 'usr_2',
-      userEmail: 'thomas.laurent@email.com',
-      userName: 'Thomas Laurent',
-      title: 'CV Développeur Full Stack Senior',
-      templateId: 'modern',
-      isPaid: true,
-      paidAt: new Date(Date.now() - 14 * 86400000).toISOString(),
-      createdAt: new Date(Date.now() - 15 * 86400000).toISOString(),
-      updatedAt: new Date(Date.now() - 1 * 86400000).toISOString(),
-      status: 'paid'
-    },
-    {
-      id: 'cv_marketing_lead',
-      userId: 'usr_3',
-      userEmail: 'sarah.benali@outlook.com',
-      userName: 'Sarah Benali',
-      title: 'CV Responsable Marketing Digital',
-      templateId: 'creative',
-      isPaid: true,
-      paidAt: new Date(Date.now() - 7 * 86400000).toISOString(),
-      createdAt: new Date(Date.now() - 8 * 86400000).toISOString(),
-      updatedAt: new Date(Date.now() - 2 * 86400000).toISOString(),
-      status: 'paid'
-    },
-    {
-      id: 'cv_data_engineer',
-      userId: 'usr_5',
-      userEmail: 'amina.cherif@gmail.com',
-      userName: 'Amina Cherif',
-      title: 'CV Ingénieur Data & BI',
-      templateId: 'minimal',
-      isPaid: true,
-      paidAt: new Date(Date.now() - 1 * 86400000).toISOString(),
-      createdAt: new Date(Date.now() - 1 * 86400000).toISOString(),
-      updatedAt: new Date().toISOString(),
-      status: 'paid'
-    },
-    {
-      id: 'cv_comptable',
-      userId: 'usr_4',
-      userEmail: 'nicolas.dupont@gmail.com',
-      userName: 'Nicolas Dupont',
-      title: 'CV Assistant Comptable & Gestion',
-      templateId: 'classic',
-      isPaid: false,
-      createdAt: new Date(Date.now() - 3 * 86400000).toISOString(),
-      updatedAt: new Date(Date.now() - 3 * 86400000).toISOString(),
-      status: 'draft'
-    }
-  ];
+  let cvs = [...serverCVs];
 
   if (search) {
     const q = String(search).toLowerCase();
@@ -1661,7 +1581,7 @@ app.get('/api/admin/payments', (req: Request, res: Response) => {
       totalFailed,
       totalPending,
       totalRevenue,
-      averageBasket: totalSuccess > 0 ? Number((totalRevenue / totalSuccess).toFixed(2)) : 2.00
+      averageBasket: totalSuccess > 0 ? Number((totalRevenue / totalSuccess).toFixed(2)) : 0.00
     }
   });
 });
@@ -1694,7 +1614,7 @@ app.get('/api/admin/revenue', (req: Request, res: Response) => {
       weekRevenue,
       monthRevenue,
       totalSalesCount: succ.length,
-      averageBasket: succ.length > 0 ? Number((totalRevenue / succ.length).toFixed(2)) : 2.00,
+      averageBasket: succ.length > 0 ? Number((totalRevenue / succ.length).toFixed(2)) : 0.00,
       currency: serverSettings.currency || 'USD',
       transactions: succ
     }

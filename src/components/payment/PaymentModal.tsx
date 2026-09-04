@@ -31,6 +31,14 @@ export const PaymentModal: React.FC<PaymentModalProps> = ({
   const [error, setError] = useState<string | null>(null);
   const [serverConfig, setServerConfig] = useState<{ configured: boolean; clientId: string; mode: string } | null>(null);
   const [checkingConfig, setCheckingConfig] = useState(true);
+  const directContainerRef = React.useRef<HTMLDivElement>(null);
+  const [useDirectSdk, setUseDirectSdk] = useState(false);
+
+  useEffect(() => {
+    if (typeof window !== 'undefined' && typeof window.paypal?.Buttons === 'function') {
+      setUseDirectSdk(true);
+    }
+  }, []);
 
   useEffect(() => {
     let active = true;
@@ -53,11 +61,113 @@ export const PaymentModal: React.FC<PaymentModalProps> = ({
     };
   }, []);
 
-  if (!isOpen) return null;
-
   const currentPlan = getPlanDetails(selectedPlan);
   const rawClientId = ((import.meta.env.VITE_PAYPAL_CLIENT_ID as string) || (import.meta.env.PAYPAL_CLIENT_ID as string) || serverConfig?.clientId || '').trim();
   const isConfigured = Boolean(serverConfig?.configured && rawClientId);
+
+  useEffect(() => {
+    if (!isOpen || step !== 'checkout' || !useDirectSdk || !directContainerRef.current) return;
+
+    if (typeof window !== 'undefined' && window.paypal?.Buttons) {
+      directContainerRef.current.innerHTML = '';
+      try {
+        window.paypal.Buttons({
+          style: {
+            layout: 'vertical',
+            color: selectedPlan === 'yearly' ? 'gold' : 'blue',
+            shape: 'rect',
+            label: 'pay',
+            height: 44
+          },
+          createOrder: async () => {
+            if (!isConfigured) {
+              const errText = 'Sandbox PayPal non configurée : veuillez définir PAYPAL_CLIENT_ID et PAYPAL_SECRET dans les variables d\'environnement.';
+              setError(errText);
+              throw new Error(errText);
+            }
+            setError(null);
+            setLoading(true);
+
+            try {
+              const res = await fetch('/api/payment/create-order', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({
+                  cvId: cvData?.id || 'cv_unlimited',
+                  cvTitle: cvData ? `${cvData.personalInfo.firstName} ${cvData.personalInfo.lastName} - CV` : currentPlan.name,
+                  planType: selectedPlan
+                })
+              });
+
+              const data = await res.json();
+              if (!res.ok || !data.orderId) {
+                const errMsg = data.error || 'Impossible d\'initier la commande PayPal.';
+                setError(errMsg);
+                throw new Error(errMsg);
+              }
+
+              return data.orderId;
+            } catch (err: any) {
+              setError(err.message || 'Erreur lors de l\'initialisation de la commande.');
+              setLoading(false);
+              throw err;
+            }
+          },
+          onApprove: async (data) => {
+            setLoading(true);
+            setStep('processing');
+            try {
+              const res = await fetch('/api/payment/capture-order', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({
+                  orderId: data.orderID,
+                  cvId: cvData?.id || 'cv_unlimited',
+                  planType: selectedPlan
+                })
+              });
+
+              const captureData = await res.json();
+
+              if (!res.ok || !captureData.verified || captureData.status !== 'COMPLETED') {
+                throw new Error(captureData.error || 'La capture PayPal n\'a pas pu être validée comme COMPLETED. Aucun crédit accordé.');
+              }
+
+              passService.activatePurchasedPass(selectedPlan, {
+                downloadCredits: captureData.downloadCredits,
+                passExpiresAt: captureData.subscriptionEnd
+              });
+
+              setStep('success');
+              confetti({
+                particleCount: 120,
+                spread: 80,
+                origin: { y: 0.6 }
+              });
+
+              setTimeout(() => {
+                onSuccess(selectedPlan);
+              }, 1200);
+            } catch (err: any) {
+              setError(err.message || 'Erreur lors de la validation du paiement PayPal.');
+              setStep('checkout');
+            } finally {
+              setLoading(false);
+            }
+          },
+          onError: (err) => {
+            console.error('[PayPal SDK Error]:', err);
+            setError('Une erreur est survenue lors de la communication avec PayPal. Veuillez réessayer.');
+            setLoading(false);
+          }
+        }).render(directContainerRef.current);
+      } catch (err) {
+        console.warn('Failed to render direct PayPal buttons:', err);
+      }
+    }
+  }, [isOpen, step, selectedPlan, isConfigured, useDirectSdk]);
+
+  if (!isOpen) return null;
 
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-slate-950/75 backdrop-blur-xs animate-in fade-in duration-200 overflow-y-auto">
@@ -261,114 +371,118 @@ export const PaymentModal: React.FC<PaymentModalProps> = ({
                 )}
 
                 <div className="w-full relative min-h-[50px]">
-                  <PayPalScriptProvider
-                    options={{
-                      clientId: rawClientId || 'test',
-                      currency: 'USD',
-                      intent: 'capture',
-                      components: 'buttons'
-                    }}
-                  >
-                    <PayPalButtons
-                      style={{
-                        layout: 'vertical',
-                        color: selectedPlan === 'yearly' ? 'gold' : 'blue',
-                        shape: 'rect',
-                        label: 'pay',
-                        height: 44
+                  {useDirectSdk ? (
+                    <div ref={directContainerRef} id="paypal-modal-direct-container" className="w-full min-h-[44px]"></div>
+                  ) : (
+                    <PayPalScriptProvider
+                      options={{
+                        clientId: rawClientId || 'test',
+                        currency: 'USD',
+                        intent: 'capture',
+                        components: 'buttons'
                       }}
-                      disabled={loading || !isConfigured}
-                      forceReRender={[selectedPlan, isConfigured, rawClientId]}
-                      createOrder={async () => {
-                        if (!isConfigured) {
-                          const errText = 'Sandbox PayPal non configurée : veuillez définir PAYPAL_CLIENT_ID et PAYPAL_SECRET dans les variables d\'environnement.';
-                          setError(errText);
-                          throw new Error(errText);
-                        }
-
-                        setError(null);
-                        setLoading(true);
-
-                        try {
-                          const res = await fetch('/api/payment/create-order', {
-                            method: 'POST',
-                            headers: { 'Content-Type': 'application/json' },
-                            body: JSON.stringify({
-                              cvId: cvData?.id || 'cv_unlimited',
-                              cvTitle: cvData ? `${cvData.personalInfo.firstName} ${cvData.personalInfo.lastName} - CV` : currentPlan.name,
-                              planType: selectedPlan
-                            })
-                          });
-
-                          const data = await res.json();
-                          if (!res.ok || !data.orderId) {
-                            const errMsg = data.error || 'Impossible d\'initier la commande PayPal.';
-                            setError(errMsg);
-                            throw new Error(errMsg);
+                    >
+                      <PayPalButtons
+                        style={{
+                          layout: 'vertical',
+                          color: selectedPlan === 'yearly' ? 'gold' : 'blue',
+                          shape: 'rect',
+                          label: 'pay',
+                          height: 44
+                        }}
+                        disabled={loading || !isConfigured}
+                        forceReRender={[selectedPlan, isConfigured, rawClientId]}
+                        createOrder={async () => {
+                          if (!isConfigured) {
+                            const errText = 'Sandbox PayPal non configurée : veuillez définir PAYPAL_CLIENT_ID et PAYPAL_SECRET dans les variables d\'environnement.';
+                            setError(errText);
+                            throw new Error(errText);
                           }
 
-                          return data.orderId;
-                        } catch (err: any) {
-                          setError(err.message || 'Erreur lors de l\'initialisation de la commande.');
-                          setLoading(false);
-                          throw err;
-                        }
-                      }}
-                      onApprove={async (data) => {
-                        setLoading(true);
-                        setStep('processing');
-                        try {
-                          const res = await fetch('/api/payment/capture-order', {
-                            method: 'POST',
-                            headers: { 'Content-Type': 'application/json' },
-                            body: JSON.stringify({
-                              orderId: data.orderID,
-                              cvId: cvData?.id || 'cv_unlimited',
-                              planType: selectedPlan
-                            })
-                          });
+                          setError(null);
+                          setLoading(true);
 
-                          const captureData = await res.json();
+                          try {
+                            const res = await fetch('/api/payment/create-order', {
+                              method: 'POST',
+                              headers: { 'Content-Type': 'application/json' },
+                              body: JSON.stringify({
+                                cvId: cvData?.id || 'cv_unlimited',
+                                cvTitle: cvData ? `${cvData.personalInfo.firstName} ${cvData.personalInfo.lastName} - CV` : currentPlan.name,
+                                planType: selectedPlan
+                              })
+                            });
 
-                          // Requirement 3: Strictly ensure COMPLETED before granting any credit
-                          if (!res.ok || !captureData.verified || captureData.status !== 'COMPLETED') {
-                            throw new Error(captureData.error || 'La capture PayPal n\'a pas pu être validée comme COMPLETED. Aucun crédit accordé.');
+                            const data = await res.json();
+                            if (!res.ok || !data.orderId) {
+                              const errMsg = data.error || 'Impossible d\'initier la commande PayPal.';
+                              setError(errMsg);
+                              throw new Error(errMsg);
+                            }
+
+                            return data.orderId;
+                          } catch (err: any) {
+                            setError(err.message || 'Erreur lors de l\'initialisation de la commande.');
+                            setLoading(false);
+                            throw err;
                           }
+                        }}
+                        onApprove={async (data) => {
+                          setLoading(true);
+                          setStep('processing');
+                          try {
+                            const res = await fetch('/api/payment/capture-order', {
+                              method: 'POST',
+                              headers: { 'Content-Type': 'application/json' },
+                              body: JSON.stringify({
+                                orderId: data.orderID,
+                                cvId: cvData?.id || 'cv_unlimited',
+                                planType: selectedPlan
+                              })
+                            });
 
-                          // Activate pass & credits locally & globally
-                          passService.activatePurchasedPass(selectedPlan, {
-                            downloadCredits: captureData.downloadCredits,
-                            passExpiresAt: captureData.subscriptionEnd
-                          });
+                            const captureData = await res.json();
 
-                          setStep('success');
-                          confetti({
-                            particleCount: 120,
-                            spread: 80,
-                            origin: { y: 0.6 }
-                          });
+                            // Requirement 3: Strictly ensure COMPLETED before granting any credit
+                            if (!res.ok || !captureData.verified || captureData.status !== 'COMPLETED') {
+                              throw new Error(captureData.error || 'La capture PayPal n\'a pas pu être validée comme COMPLETED. Aucun crédit accordé.');
+                            }
 
-                          setTimeout(() => {
-                            onSuccess(selectedPlan);
-                          }, 1200);
-                        } catch (err: any) {
-                          setError(err.message || 'Erreur lors de la validation du paiement PayPal.');
-                          setStep('checkout');
-                        } finally {
+                            // Activate pass & credits locally & globally
+                            passService.activatePurchasedPass(selectedPlan, {
+                              downloadCredits: captureData.downloadCredits,
+                              passExpiresAt: captureData.subscriptionEnd
+                            });
+
+                            setStep('success');
+                            confetti({
+                              particleCount: 120,
+                              spread: 80,
+                              origin: { y: 0.6 }
+                            });
+
+                            setTimeout(() => {
+                              onSuccess(selectedPlan);
+                            }, 1200);
+                          } catch (err: any) {
+                            setError(err.message || 'Erreur lors de la validation du paiement PayPal.');
+                            setStep('checkout');
+                          } finally {
+                            setLoading(false);
+                          }
+                        }}
+                        onError={(err) => {
+                          console.error('[PayPal SDK Error]:', err);
+                          if (!isConfigured) {
+                            setError('Mode test — paiement non actif : les identifiants PAYPAL_CLIENT_ID et PAYPAL_SECRET doivent être configurés pour autoriser les paiements.');
+                          } else {
+                            setError('Une erreur est survenue lors de la communication avec PayPal. Veuillez réessayer.');
+                          }
                           setLoading(false);
-                        }
-                      }}
-                      onError={(err) => {
-                        console.error('[PayPal SDK Error]:', err);
-                        if (!isConfigured) {
-                          setError('Mode test — paiement non actif : les identifiants PAYPAL_CLIENT_ID et PAYPAL_SECRET doivent être configurés pour autoriser les paiements.');
-                        } else {
-                          setError('Une erreur est survenue lors de la communication avec PayPal. Veuillez réessayer.');
-                        }
-                        setLoading(false);
-                      }}
-                    />
-                  </PayPalScriptProvider>
+                        }}
+                      />
+                    </PayPalScriptProvider>
+                  )}
                 </div>
               </div>
 

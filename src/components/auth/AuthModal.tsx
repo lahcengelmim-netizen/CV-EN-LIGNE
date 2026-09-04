@@ -3,6 +3,7 @@ import { supabase } from '../../lib/supabase';
 import { X, Mail, Lock, User, Sparkles, Loader2, CheckCircle2, ShieldCheck } from 'lucide-react';
 import { LanguageCode } from '../../types';
 import { translations } from '../../lib/translations';
+import { activityTracker } from '../../lib/activityTracker';
 
 interface AuthModalProps {
   isOpen: boolean;
@@ -46,6 +47,13 @@ export const AuthModal: React.FC<AuthModalProps> = ({
           });
           if (signUpError) throw signUpError;
           if (data.user) {
+            activityTracker.updateUser({
+              userId: data.user.id,
+              userEmail: email,
+              userName: fullName || email.split('@')[0],
+              role: 'user'
+            });
+            activityTracker.logAction('signup', 'Nouvelle Inscription', `Création de compte réussie (${email})`);
             onSuccess(data.user);
             onClose();
           } else {
@@ -58,6 +66,13 @@ export const AuthModal: React.FC<AuthModalProps> = ({
           });
           if (signInError) throw signInError;
           if (data.user) {
+            activityTracker.updateUser({
+              userId: data.user.id,
+              userEmail: email,
+              userName: data.user.user_metadata?.full_name || email.split('@')[0],
+              role: 'user'
+            });
+            activityTracker.logAction('login', 'Connexion Utilisateur', `Connexion réussie (${email})`);
             onSuccess(data.user);
             onClose();
           }
@@ -70,6 +85,17 @@ export const AuthModal: React.FC<AuthModalProps> = ({
           user_metadata: { full_name: fullName || email.split('@')[0] }
         };
         localStorage.setItem('cvenligne_current_user', JSON.stringify(mockUser));
+        activityTracker.updateUser({
+          userId: mockUser.id,
+          userEmail: email,
+          userName: fullName || email.split('@')[0],
+          role: 'user'
+        });
+        activityTracker.logAction(
+          isSignUp ? 'signup' : 'login',
+          isSignUp ? 'Nouvelle Inscription' : 'Connexion Utilisateur',
+          isSignUp ? `Inscription réussie (${email})` : `Connexion (${email})`
+        );
         onSuccess(mockUser);
         onClose();
       }

@@ -13,6 +13,7 @@ import { AdminPortal } from './components/admin/AdminPortal';
 import { CareerBackground } from './components/layout/CareerBackground';
 import { adminService } from './lib/adminService';
 import { getTemplateById } from './lib/templatesData';
+import { activityTracker } from './lib/activityTracker';
 
 export const App: React.FC = () => {
   const { i18n: i18nInstance } = useTranslation();
@@ -86,6 +87,32 @@ export const App: React.FC = () => {
     }
   }, []);
 
+  // Initialize client real-time activity tracker
+  useEffect(() => {
+    activityTracker.init({
+      userId: user?.id,
+      userEmail: user?.email,
+      userName: user?.user_metadata?.full_name || user?.email?.split('@')[0] || (currentView === 'admin' ? 'Administrateur' : 'Visiteur en ligne'),
+      role: currentView === 'admin' ? 'admin' : (user ? 'user' : 'guest')
+    });
+  }, [user, currentView]);
+
+  // Send real-time heartbeat when active view changes
+  useEffect(() => {
+    const pageLabels: Record<string, string> = {
+      landing: 'Page d\'accueil',
+      dashboard: 'Mes CVs (Tableau de Bord)',
+      builder: activeCv?.title ? `Édition : ${activeCv.title}` : 'Éditeur de CV',
+      admin: 'Portail Administrateur'
+    };
+    const actionLabel = pageLabels[currentView] || currentView;
+    activityTracker.sendHeartbeat(
+      `/${currentView}`,
+      actionLabel,
+      `Consultation : ${actionLabel}`
+    );
+  }, [currentView, activeCv?.id]);
+
   // Load CV list
   const refreshCVList = async () => {
     const list = await storageService.getCVs();
@@ -128,12 +155,14 @@ export const App: React.FC = () => {
       updatedAt: new Date().toISOString()
     };
 
+    activityTracker.logAction('cv_create', 'Création de CV', `Nouveau CV initialisé (${tmplDef.name})`);
     setActiveCv(newCV);
     setCurrentView('builder');
   };
 
   // Select existing CV to edit
   const handleSelectCV = (cv: CVData) => {
+    activityTracker.logAction('cv_edit', 'Ouverture de CV', `Ouverture en édition du CV : ${cv.title}`);
     setActiveCv(cv);
     setCurrentView('builder');
   };
@@ -150,6 +179,7 @@ export const App: React.FC = () => {
     };
     await storageService.saveCV(duplicated);
     await refreshCVList();
+    activityTracker.logAction('cv_edit', 'Duplication de CV', `CV dupliqué : "${cv.title}"`);
   };
 
   // Delete CV
@@ -157,6 +187,7 @@ export const App: React.FC = () => {
     if (window.confirm('Voulez-vous vraiment supprimer ce CV ?')) {
       await storageService.deleteCV(id);
       await refreshCVList();
+      activityTracker.logAction('cv_edit', 'Suppression de CV', `Suppression du CV ID : ${id}`);
       if (activeCv?.id === id) {
         setActiveCv(null);
         setCurrentView('dashboard');
@@ -166,6 +197,7 @@ export const App: React.FC = () => {
 
   // Sign out
   const handleSignOut = async () => {
+    activityTracker.logAction('logout', 'Déconnexion', 'Session utilisateur fermée');
     if (supabase) {
       await supabase.auth.signOut();
     }

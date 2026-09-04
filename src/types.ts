@@ -357,6 +357,33 @@ export interface AdminStats {
     users: number;
     cvs: number;
   }>;
+  // Real-time live tracking
+  onlineUsersCount?: number;
+  activeSessionsCount?: number;
+  recentEditsCount?: number;
+  liveOnlineUsers?: Array<{
+    id: string;
+    sessionId: string;
+    userId?: string;
+    email: string;
+    name: string;
+    role: string;
+    lastSeen: string;
+    currentAction: string;
+    page: string;
+    isOnline: boolean;
+  }>;
+  recentActivityLogs?: Array<{
+    id: string;
+    timestamp: string;
+    userId?: string;
+    userEmail?: string;
+    userName: string;
+    action: string;
+    actionLabel: string;
+    details: string;
+    status: 'success' | 'info' | 'warning';
+  }>;
 }
 
 export interface AdminSettings {

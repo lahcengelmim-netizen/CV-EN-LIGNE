@@ -17,6 +17,7 @@ import { TemplateSwitcherModal } from './TemplateSwitcherModal';
 import { getTemplateById } from '../../lib/templatesData';
 import { PaymentModal } from '../payment/PaymentModal';
 import { CoverLetterModal } from '../cover-letter/CoverLetterModal';
+import { activityTracker } from '../../lib/activityTracker';
 import {
   ArrowLeft,
   ArrowRight,
@@ -52,7 +53,7 @@ const DEFAULT_CV: CVData = {
   id: 'cv_' + Math.random().toString(36).substring(2, 9),
   title: 'Mon CV Professionnel',
   templateId: 'stockholm-modern',
-  isPaid: false,
+  isPaid: true,
   language: 'fr',
   personalInfo: {
     firstName: 'Alexandre',
@@ -300,6 +301,14 @@ export const CVBuilder: React.FC<CVBuilderProps> = ({
       await storageService.saveCV(cv);
       setIsSaving(false);
       setLastSaved(new Date());
+
+      // Track live edit and heartbeat in real-time admin monitor
+      activityTracker.sendHeartbeat('/builder', cv.title || 'CV en cours', `Modification en direct : ${cv.title || 'CV'}`);
+      activityTracker.logAction(
+        'cv_edit',
+        'Modification de CV',
+        `CV "${cv.title || 'Sans titre'}" mis à jour (${cv.personalInfo?.firstName || ''} ${cv.personalInfo?.lastName || ''})`
+      );
     }, 600);
     return () => clearTimeout(timer);
   }, [cv]);
