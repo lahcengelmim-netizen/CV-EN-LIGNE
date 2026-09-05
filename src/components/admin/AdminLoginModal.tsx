@@ -41,7 +41,7 @@ export const AdminLoginModal: React.FC<AdminLoginModalProps> = ({
       activityTracker.updateUser({
         userId: 'usr_admin',
         userEmail: email,
-        userName: 'Lahcen (Super Admin)',
+        userName: 'Administrateur',
         role: 'admin'
       });
       activityTracker.logAction('login', 'Connexion Administrateur', `Connexion au tableau de bord (${email})`);

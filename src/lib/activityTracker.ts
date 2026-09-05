@@ -74,7 +74,7 @@ class ActivityTracker {
         return {
           userId: 'usr_admin_1',
           email: adminEmail,
-          name: 'Lahcen Gelmim (Admin)',
+          name: 'Administrateur',
           role: 'admin'
         };
       }

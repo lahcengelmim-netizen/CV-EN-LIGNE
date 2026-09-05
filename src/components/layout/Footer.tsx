@@ -42,7 +42,7 @@ export const Footer: React.FC<FooterProps> = ({ lang = 'fr', onNavigate }) => {
             <h4 className="font-bold text-white uppercase tracking-wider text-xs mb-4">Navigation</h4>
             <ul className="space-y-2 text-xs">
               <li>
-                <a href="#templates-section" className="hover:text-white transition-colors">Nos 5 Modèles de CV</a>
+                <a href="#templates-section" className="hover:text-white transition-colors">Nos 21 Modèles de CV</a>
               </li>
               <li>
                 <a href="#workflow-section" className="hover:text-white transition-colors">Comment ça marche</a>
@@ -84,11 +84,11 @@ export const Footer: React.FC<FooterProps> = ({ lang = 'fr', onNavigate }) => {
               Une question ou besoin d'assistance ? Notre équipe dédiée est à votre écoute.
             </p>
             <a
-              href="mailto:contact@cvenligne.com"
+              href="mailto:support@vitarey.com"
               className="inline-flex items-center gap-2 px-3 py-2 bg-slate-800 hover:bg-slate-700 text-white rounded-xl text-xs font-semibold transition-colors border border-slate-700"
             >
               <Mail className="w-3.5 h-3.5 text-blue-400" />
-              <span>contact@cvenligne.com</span>
+              <span>support@vitarey.com</span>
             </a>
           </div>
         </div>
@@ -101,15 +101,6 @@ export const Footer: React.FC<FooterProps> = ({ lang = 'fr', onNavigate }) => {
             <span className="hover:text-slate-400 cursor-pointer">Conditions Générales</span>
             <span className="hover:text-slate-400 cursor-pointer">Politique de Confidentialité</span>
             <span className="hover:text-slate-400 cursor-pointer">Mentions Légales</span>
-            {onNavigate && (
-              <button
-                onClick={() => onNavigate('admin')}
-                className="hover:text-blue-400 text-slate-400 flex items-center gap-1 transition-colors font-medium ml-2"
-              >
-                <Shield className="w-3 h-3 text-blue-400" />
-                <span>Espace Administrateur</span>
-              </button>
-            )}
           </div>
         </div>
       </div>

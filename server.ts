@@ -82,7 +82,7 @@ function checkAIRateLimit(req: Request, userId?: string, maxRequestsPerHour = 10
   };
 }
 
-export { ServerUserRecord, ServerPaymentRecord, ServerAILogRecord, ServerMessageRecord, ServerCVRecord };
+export type { ServerUserRecord, ServerPaymentRecord, ServerAILogRecord, ServerMessageRecord, ServerCVRecord };
 
 export interface ServerTemplateRecord {
   id: string;
@@ -174,59 +174,219 @@ export function cleanInactiveSessions() {
 const serverTemplates: ServerTemplateRecord[] = [
   {
     id: 'modern',
-    name: 'Moderne (2 Colonnes)',
-    description: 'Structure latérale contrastée, idéale pour mettre en avant compétences et expériences.',
+    name: 'Moderne Pro',
+    description: 'Design contemporain et équilibré avec barre latérale contrastée',
     tag: 'Le plus populaire',
-    style: 'Modern & Two Columns',
+    style: 'Bicolore asymétrique moderne avec barre latérale dédiée',
     usageCount: 0,
     active: true,
     bgStyle: 'from-blue-600 to-indigo-700'
   },
   {
-    id: 'classic',
-    name: 'Classique & Élégant',
-    description: 'Mise en page épurée et intemporelle pour postes juridiques, bancaires et administratifs.',
-    tag: 'ATS Recommandé',
-    style: 'Classic & Timeless',
-    usageCount: 0,
-    active: true,
-    bgStyle: 'from-slate-800 to-slate-950'
-  },
-  {
     id: 'minimal',
     name: 'Minimaliste Scandinave',
-    description: 'Typographie aérée, accents monospacés, clarté absolue pour tech & freelances.',
-    tag: 'Ultra Lisible',
-    style: 'Clean & Minimal',
+    description: 'Lignes épurées, typographie soignée et respiration visuelle maximale',
+    tag: 'Design Épuré',
+    style: 'Filets typographiques fins, disposition aérée et contrastes délicats',
     usageCount: 0,
     active: true,
     bgStyle: 'from-zinc-700 to-zinc-900'
   },
   {
     id: 'professional',
-    name: 'Corporate Exécutif',
-    description: 'Bandeau supérieur statutaire pour profils expérimentés, consultants et managers.',
-    tag: 'Cadres & Managers',
-    style: 'Executive Header',
+    name: 'Professionnel Corporate',
+    description: 'Design sérieux et structuré pour la finance, l’administration et la gestion',
+    tag: 'Banque & Droit',
+    style: 'En-tête classique haut de gamme avec séparateurs et hiérarchie rigoureuse',
     usageCount: 0,
     active: true,
     bgStyle: 'from-teal-700 to-emerald-900'
   },
   {
+    id: 'executive',
+    name: 'Exécutif & Direction',
+    description: 'Design premium statutaire conçu pour les cadres dirigeants et profils C-Level',
+    tag: 'Cadres & Dirigeants',
+    style: 'Bandeau supérieur statutaire foncé avec touches d\'or et vision stratégique',
+    usageCount: 0,
+    active: true,
+    bgStyle: 'from-amber-700 to-stone-900'
+  },
+  {
     id: 'creative',
     name: 'Créatif & Dynamique',
-    description: 'Cartes douces et badges colorés pour la communication, marketing et métiers créatifs.',
-    tag: 'Design & Marketing',
-    style: 'Creative Cards',
+    description: 'Design visuel et chaleureux pour le marketing, la communication et le design',
+    tag: 'Design & Médias',
+    style: 'Cartes douces, badges colorés et mise en page vivante',
     usageCount: 0,
     active: true,
     bgStyle: 'from-purple-600 to-pink-600'
+  },
+  {
+    id: 'tech',
+    name: 'Tech & Ingénieur',
+    description: 'Style moderne et structuré pour développeurs, data scientists et IT',
+    tag: 'Développeurs & IT',
+    style: 'En-tête tech contemporain avec badges technologiques et métriques de code',
+    usageCount: 0,
+    active: true,
+    bgStyle: 'from-cyan-600 to-blue-800'
+  },
+  {
+    id: 'student',
+    name: 'Étudiant & Premier Emploi',
+    description: 'Met en avant les formations, projets académiques et compétences clés',
+    tag: 'Jeunes Diplômés',
+    style: 'Sections aérées valorisant le potentiel, les études et les premiers stages',
+    usageCount: 0,
+    active: true,
+    bgStyle: 'from-emerald-600 to-teal-800'
+  },
+  {
+    id: 'ats',
+    name: 'ATS Optimisé & Lisibilité',
+    description: 'Structure linéaire 100% calibrée pour passer les filtres des logiciels de recrutement',
+    tag: '100% Scan ATS',
+    style: 'Mise en page 100% linéaire standard avec balises sémantiques universelles',
+    usageCount: 0,
+    active: true,
+    bgStyle: 'from-blue-700 to-slate-900'
+  },
+  {
+    id: 'elegant',
+    name: 'Élégant & Raffiné',
+    description: 'Typographie noble et équilibre soigné pour le luxe, l’hôtellerie et le conseil',
+    tag: 'Luxe & Conseil',
+    style: 'Mise en page centrée raffinée avec typographie serif et ornements subtils',
+    usageCount: 0,
+    active: true,
+    bgStyle: 'from-rose-800 to-slate-900'
+  },
+  {
+    id: 'corporate',
+    name: 'Corporate Multinational',
+    description: 'Colonne latérale structurée et densité d’information optimale pour grands groupes',
+    tag: 'Grands Groupes',
+    style: 'Disposition latérale structurée avec bloc de synthèse et grille dense',
+    usageCount: 0,
+    active: true,
+    bgStyle: 'from-indigo-800 to-slate-900'
+  },
+  {
+    id: 'classic',
+    name: 'Classique & Intemporel',
+    description: 'Structure traditionnelle et rassurante adaptée à tous les métiers',
+    tag: 'Standard Universel',
+    style: 'Mise en page classique avec séparation nette par rubriques',
+    usageCount: 0,
+    active: true,
+    bgStyle: 'from-slate-800 to-slate-950'
+  },
+  {
+    id: 'bold',
+    name: 'Design Affirmé & Énergique',
+    description: 'Bandeau supérieur percutant et typographie moderne pour profils dynamiques',
+    tag: 'Tendance 2026',
+    style: 'Bandeau géométrique coloré avec typographie bold et puces de validation',
+    usageCount: 0,
+    active: true,
+    bgStyle: 'from-orange-600 to-red-700'
+  },
+  {
+    id: 'compact',
+    name: 'Deux Colonnes avec Photo Intégrée',
+    description: 'Mise en page équilibrée avec colonne latérale douce et photo valorisée',
+    tag: 'Double Colonne',
+    style: 'Deux colonnes asymétriques avec colonne gris perle et jauges de compétences',
+    usageCount: 0,
+    active: true,
+    bgStyle: 'from-slate-700 to-zinc-800'
+  },
+  {
+    id: 'timeline',
+    name: 'Timeline Verticale Continue',
+    description: 'Fil conducteur temporel valorisant l\'évolution de carrière et les jalons clés',
+    tag: 'Storytelling',
+    style: 'Ligne temporelle continue avec nœuds chronologiques et jalons de carrière',
+    usageCount: 0,
+    active: true,
+    bgStyle: 'from-violet-700 to-purple-900'
+  },
+  {
+    id: 'nordic',
+    name: 'Minimaliste Noir & Blanc Premium',
+    description: 'Élégance intemporelle, typographie éditoriale raffinée et aérée',
+    tag: 'Haute Couture',
+    style: 'Design éditorial scandinave 100% monochrome avec structure numérotée',
+    usageCount: 0,
+    active: true,
+    bgStyle: 'from-neutral-800 to-black'
+  },
+  {
+    id: 'infographic',
+    name: 'Créatif avec Sidebar Colorée',
+    description: 'Bande latérale vibrante et présentation visuelle de vos réalisations',
+    tag: 'Créatif & Projets',
+    style: 'Sidebar dynamique à fort contraste et modules de réalisations',
+    usageCount: 0,
+    active: true,
+    bgStyle: 'from-fuchsia-600 to-rose-700'
+  },
+  {
+    id: 'stockholm-modern',
+    name: 'Stockholm Modern',
+    description: 'Design scandinave 2 colonnes avec barre latérale douce à 8% et hiérarchie épurée',
+    tag: 'Nouveau',
+    style: 'Grille 2 colonnes avec sidebar pastel contrastée et typographie nordique',
+    usageCount: 0,
+    active: true,
+    bgStyle: 'from-sky-700 to-indigo-900'
+  },
+  {
+    id: 'casablanca-bilingual',
+    name: 'Casablanca Bilingue',
+    description: 'Mise en page 2 colonnes avec support bilingue et RTL intégré',
+    tag: 'RTL & Bilingue',
+    style: 'Format 2 colonnes élégant avec prise en charge naturelle des profils multilingues et arabes',
+    usageCount: 0,
+    active: true,
+    bgStyle: 'from-amber-600 to-orange-800'
+  },
+  {
+    id: 'zurich-executive',
+    name: 'Zurich Exécutif',
+    description: 'En-tête centré institutionnel avec ligne de contact équilibrée et séparateurs discrets',
+    tag: 'Haute Direction',
+    style: 'En-tête centré institutionnel avec ligne de contact équilibrée et séparateurs discrets',
+    usageCount: 0,
+    active: true,
+    bgStyle: 'from-blue-900 to-slate-950'
+  },
+  {
+    id: 'dubai-luxury-rtl',
+    name: 'Dubai Luxury RTL',
+    description: 'Conception exécutive haut de gamme avec support arabe et RTL de droite à gauche',
+    tag: 'Support Arabe & RTL',
+    style: 'Format exécutif haut de gamme optimisé pour l’arabe et la disposition droite-à-gauche',
+    usageCount: 0,
+    active: true,
+    bgStyle: 'from-yellow-700 to-amber-950'
+  },
+  {
+    id: 'silicon-tech',
+    name: 'Silicon Tech ATS',
+    description: 'Format compact 1-page épuré ultra-compatible avec les scanners ATS',
+    tag: '1-Page ATS 100%',
+    style: 'En-tête asymétrique épuré, métriques de résultats et parsing ATS irréprochable',
+    usageCount: 0,
+    active: true,
+    bgStyle: 'from-emerald-700 to-slate-900'
   }
 ];
 
 let serverSettings = {
   platformName: 'CV EN LIGNE',
-  contactEmail: 'contact@cvenligne.com',
+  contactEmail: 'support@vitarey.com',
   supportNotificationEmail: (process.env.ADMIN_EMAIL || 'admin@example.com').toLowerCase().trim(),
   cvPrice: 2.00,
   currency: 'USD',
@@ -241,16 +401,16 @@ const ADMIN_EMAIL = (process.env.ADMIN_EMAIL || 'admin@example.com').toLowerCase
 // Strict security: No default/hardcoded password fallback
 const ADMIN_PASSWORD = process.env.ADMIN_PASSWORD ? process.env.ADMIN_PASSWORD.trim() : '';
 
-if (!ADMIN_PASSWORD) {
-  console.warn('⚠️ [SÉCURITÉ] La variable d\'environnement ADMIN_PASSWORD n\'est pas définie. L\'accès au portail administrateur est désactivé.');
+if (!ADMIN_PASSWORD || ADMIN_PASSWORD === 'YOUR_ADMIN_PASSWORD') {
+  console.warn('⚠️ [SÉCURITÉ CRITIQUE] La variable d\'environnement ADMIN_PASSWORD n\'est pas définie ou contient une valeur fictive. L\'accès au portail administrateur est totalement désactivé.');
 }
 
 // In-memory cryptographically verified admin sessions: token -> { email: string, expiresAt: number }
 const activeAdminSessions = new Map<string, { email: string; expiresAt: number }>();
 
 function verifyAdminCredentials(inputEmail?: string, inputPassword?: string): boolean {
-  if (!ADMIN_PASSWORD || ADMIN_PASSWORD.length === 0) {
-    console.warn('[SECURITY] Accès refusé : Aucun mot de passe admin configuré (ADMIN_PASSWORD manquant dans .env).');
+  if (!ADMIN_PASSWORD || ADMIN_PASSWORD.length === 0 || ADMIN_PASSWORD === 'YOUR_ADMIN_PASSWORD') {
+    console.warn('[SECURITY] Accès refusé : Aucun mot de passe admin configuré de manière sécurisée (ADMIN_PASSWORD manquant ou placeholder dans .env).');
     return false;
   }
   if (!inputEmail || !inputPassword) return false;
@@ -1130,8 +1290,8 @@ app.post('/api/user/consume-download', (req: Request, res: Response) => {
   }
 });
 
-// 6. Contact Form Notification Endpoint -> lahcengelmim@gmail.com & Saved to Admin Inbox
-app.post('/api/contact', (req: Request, res: Response) => {
+// 6. Contact Form Notification Endpoint -> support@vitarey.com & Saved to Supabase / Admin Inbox
+app.post('/api/contact', async (req: Request, res: Response) => {
   try {
     const { name, email, subject, message } = req.body;
 
@@ -1149,15 +1309,15 @@ app.post('/api/contact', (req: Request, res: Response) => {
       createdAt: new Date().toISOString()
     };
 
-    serverMessages.unshift(newMessage);
+    await db.addMessage(newMessage);
 
-    console.log(`[CONTACT NOTIFICATION] New message for lahcengelmim@gmail.com from ${name} (${email}) - Subject: ${subject}`);
+    console.log(`[CONTACT NOTIFICATION] New message for support@vitarey.com from ${name} (${email}) - Subject: ${subject}`);
     console.log(`[MESSAGE BODY]: ${message}`);
 
     res.json({
       success: true,
       messageId: newMessage.id,
-      message: 'Votre message a été transmis avec succès à l\'équipe support (lahcengelmim@gmail.com).'
+      message: 'Votre message a été transmis avec succès à l\'équipe support (support@vitarey.com).'
     });
   } catch (error: any) {
     res.status(500).json({ error: 'Erreur lors de l\'envoi du message.' });
@@ -1203,7 +1363,7 @@ app.post('/api/admin/verify', (req: Request, res: Response) => {
     sessionId: 'usr_admin_1',
     userId: 'usr_admin_1',
     userEmail: ADMIN_EMAIL,
-    userName: 'Lahcen Gelmim (Admin)',
+    userName: 'Administrateur',
     role: 'admin',
     lastSeen: Date.now(),
     currentAction: 'Connecté au Tableau de Bord Admin',
@@ -1213,7 +1373,7 @@ app.post('/api/admin/verify', (req: Request, res: Response) => {
   logLiveActivity({
     userId: 'usr_admin_1',
     userEmail: ADMIN_EMAIL,
-    userName: 'Lahcen Gelmim (Admin)',
+    userName: 'Administrateur',
     action: 'login',
     actionLabel: 'Connexion Admin',
     details: 'Session administrateur sécurisée initiée',
@@ -1228,8 +1388,8 @@ app.post('/api/admin/verify', (req: Request, res: Response) => {
     user: {
       id: 'usr_admin_1',
       email: ADMIN_EMAIL,
-      firstName: 'Lahcen',
-      lastName: 'Gelmim',
+      firstName: 'Admin',
+      lastName: 'VITAREY',
       role: 'admin'
     }
   });
@@ -1307,16 +1467,12 @@ app.post('/api/activity/log', (req: Request, res: Response) => {
 });
 
 // Reset Dashboard Statistics to Zero (Standard Baseline)
-app.post('/api/admin/reset-stats', (req: Request, res: Response) => {
+app.post('/api/admin/reset-stats', async (req: Request, res: Response) => {
   if (!verifyAdminRequest(req)) {
     return res.status(403).json({ error: 'Accès non autorisé.' });
   }
 
-  serverUsers = [];
-  serverPayments = [];
-  serverAILogs = [];
-  serverMessages = [];
-  serverCVs = [];
+  await db.resetAllData();
   liveActivityLogs = [];
   liveSessions.clear();
   totalEditsCount = 0;
@@ -1330,7 +1486,7 @@ app.post('/api/admin/reset-stats', (req: Request, res: Response) => {
     sessionId: 'usr_admin_1',
     userId: 'usr_admin_1',
     userEmail: ADMIN_EMAIL,
-    userName: 'Lahcen Gelmim (Admin)',
+    userName: 'Administrateur',
     role: 'admin',
     lastSeen: Date.now(),
     currentAction: 'Réinitialisation des compteurs effectuée',
@@ -1751,7 +1907,7 @@ app.get('/api/admin/messages', (req: Request, res: Response) => {
   });
 });
 
-app.patch('/api/admin/messages/:id', (req: Request, res: Response) => {
+app.patch('/api/admin/messages/:id', async (req: Request, res: Response) => {
   if (!verifyAdminRequest(req)) {
     return res.status(403).json({ error: 'Accès non autorisé.' });
   }
@@ -1759,21 +1915,18 @@ app.patch('/api/admin/messages/:id', (req: Request, res: Response) => {
   const { id } = req.params;
   const { status, notes } = req.body;
 
-  const msg = serverMessages.find(m => m.id === id);
-  if (!msg) {
+  const updatedMsg = await db.updateMessage(id, { status, notes });
+  if (!updatedMsg) {
     return res.status(404).json({ error: 'Message introuvable.' });
   }
 
-  if (status) msg.status = status;
-  if (notes !== undefined) msg.notes = notes;
-
   return res.json({
     success: true,
-    message: msg
+    message: updatedMsg
   });
 });
 
-app.post('/api/admin/messages/:id/reply', (req: Request, res: Response) => {
+app.post('/api/admin/messages/:id/reply', async (req: Request, res: Response) => {
   if (!verifyAdminRequest(req)) {
     return res.status(403).json({ error: 'Accès non autorisé.' });
   }
@@ -1786,15 +1939,20 @@ app.post('/api/admin/messages/:id/reply', (req: Request, res: Response) => {
     return res.status(404).json({ error: 'Message introuvable.' });
   }
 
-  msg.status = 'traite';
-  msg.repliedAt = new Date().toISOString();
-  msg.notes = (msg.notes ? msg.notes + ' | ' : '') + `Réponse envoyée : "${replyContent?.slice(0, 60)}..."`;
+  const repliedAt = new Date().toISOString();
+  const notes = (msg.notes ? msg.notes + ' | ' : '') + `Réponse envoyée : "${replyContent?.slice(0, 60)}..."`;
+
+  const updated = await db.updateMessage(id, {
+    status: 'traite',
+    repliedAt,
+    notes
+  });
 
   console.log(`[ADMIN REPLY] Message ${id} to ${msg.email}: ${replyContent}`);
 
   return res.json({
     success: true,
-    message: msg
+    message: updated || msg
   });
 });
 
@@ -1837,6 +1995,13 @@ app.post('/api/admin/settings', (req: Request, res: Response) => {
 // --- SERVER SETUP & VITE MIDDLEWARE ---
 
 async function start() {
+  // Initialize and hydrate database from Supabase
+  try {
+    await db.init();
+  } catch (err) {
+    console.warn('⚠️ [STARTUP] Impossible d\'hydrater la base de données au démarrage:', err);
+  }
+
   if (process.env.NODE_ENV !== 'production') {
     const vite = await createViteServer({
       server: { middlewareMode: true },
