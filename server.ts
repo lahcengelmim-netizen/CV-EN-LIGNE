@@ -34,72 +34,55 @@ function getAIClient(): GoogleGenAI {
   return aiClient;
 }
 
+import { db, ServerUserRecord, ServerPaymentRecord, ServerAILogRecord, ServerMessageRecord, ServerCVRecord } from './serverDb';
+
 // In-memory rate limiting and cover letter usage tracker per user/client IP
 // Strict server-side enforcement: 2 cover letters per user max as requested in specification
 const coverLetterUsageMap = new Map<string, number>();
 
-// --- REAL ADMIN DATA STORAGE & TELEMETRY ---
+// --- RATE LIMITING FOR AI ENDPOINTS (Sliding 1-hour window) ---
+const aiRateLimitMap = new Map<string, number[]>();
 
-export interface ServerUserRecord {
-  id: string;
-  email: string;
-  firstName: string;
-  lastName: string;
-  createdAt: string;
-  plan: 'free' | 'single_cv' | 'flash' | 'pro' | 'monthly' | 'yearly' | 'annual';
-  activePass: 'none' | 'flash' | 'pro' | 'monthly' | 'annual' | 'single_cv' | 'yearly';
-  downloadCredits: number;
-  passExpiresAt?: string;
-  totalDownloads: number;
-  unlockedCoverLetters: boolean;
-  canEdit: boolean;
-  subscriptionStatus: 'none' | 'active' | 'expired' | 'trial';
-  subscriptionStart?: string;
-  subscriptionEnd?: string;
-  cvCount: number;
-  status: 'active' | 'suspended';
-  role: 'user' | 'admin';
-  lastLogin?: string;
+function checkAIRateLimit(req: Request, userId?: string, maxRequestsPerHour = 10): { allowed: boolean; remaining: number; resetInMinutes: number; count: number } {
+  const now = Date.now();
+  const ONE_HOUR = 60 * 60 * 1000;
+
+  const forwarded = req.headers['x-forwarded-for'];
+  const clientIp = (typeof forwarded === 'string' ? forwarded.split(',')[0].trim() : req.socket.remoteAddress) || 'unknown_ip';
+  const rateKey = (userId && userId !== 'guest') ? `uid_${userId}` : `ip_${clientIp}`;
+
+  // Check if user has an active pass that grants unlimited/higher AI quota
+  const user = (userId && userId !== 'guest') ? db.findUser(u => u.id === userId) : undefined;
+  const isPaidUser = user && user.plan !== 'free' && user.subscriptionStatus === 'active';
+  const effectiveLimit = isPaidUser ? 100 : maxRequestsPerHour;
+
+  let timestamps = aiRateLimitMap.get(rateKey) || [];
+  timestamps = timestamps.filter(t => now - t < ONE_HOUR);
+
+  if (timestamps.length >= effectiveLimit) {
+    const oldestTimestamp = timestamps[0] || now;
+    const resetInMinutes = Math.max(1, Math.ceil((oldestTimestamp + ONE_HOUR - now) / (60 * 1000)));
+    aiRateLimitMap.set(rateKey, timestamps);
+    return {
+      allowed: false,
+      remaining: 0,
+      resetInMinutes,
+      count: timestamps.length
+    };
+  }
+
+  timestamps.push(now);
+  aiRateLimitMap.set(rateKey, timestamps);
+
+  return {
+    allowed: true,
+    remaining: Math.max(0, effectiveLimit - timestamps.length),
+    resetInMinutes: 60,
+    count: timestamps.length
+  };
 }
 
-export interface ServerPaymentRecord {
-  id: string;
-  orderId: string;
-  userId: string;
-  userEmail: string;
-  userName: string;
-  cvId?: string;
-  cvTitle?: string;
-  planType: 'single_cv' | 'flash' | 'pro' | 'monthly' | 'yearly' | 'annual';
-  planName: string;
-  amount: number;
-  currency: string;
-  status: 'succeeded' | 'failed' | 'pending';
-  reference: string;
-  createdAt: string;
-  paymentMethod: string;
-}
-
-export interface ServerAILogRecord {
-  id: string;
-  endpoint: 'enhance-experience' | 'enhance-summary' | 'suggest-skills' | 'generate-cover-letter';
-  userId: string;
-  userEmail?: string;
-  timestamp: string;
-  success: boolean;
-}
-
-export interface ServerMessageRecord {
-  id: string;
-  name: string;
-  email: string;
-  subject: string;
-  message: string;
-  status: 'nouveau' | 'lu' | 'traite';
-  createdAt: string;
-  repliedAt?: string;
-  notes?: string;
-}
+export { ServerUserRecord, ServerPaymentRecord, ServerAILogRecord, ServerMessageRecord, ServerCVRecord };
 
 export interface ServerTemplateRecord {
   id: string;
@@ -112,12 +95,29 @@ export interface ServerTemplateRecord {
   bgStyle: string;
 }
 
-// Baseline Standard (0) - Clean real-time datasets
-let serverUsers: ServerUserRecord[] = [];
-let serverPayments: ServerPaymentRecord[] = [];
-let serverAILogs: ServerAILogRecord[] = [];
-let serverMessages: ServerMessageRecord[] = [];
-let serverCVs: any[] = [];
+// Proxies backed by persistent Supabase store and cache
+function createArrayProxy<T extends object>(getList: () => T[]): T[] {
+  return new Proxy([] as unknown as T[], {
+    get(target, prop, receiver) {
+      const list = getList();
+      if (typeof prop === 'string' && !isNaN(Number(prop))) return (list as any)[prop];
+      const val = (list as any)[prop];
+      if (typeof val === 'function') return val.bind(list);
+      return val;
+    },
+    set(target, prop, value) {
+      const list = getList();
+      (list as any)[prop] = value;
+      return true;
+    }
+  });
+}
+
+const serverUsers = createArrayProxy<ServerUserRecord>(() => db.getUsers());
+const serverPayments = createArrayProxy<ServerPaymentRecord>(() => db.getPayments());
+const serverAILogs = createArrayProxy<ServerAILogRecord>(() => db.getAILogs());
+const serverMessages = createArrayProxy<ServerMessageRecord>(() => db.getMessages());
+const serverCVs = createArrayProxy<any>(() => db.getCVs());
 
 // Real-Time Live Session & Activity Tracker
 export interface LiveSessionRecord {
@@ -227,7 +227,7 @@ const serverTemplates: ServerTemplateRecord[] = [
 let serverSettings = {
   platformName: 'CV EN LIGNE',
   contactEmail: 'contact@cvenligne.com',
-  supportNotificationEmail: 'lahcengelmim@gmail.com',
+  supportNotificationEmail: (process.env.ADMIN_EMAIL || 'admin@example.com').toLowerCase().trim(),
   cvPrice: 2.00,
   currency: 'USD',
   maintenanceMode: false,
@@ -236,15 +236,23 @@ let serverSettings = {
 };
 
 // Secure Admin Credentials & Active Session Store
-const ADMIN_EMAIL = (process.env.ADMIN_EMAIL || 'lahcengelmim@gmail.com').toLowerCase().trim();
+const ADMIN_EMAIL = (process.env.ADMIN_EMAIL || 'admin@example.com').toLowerCase().trim();
 
-const ADMIN_PASSWORD = process.env.ADMIN_PASSWORD || 'AdminPassword2026!#';
+// Strict security: No default/hardcoded password fallback
+const ADMIN_PASSWORD = process.env.ADMIN_PASSWORD ? process.env.ADMIN_PASSWORD.trim() : '';
 
+if (!ADMIN_PASSWORD) {
+  console.warn('⚠️ [SÉCURITÉ] La variable d\'environnement ADMIN_PASSWORD n\'est pas définie. L\'accès au portail administrateur est désactivé.');
+}
 
 // In-memory cryptographically verified admin sessions: token -> { email: string, expiresAt: number }
 const activeAdminSessions = new Map<string, { email: string; expiresAt: number }>();
 
 function verifyAdminCredentials(inputEmail?: string, inputPassword?: string): boolean {
+  if (!ADMIN_PASSWORD || ADMIN_PASSWORD.length === 0) {
+    console.warn('[SECURITY] Accès refusé : Aucun mot de passe admin configuré (ADMIN_PASSWORD manquant dans .env).');
+    return false;
+  }
   if (!inputEmail || !inputPassword) return false;
   if (inputEmail.toLowerCase().trim() !== ADMIN_EMAIL) return false;
 
@@ -298,6 +306,15 @@ app.get('/api/health', (req: Request, res: Response) => {
 app.post('/api/ai/enhance-experience', async (req: Request, res: Response) => {
   try {
     const { position, company, rawDescription, tasks, lang = 'fr', userId = 'guest', userEmail } = req.body;
+
+    const rateCheck = checkAIRateLimit(req, userId, 10);
+    if (!rateCheck.allowed) {
+      return res.status(429).json({
+        error: `Limite de requêtes IA atteinte (10 requêtes/heure). Veuillez réessayer dans ${rateCheck.resetInMinutes} minute(s).`,
+        limitReached: true,
+        resetInMinutes: rateCheck.resetInMinutes
+      });
+    }
 
     if (!rawDescription && (!tasks || tasks.length === 0)) {
       return res.status(400).json({ error: 'Texte ou tâches d\'expérience requis.' });
@@ -355,7 +372,7 @@ Fournis une réponse STRICTEMENT au format JSON valide avec la structure suivant
     }
 
     // Log AI Usage
-    serverAILogs.unshift({
+    await db.addAILog({
       id: 'ai_' + Math.random().toString(36).substring(2, 9),
       endpoint: 'enhance-experience',
       userId: userId || 'guest',
@@ -381,6 +398,15 @@ Fournis une réponse STRICTEMENT au format JSON valide avec la structure suivant
 app.post('/api/ai/enhance-summary', async (req: Request, res: Response) => {
   try {
     const { rawSummary, jobTitle, yearsOfExperience, skills, lang = 'fr', userId = 'guest', userEmail } = req.body;
+
+    const rateCheck = checkAIRateLimit(req, userId, 10);
+    if (!rateCheck.allowed) {
+      return res.status(429).json({
+        error: `Limite de requêtes IA atteinte (10 requêtes/heure). Veuillez réessayer dans ${rateCheck.resetInMinutes} minute(s).`,
+        limitReached: true,
+        resetInMinutes: rateCheck.resetInMinutes
+      });
+    }
 
     const ai = getAIClient();
     const prompt = `
@@ -415,7 +441,7 @@ Réponds STRICTEMENT au format JSON :
     const parsed = JSON.parse(response.text || '{}');
 
     // Log AI Usage
-    serverAILogs.unshift({
+    await db.addAILog({
       id: 'ai_' + Math.random().toString(36).substring(2, 9),
       endpoint: 'enhance-summary',
       userId: userId || 'guest',
@@ -438,13 +464,23 @@ Réponds STRICTEMENT au format JSON :
 app.post('/api/ai/suggest-skills', async (req: Request, res: Response) => {
   try {
     const { jobTitle, lang = 'fr', userId = 'guest', userEmail } = req.body;
+
+    const rateCheck = checkAIRateLimit(req, userId, 10);
+    if (!rateCheck.allowed) {
+      return res.status(429).json({
+        error: `Limite de requêtes IA atteinte (10 requêtes/heure). Veuillez réessayer dans ${rateCheck.resetInMinutes} minute(s).`,
+        limitReached: true,
+        resetInMinutes: rateCheck.resetInMinutes
+      });
+    }
+
     if (!jobTitle) {
       return res.status(400).json({ error: 'Titre du poste requis.' });
     }
 
     const ai = getAIClient();
     const prompt = `
-Donne une liste de 12 compétences professionnelles très recherchées (hard skills et soft skills) pour le poste : "${jobTitle}".
+Tu donne une liste de 12 compétences professionnelles très recherchées (hard skills et soft skills) pour le poste : "${jobTitle}".
 Langue : ${lang === 'ar' ? 'Arabe' : lang === 'en' ? 'Anglais' : 'Français'}.
 
 Réponds STRICTEMENT en JSON :
@@ -465,7 +501,7 @@ Réponds STRICTEMENT en JSON :
     const parsed = JSON.parse(response.text || '{"skills":[]}');
 
     // Log AI Usage
-    serverAILogs.unshift({
+    await db.addAILog({
       id: 'ai_' + Math.random().toString(36).substring(2, 9),
       endpoint: 'suggest-skills',
       userId: userId || 'guest',
@@ -556,7 +592,7 @@ Réponds STRICTEMENT en JSON :
     coverLetterUsageMap.set(userKey, newCount);
 
     // Log AI Usage
-    serverAILogs.unshift({
+    await db.addAILog({
       id: 'ai_' + Math.random().toString(36).substring(2, 9),
       endpoint: 'generate-cover-letter',
       userId: String(userId),
@@ -855,7 +891,7 @@ async function handleOrderCapture(req: Request, res: Response) {
       paymentMethod: 'PayPal (Orders v2)'
     };
 
-    serverPayments.unshift(newPaymentRecord);
+    await db.addPayment(newPaymentRecord);
 
     // Update or create user record in server database ONLY on COMPLETED capture
     let userRecord = serverUsers.find(u => (userId && userId !== 'guest' && u.id === userId) || (userEmail && u.email.toLowerCase() === userEmail.toLowerCase()));
@@ -874,8 +910,9 @@ async function handleOrderCapture(req: Request, res: Response) {
       userRecord.subscriptionStatus = subscriptionDurationDays > 0 ? 'active' : 'none';
       if (subscriptionStart) userRecord.subscriptionStart = subscriptionStart;
       if (subscriptionEnd) userRecord.subscriptionEnd = subscriptionEnd;
+      await db.upsertUser(userRecord);
     } else if (userEmail || (userId && userId !== 'guest')) {
-      serverUsers.unshift({
+      const newUser: ServerUserRecord = {
         id: userId || 'usr_' + Math.random().toString(36).substring(2, 9),
         email: userEmail || 'user@example.com',
         firstName: userName.split(' ')[0] || 'Utilisateur',
@@ -895,7 +932,8 @@ async function handleOrderCapture(req: Request, res: Response) {
         status: 'active',
         role: 'user',
         lastLogin: now.toISOString()
-      });
+      };
+      await db.upsertUser(newUser);
     }
 
     return res.json({

@@ -106,8 +106,8 @@ const fr = {
     contactSubject: 'Sujet du message',
     contactMessage: 'Votre message',
     contactSubmit: 'Envoyer ma demande',
-    contactSuccess: 'Votre message a été envoyé avec succès à lahcengelmim@gmail.com. Nous vous répondrons dans les plus brefs délais.',
-    contactEmailDirect: 'lahcengelmim@gmail.com',
+    contactSuccess: 'Votre message a été envoyé avec succès à notre équipe support. Nous vous répondrons dans les plus brefs délais.',
+    contactEmailDirect: 'contact@cvenligne.com',
 
     // Wizard Steps
     stepInfo: 'Informations',
@@ -304,8 +304,8 @@ const en = {
     contactSubject: 'Subject',
     contactMessage: 'Message',
     contactSubmit: 'Send Message',
-    contactSuccess: 'Your message has been sent successfully to lahcengelmim@gmail.com. We will get back to you promptly.',
-    contactEmailDirect: 'lahcengelmim@gmail.com',
+    contactSuccess: 'Your message has been sent successfully to our support team. We will get back to you promptly.',
+    contactEmailDirect: 'contact@cvenligne.com',
 
     stepInfo: 'Contact',
     stepProfile: 'Profile',
@@ -491,8 +491,8 @@ const ar = {
     contactSubject: 'الموضوع',
     contactMessage: 'رسالتك',
     contactSubmit: 'إرسال الرسالة',
-    contactSuccess: 'تم إرسال رسالتك بنجاح إلى lahcengelmim@gmail.com. سنرد عليك في أقرب وقت.',
-    contactEmailDirect: 'lahcengelmim@gmail.com',
+    contactSuccess: 'تم إرسال رسالتك بنجاح إلى فريق الدعم. سنرد عليك في أقرب وقت.',
+    contactEmailDirect: 'contact@cvenligne.com',
 
     stepInfo: 'البيانات الشخصية',
     stepProfile: 'الملف المهني',
@@ -726,6 +726,17 @@ export const translations = {
   pt,
   zh
 };
+
+export const AVAILABLE_LANGUAGES = [
+  { code: 'en', name: 'English', short: 'EN', flag: '🇬🇧', dir: 'ltr' as const },
+  { code: 'fr', name: 'Français', short: 'FR', flag: '🇫🇷', dir: 'ltr' as const },
+  { code: 'ar', name: 'العربية', short: 'AR', flag: '🇸🇦', dir: 'rtl' as const },
+  { code: 'es', name: 'Español', short: 'ES', flag: '🇪🇸', dir: 'ltr' as const },
+  { code: 'de', name: 'Deutsch', short: 'DE', flag: '🇩🇪', dir: 'ltr' as const },
+  { code: 'it', name: 'Italiano', short: 'IT', flag: '🇮🇹', dir: 'ltr' as const },
+  { code: 'pt', name: 'Português', short: 'PT', flag: '🇵🇹', dir: 'ltr' as const },
+  { code: 'zh', name: '中文', short: 'ZH', flag: '🇨🇳', dir: 'ltr' as const },
+];
 
 export const t = (lang: LanguageCode, key: keyof typeof fr | string): string => {
   const langDict = (translations as any)[lang] || translations.en;

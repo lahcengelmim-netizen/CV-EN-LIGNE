@@ -84,11 +84,11 @@ export const Footer: React.FC<FooterProps> = ({ lang = 'fr', onNavigate }) => {
               Une question ou besoin d'assistance ? Notre équipe dédiée est à votre écoute.
             </p>
             <a
-              href="mailto:lahcengelmim@gmail.com"
+              href="mailto:contact@cvenligne.com"
               className="inline-flex items-center gap-2 px-3 py-2 bg-slate-800 hover:bg-slate-700 text-white rounded-xl text-xs font-semibold transition-colors border border-slate-700"
             >
               <Mail className="w-3.5 h-3.5 text-blue-400" />
-              <span>lahcengelmim@gmail.com</span>
+              <span>contact@cvenligne.com</span>
             </a>
           </div>
         </div>

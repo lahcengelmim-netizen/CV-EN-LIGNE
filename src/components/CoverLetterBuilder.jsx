@@ -1,5 +1,5 @@
 import React, { useState, useEffect, useRef } from 'react';
-import { COVER_LETTER_TEMPLATES, interpolateCoverLetter } from '../utils/coverLetterTemplates';
+import { COVER_LETTER_TEMPLATES, interpolateCoverLetter } from '../lib/coverLetterTemplates';
 import { exportCVToPDF } from '../lib/pdf';
 import {
   FileText,

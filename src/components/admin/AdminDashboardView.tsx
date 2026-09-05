@@ -545,7 +545,7 @@ export const AdminDashboardView: React.FC<AdminDashboardViewProps> = ({ stats, o
           <div className="space-y-2 pt-2 border-t border-slate-800 text-xs">
             <div className="flex justify-between text-slate-300">
               <span>Super Administrateur :</span>
-              <span className="font-bold text-white truncate max-w-[150px]">lahcengelmim@gmail.com</span>
+              <span className="font-bold text-white truncate max-w-[150px]">{adminService.getStoredAdminEmail() || 'admin@example.com'}</span>
             </div>
             <div className="flex justify-between text-slate-300">
               <span>Authentification :</span>

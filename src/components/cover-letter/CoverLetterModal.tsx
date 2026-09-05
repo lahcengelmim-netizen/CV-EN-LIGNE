@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { CVData, LanguageCode, UserPassState } from '../../types';
-import { COVER_LETTER_TEMPLATES, interpolateCoverLetter } from '../../utils/coverLetterTemplates';
+import { COVER_LETTER_TEMPLATES, interpolateCoverLetter } from '../../lib/coverLetterTemplates';
 import { exportCVToPDF } from '../../lib/pdf';
 import { passService } from '../../lib/passService';
 import { ENABLE_PAYMENTS } from '../../config/features';

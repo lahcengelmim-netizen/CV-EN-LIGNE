@@ -1,5 +1,5 @@
 import React, { createContext, useContext, useState, useEffect, useCallback } from 'react';
-import { translations, AVAILABLE_LANGUAGES } from '../utils/translations';
+import { translations, AVAILABLE_LANGUAGES } from '../lib/translations';
 
 const LanguageContext = createContext(null);
 

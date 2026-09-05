@@ -1,6 +1,6 @@
 import { AdminStats, AdminUser, AdminCV, AdminPayment, AdminMessage, AdminTemplateInfo, AdminSettings } from '../types';
 
-const ADMIN_EMAIL = 'lahcengelmim@gmail.com';
+const ADMIN_EMAIL = (import.meta.env.VITE_ADMIN_EMAIL || 'admin@example.com').toLowerCase().trim();
 const TOKEN_KEY = 'cvenligne_admin_token';
 const ADMIN_EMAIL_KEY = 'cvenligne_admin_email';
 
