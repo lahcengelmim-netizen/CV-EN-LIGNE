@@ -19,7 +19,7 @@ export const AVAILABLE_LANGUAGES = [
 export const translations = {
   en: {
     nav: {
-      brand: 'CV EN LIGNE',
+      brand: 'VITAREY',
       home: 'Home',
       builder: 'Create Resume',
       templates: 'Templates',
@@ -161,7 +161,7 @@ export const translations = {
     },
     footer: {
       tagline: 'Empowering global job seekers with high-impact professional resumes.',
-      copyright: '© 2026 CV EN LIGNE. All rights reserved.',
+      copyright: '© 2026 VITAREY. All rights reserved.',
       privacy: 'Privacy Policy',
       terms: 'Terms of Service',
     },
@@ -169,7 +169,7 @@ export const translations = {
 
   fr: {
     nav: {
-      brand: 'CV EN LIGNE',
+      brand: 'VITAREY',
       home: 'Accueil',
       builder: 'Créer un CV',
       templates: 'Modèles',
@@ -311,7 +311,7 @@ export const translations = {
     },
     footer: {
       tagline: 'Donner aux candidats l\'avantage décisif pour décrocher leur entretien.',
-      copyright: '© 2026 CV EN LIGNE. Tous droits réservés.',
+      copyright: '© 2026 VITAREY. Tous droits réservés.',
       privacy: 'Politique de confidentialité',
       terms: 'Conditions d\'utilisation',
     },
@@ -319,7 +319,7 @@ export const translations = {
 
   ar: {
     nav: {
-      brand: 'CV EN LIGNE',
+      brand: 'VITAREY',
       home: 'الرئيسية',
       builder: 'إنشاء سيرة ذاتية',
       templates: 'النماذج',
@@ -461,7 +461,7 @@ export const translations = {
     },
     footer: {
       tagline: 'تمكين الباحثين عن عمل من تقديم أفضل صورة مهنية لاقتناص المقابلات.',
-      copyright: '© 2026 CV EN LIGNE. جميع الحقوق محفوظة.',
+      copyright: '© 2026 VITAREY. جميع الحقوق محفوظة.',
       privacy: 'سياسة الخصوصية',
       terms: 'شروط الاستخدام',
     },
@@ -469,7 +469,7 @@ export const translations = {
 
   es: {
     nav: {
-      brand: 'CV EN LIGNE',
+      brand: 'VITAREY',
       home: 'Inicio',
       builder: 'Crear CV',
       templates: 'Plantillas',
@@ -611,7 +611,7 @@ export const translations = {
     },
     footer: {
       tagline: 'Impulsando a los profesionales hacia sus mejores oportunidades laborales.',
-      copyright: '© 2026 CV EN LIGNE. Todos los derechos reservados.',
+      copyright: '© 2026 VITAREY. Todos los derechos reservados.',
       privacy: 'Política de privacidad',
       terms: 'Términos de servicio',
     },
@@ -619,7 +619,7 @@ export const translations = {
 
   de: {
     nav: {
-      brand: 'CV EN LIGNE',
+      brand: 'VITAREY',
       home: 'Startseite',
       builder: 'Lebenslauf erstellen',
       templates: 'Vorlagen',
@@ -761,7 +761,7 @@ export const translations = {
     },
     footer: {
       tagline: 'Ihr Partner für erfolgreiche Bewerbungen weltweit.',
-      copyright: '© 2026 CV EN LIGNE. Alle Rechte vorbehalten.',
+      copyright: '© 2026 VITAREY. Alle Rechte vorbehalten.',
       privacy: 'Datenschutz',
       terms: 'Nutzungsbedingungen',
     },
@@ -769,7 +769,7 @@ export const translations = {
 
   it: {
     nav: {
-      brand: 'CV EN LIGNE',
+      brand: 'VITAREY',
       home: 'Home',
       builder: 'Crea CV',
       templates: 'Modelli',
@@ -911,7 +911,7 @@ export const translations = {
     },
     footer: {
       tagline: 'Accompagniamo i candidati verso il successo professionale.',
-      copyright: '© 2026 CV EN LIGNE. Tutti i diritti riservati.',
+      copyright: '© 2026 VITAREY. Tutti i diritti riservati.',
       privacy: 'Informativa sulla privacy',
       terms: 'Termini di servizio',
     },
@@ -919,7 +919,7 @@ export const translations = {
 
   pt: {
     nav: {
-      brand: 'CV EN LIGNE',
+      brand: 'VITAREY',
       home: 'Início',
       builder: 'Criar Currículo',
       templates: 'Modelos',
@@ -1061,7 +1061,7 @@ export const translations = {
     },
     footer: {
       tagline: 'Potenciando candidaturas de sucesso no mundo inteiro.',
-      copyright: '© 2026 CV EN LIGNE. Todos os direitos reservados.',
+      copyright: '© 2026 VITAREY. Todos os direitos reservados.',
       privacy: 'Política de privacidade',
       terms: 'Termos de serviço',
     },
@@ -1069,7 +1069,7 @@ export const translations = {
 
   zh: {
     nav: {
-      brand: 'CV EN LIGNE',
+      brand: 'VITAREY',
       home: '首页',
       builder: '制作简历',
       templates: '精选模板',
@@ -1211,7 +1211,7 @@ export const translations = {
     },
     footer: {
       tagline: '助力全球求职者轻松斩获心仪面试机会。',
-      copyright: '© 2026 CV EN LIGNE. 保留所有权利。',
+      copyright: '© 2026 VITAREY. 保留所有权利。',
       privacy: '隐私政策',
       terms: '服务条款',
     },

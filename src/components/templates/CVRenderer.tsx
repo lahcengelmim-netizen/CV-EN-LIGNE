@@ -1,5 +1,6 @@
 import React from 'react';
 import { CVData, TemplateId } from '../../types';
+import { ENABLE_PAYMENTS } from '../../config/features';
 import { ModernTemplate } from './ModernTemplate';
 import { MinimalTemplate } from './MinimalTemplate';
 import { ProfessionalTemplate } from './ProfessionalTemplate';
@@ -77,8 +78,8 @@ export const CVRenderer: React.FC<CVRendererProps> = ({
 
   const SelectedTemplate = templateMap[activeData.templateId] || StockholmTemplate || ModernTemplate;
 
-  // Watermark is only shown if explicitly asked or if not paid during draft preview
-  const isWatermarked = showWatermark && !activeData.isPaid;
+  // Watermark is only shown if explicitly asked and payments are enabled (never in free test mode)
+  const isWatermarked = ENABLE_PAYMENTS && showWatermark && !activeData.isPaid;
 
   return (
     <div 
@@ -96,7 +97,7 @@ export const CVRenderer: React.FC<CVRendererProps> = ({
       {isWatermarked && (
         <div className="absolute inset-0 pointer-events-none z-30 flex items-center justify-center overflow-hidden no-print">
           <div className="transform -rotate-45 text-slate-400/20 font-black text-6xl tracking-widest uppercase select-none border-8 border-slate-400/20 p-8 rounded-3xl">
-            CV EN LIGNE • APERÇU
+            VITAREY • APERÇU
           </div>
         </div>
       )}

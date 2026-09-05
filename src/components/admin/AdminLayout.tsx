@@ -85,21 +85,18 @@ export const AdminLayout: React.FC<AdminLayoutProps> = ({
             {sidebarOpen ? <X className="w-5 h-5" /> : <Menu className="w-5 h-5" />}
           </button>
 
-          <div className="flex items-center gap-2.5">
-            <div className="w-9 h-9 rounded-xl bg-gradient-to-tr from-blue-600 to-indigo-500 flex items-center justify-center shadow-lg shadow-blue-500/20">
-              <Shield className="w-5 h-5 text-white" />
+          <div className="flex items-center gap-3">
+            <div className="bg-white px-2 py-1 rounded-xl shadow-md inline-flex items-center">
+              <img
+                src="/images/logo.jpg"
+                alt="VITAREY"
+                className="h-6 sm:h-7 w-auto object-contain"
+                referrerPolicy="no-referrer"
+              />
             </div>
-            <div>
-              <div className="flex items-center gap-2">
-                <span className="font-extrabold text-sm sm:text-base tracking-tight text-white">
-                  CV EN LIGNE
-                </span>
-                <span className="px-2 py-0.5 bg-blue-500/20 border border-blue-500/40 text-blue-400 text-[10px] font-bold rounded-full uppercase tracking-wider">
-                  ADMIN
-                </span>
-              </div>
-              <p className="text-[11px] text-slate-400 hidden sm:block">Panneau d'administration & contrôle</p>
-            </div>
+            <span className="px-2 py-0.5 bg-blue-500/20 border border-blue-500/40 text-blue-400 text-[10px] font-bold rounded-full uppercase tracking-wider">
+              ADMIN
+            </span>
           </div>
         </div>
 

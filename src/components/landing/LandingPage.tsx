@@ -5,6 +5,7 @@ import { ContactSection } from '../contact/ContactSection';
 import { HeroSection } from './HeroSection';
 import { TemplatesGallery } from '../templates/TemplatesGallery';
 import { Pricing } from '../Pricing';
+import { ENABLE_PAYMENTS } from '../../config/features';
 import {
   Sparkles,
   ArrowRight,
@@ -180,7 +181,7 @@ export const LandingPage: React.FC<LandingPageProps> = ({ onStartCV, lang = 'fr'
       {/* 5. COMPARISON TABLE */}
       <section className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <div className="text-center space-y-3 mb-12">
-          <h2 className="text-3xl font-black text-slate-900 tracking-tight">Pourquoi choisir CV EN LIGNE ?</h2>
+          <h2 className="text-3xl font-black text-slate-900 tracking-tight">Pourquoi choisir VITAREY ?</h2>
           <p className="text-xs sm:text-sm text-slate-500 max-w-xl mx-auto">
             Comparez notre solution transparente avec les méthodes classiques et les abonnements mensuels coûteux.
           </p>
@@ -195,7 +196,7 @@ export const LandingPage: React.FC<LandingPageProps> = ({ onStartCV, lang = 'fr'
                 <th className="p-4 sm:p-5 font-bold text-slate-700 w-1/4">Sites à abonnement ($29/mois)</th>
                 <th className="p-4 sm:p-5 font-bold bg-blue-50/90 border-x-2 border-t-2 border-blue-300 w-1/4">
                   <div className="flex flex-wrap items-center gap-2">
-                    <span className="text-base font-black text-blue-900 tracking-tight">CV EN LIGNE</span>
+                    <span className="text-base font-black text-blue-900 tracking-tight">VITAREY</span>
                     <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded-full bg-blue-600 text-white text-[10px] font-black uppercase tracking-wider shadow-2xs">
                       <Sparkles className="w-3 h-3 text-amber-300" />
                       Recommandé
@@ -212,10 +213,14 @@ export const LandingPage: React.FC<LandingPageProps> = ({ onStartCV, lang = 'fr'
                 <td className="p-4 sm:p-5 bg-blue-50/60 border-x-2 border-blue-300">
                   <div className="flex flex-col">
                     <div className="flex items-baseline gap-1.5">
-                      <span className="text-base font-black text-blue-900">$1.99</span>
-                      <span className="text-xs font-bold text-blue-700">Pass Flash</span>
+                      <span className="text-base font-black text-blue-900">
+                        {ENABLE_PAYMENTS ? '$1.99' : 'Gratuit'}
+                      </span>
+                      {ENABLE_PAYMENTS && <span className="text-xs font-bold text-blue-700">Pass Flash</span>}
                     </div>
-                    <span className="text-[11px] font-bold text-emerald-700">Achat unique sans abonnement caché</span>
+                    <span className="text-[11px] font-bold text-emerald-700">
+                      {ENABLE_PAYMENTS ? 'Achat unique sans abonnement caché' : 'Accès 100% gratuit pendant la période de test'}
+                    </span>
                   </div>
                 </td>
               </tr>
@@ -303,7 +308,7 @@ export const LandingPage: React.FC<LandingPageProps> = ({ onStartCV, lang = 'fr'
             <Star className="w-3.5 h-3.5 fill-emerald-600 text-emerald-600" />
             <span>Note moyenne de 4.9/5 basée sur +12 000 recrutements</span>
           </div>
-          <h2 className="text-3xl font-black text-slate-900 tracking-tight">Ils ont décroché leur job avec CV EN LIGNE</h2>
+          <h2 className="text-3xl font-black text-slate-900 tracking-tight">Ils ont décroché leur job avec VITAREY</h2>
           <p className="text-xs sm:text-sm text-slate-500 max-w-xl mx-auto">
             Découvrez comment notre outil a aidé des étudiants, des diplômés et des professionnels en reconversion.
           </p>
@@ -367,8 +372,8 @@ export const LandingPage: React.FC<LandingPageProps> = ({ onStartCV, lang = 'fr'
         </div>
       </section>
 
-      {/* 7. PRICING SECTION (4 FORMULAS: PASS FLASH $1.99, PASS PRO $3.99, MONTHLY $7.99, ANNUAL $39.99) */}
-      <Pricing onSelectPlan={() => onStartCV()} />
+      {/* 7. PRICING SECTION - Gated cleanly by ENABLE_PAYMENTS */}
+      {ENABLE_PAYMENTS && <Pricing onSelectPlan={() => onStartCV()} />}
 
       {/* 8. FAQ */}
       <section id="faq-section" className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8">

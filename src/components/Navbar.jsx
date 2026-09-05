@@ -20,20 +20,17 @@ export const Navbar = ({
     <header className="sticky top-0 z-40 bg-white/95 backdrop-blur-md border-b border-slate-200 shadow-sm">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 h-16 flex items-center justify-between gap-4">
         {/* Logo & Titre */}
-        <a 
-          href="/"
-          onClick={(e) => {
-            e.preventDefault();
-            onNavigate && onNavigate('home');
-          }}
-          className="flex items-center gap-3 cursor-pointer select-none shrink-0"
+        <div 
+          onClick={() => onNavigate && onNavigate('home')}
+          className="flex items-center gap-3 cursor-pointer select-none"
         >
-          <img 
-            src="/logo.jpg" 
-            alt="CV EN LIGNE" 
-            className="h-12 w-auto object-contain max-h-full block" 
+          <img
+            src="/images/logo.jpg"
+            alt="VITAREY — Online CV Platform"
+            className="h-11 sm:h-13 w-auto max-w-[200px] object-contain"
+            referrerPolicy="no-referrer"
           />
-        </a>
+        </div>
 
         {/* Liens de navigation (Interface traduite) */}
         <nav className="hidden md:flex items-center gap-6 text-sm font-semibold text-slate-600">

@@ -2,7 +2,7 @@ import { LanguageCode } from '../types';
 
 const fr = {
     // Brand & Header
-    brandName: 'CV EN LIGNE',
+    brandName: 'VITAREY',
     brandTagline: 'Votre CV professionnel créé en quelques minutes',
     navHome: 'Accueil',
     navBuilder: 'Créer un CV',
@@ -24,7 +24,7 @@ const fr = {
     heroCtaPrimary: 'Créer mon CV',
     heroCtaSecondary: 'Voir les modèles',
     heroBadge: 'Assistant IA éthique & Templates certifiés recruteurs',
-    heroTrust: 'Plus de 10 000 candidats ont décroché leur entretien grâce à CV EN LIGNE',
+    heroTrust: 'Plus de 10 000 candidats ont décroché leur entretien grâce à VITAREY',
 
     // How it works
     howItWorksTitle: 'Comment ça marche ?',
@@ -60,7 +60,7 @@ const fr = {
     useThisTemplate: 'Utiliser ce modèle',
 
     // Benefits
-    benefitsTitle: 'Pourquoi choisir CV EN LIGNE ?',
+    benefitsTitle: 'Pourquoi choisir VITAREY ?',
     benefit1Title: 'Simple & Rapide',
     benefit1Desc: 'Interface intuitive pensée pour les débutants comme pour les profils expérimentés.',
     benefit2Title: 'Optimisé pour les Recruteurs',
@@ -208,7 +208,7 @@ const fr = {
 };
 
 const en = {
-    brandName: 'CV EN LIGNE',
+    brandName: 'VITAREY',
     brandTagline: 'Your professional resume created in minutes',
     navHome: 'Home',
     navBuilder: 'Create Resume',
@@ -229,7 +229,7 @@ const en = {
     heroCtaPrimary: 'Create my resume',
     heroCtaSecondary: 'Explore templates',
     heroBadge: 'Ethical AI Assistant & ATS-Compliant Templates',
-    heroTrust: 'Over 10,000 job seekers landed interviews with CV EN LIGNE',
+    heroTrust: 'Over 10,000 job seekers landed interviews with VITAREY',
 
     howItWorksTitle: 'How it works',
     howItWorksSubtitle: 'A smooth and guided 4-step journey',
@@ -261,7 +261,7 @@ const en = {
     templateCreative: 'Creative',
     useThisTemplate: 'Use this template',
 
-    benefitsTitle: 'Why choose CV EN LIGNE?',
+    benefitsTitle: 'Why choose VITAREY?',
     benefit1Title: 'Simple & Quick',
     benefit1Desc: 'Intuitive interface designed for beginners and seasoned pros alike.',
     benefit2Title: 'ATS & Recruiter Friendly',
@@ -395,7 +395,7 @@ const en = {
 };
 
 const ar = {
-    brandName: 'CV EN LIGNE',
+    brandName: 'VITAREY',
     brandTagline: 'سيرتك الذاتية المهنية في دقائق معدودة',
     navHome: 'الرئيسية',
     navBuilder: 'إنشاء سيرة ذاتية',
@@ -416,7 +416,7 @@ const ar = {
     heroCtaPrimary: 'إنشاء سيرتي الذاتية',
     heroCtaSecondary: 'استعراض النماذج',
     heroBadge: 'مساعد ذكاء اصطناعي أخلاقي ونماذج متوافقة مع أنظمة ATS',
-    heroTrust: 'أكثر من 10,000 مرشح حصلوا على مقابلات عمل بفضل CV EN LIGNE',
+    heroTrust: 'أكثر من 10,000 مرشح حصلوا على مقابلات عمل بفضل VITAREY',
 
     howItWorksTitle: 'كيف يعمل الموقع؟',
     howItWorksSubtitle: 'رحلة سلسة في 4 خطوات بسيطة وسريعة',
@@ -448,7 +448,7 @@ const ar = {
     templateCreative: 'إبداعي',
     useThisTemplate: 'استخدم هذا النموذج',
 
-    benefitsTitle: 'لماذا تختار CV EN LIGNE؟',
+    benefitsTitle: 'لماذا تختار VITAREY؟',
     benefit1Title: 'بسيط وسريع',
     benefit1Desc: 'واجهة استخدام مريحة وسهلة ومصممة للجميع.',
     benefit2Title: 'متوافق مع أنظمة التوظيف',

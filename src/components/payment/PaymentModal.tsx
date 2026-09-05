@@ -3,6 +3,7 @@ import { CVData, LanguageCode, PlanType } from '../../types';
 import { translations } from '../../lib/translations';
 import { PRICING_PLANS, getPlanDetails } from '../../lib/pricingConfig';
 import { passService } from '../../lib/passService';
+import { ENABLE_PAYMENTS } from '../../config/features';
 import { Check, ShieldCheck, Lock, Loader2, X, Star, Crown, Zap, FileText, AlertTriangle, Info } from 'lucide-react';
 import confetti from 'canvas-confetti';
 import { PayPalScriptProvider, PayPalButtons } from '@paypal/react-paypal-js';
@@ -24,6 +25,10 @@ export const PaymentModal: React.FC<PaymentModalProps> = ({
   lang = 'fr',
   onSuccess
 }) => {
+  if (!ENABLE_PAYMENTS || !isOpen) {
+    return null;
+  }
+
   const t = translations[lang] || translations.fr;
   const [selectedPlan, setSelectedPlan] = useState<string>(initialPlan);
   const [loading, setLoading] = useState(false);

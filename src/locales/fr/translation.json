@@ -1,6 +1,6 @@
 {
   "brand": {
-    "name": "CV EN LIGNE",
+    "name": "VITAREY",
     "tagline": "Votre CV professionnel créé en quelques minutes",
     "badge": "IA",
     "atsBadge": "Générateur de CV certifié ATS & Assistant IA"
@@ -125,10 +125,10 @@
     }
   },
   "comparison": {
-    "title": "Pourquoi CV EN LIGNE surpasse les générateurs classiques ?",
+    "title": "Pourquoi VITAREY surpasse les générateurs classiques ?",
     "subtitle": "Comparez notre solution tout-en-un avec les alternatives du marché",
     "featureCol": "Fonctionnalités",
-    "ourPlatform": "CV EN LIGNE ($1.99)",
+    "ourPlatform": "VITAREY ($1.99)",
     "otherPlatforms": "Autres générateurs (15-30 $/mois)",
     "f1": "Tarification transparente sans abonnement caché",
     "f2": "10 modèles modernes optimisés pour les ATS",

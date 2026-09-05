@@ -142,7 +142,7 @@ export const AdminSettingsView: React.FC = () => {
               <label className="block text-slate-400 mb-1 font-semibold">Nom Public de la Plateforme</label>
               <input
                 type="text"
-                value={settings.platformName || 'CV EN LIGNE'}
+                value={settings.platformName || 'VITAREY'}
                 onChange={(e) => setSettings({ ...settings, platformName: e.target.value })}
                 className="w-full p-3 bg-slate-950 border border-slate-800 rounded-xl text-white font-bold focus:border-blue-500 focus:outline-hidden"
               />

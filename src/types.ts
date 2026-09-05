@@ -22,7 +22,7 @@ export type TemplateId =
   | 'silicon-tech';
 
 export type PlanType = 'free' | 'single_cv' | 'flash' | 'pro' | 'monthly' | 'yearly' | 'annual';
-export type PassType = 'none' | 'flash' | 'pro' | 'monthly' | 'annual' | 'single_cv' | 'yearly';
+export type PassType = 'none' | 'free' | 'flash' | 'pro' | 'monthly' | 'annual' | 'single_cv' | 'yearly';
 export type SubscriptionStatus = 'active' | 'expired' | 'canceled' | 'none';
 
 export interface UserPassState {

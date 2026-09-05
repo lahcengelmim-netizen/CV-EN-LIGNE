@@ -1,9 +1,10 @@
 import React from 'react';
 import { LanguageCode } from '../../types';
 import { translations } from '../../lib/translations';
-import { Sparkles, User, LogOut, Globe, Plus, LayoutDashboard, Shield } from 'lucide-react';
+import { FileText, Sparkles, User, LogOut, Globe, Plus, LayoutDashboard, Shield } from 'lucide-react';
 import { adminService } from '../../lib/adminService';
 import { LanguageSelector } from '../common/LanguageSelector';
+import { ENABLE_PAYMENTS } from '../../config/features';
 
 interface NavbarProps {
   currentView: 'landing' | 'dashboard' | 'builder' | 'admin';
@@ -32,23 +33,21 @@ export const Navbar: React.FC<NavbarProps> = ({
   const isAdmin = user?.email && adminService.isAdminEmail(user.email);
 
   return (
-    <header className="sticky top-0 z-40 bg-white/90 backdrop-blur-md border-b border-slate-200/80 transition-all">
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 h-16 flex items-center justify-between gap-4">
+    <header className="sticky top-0 z-40 bg-white/95 backdrop-blur-md border-b border-slate-200/80 transition-all shadow-2xs">
+      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 h-18 sm:h-20 flex items-center justify-between gap-4">
         {/* Brand Logo */}
-        <a 
-          href="/"
-          onClick={(e) => {
-            e.preventDefault();
-            onNavigate('landing');
-          }}
-          className="flex items-center gap-2.5 cursor-pointer group shrink-0"
+        <div 
+          onClick={() => onNavigate('landing')}
+          className="flex items-center cursor-pointer group select-none py-1 shrink-0"
+          title="VITAREY — Online CV Platform"
         >
-          <img 
-            src="/logo.jpg" 
-            alt="CV EN LIGNE" 
-            className="h-12 w-auto object-contain max-h-full block" 
+          <img
+            src="/images/logo.jpg"
+            alt="VITAREY — Online CV Platform"
+            className="h-12 sm:h-14 md:h-15 w-auto max-w-[190px] sm:max-w-[240px] md:max-w-[280px] object-contain group-hover:scale-[1.02] transition-transform duration-200"
+            referrerPolicy="no-referrer"
           />
-        </a>
+        </div>
 
         {/* Navigation Links */}
         <nav className="hidden md:flex items-center gap-6 text-xs font-semibold text-slate-600">
@@ -71,19 +70,21 @@ export const Navbar: React.FC<NavbarProps> = ({
           >
             {t.navTemplates}
           </button>
-          <button
-            onClick={() => {
-              if (currentView === 'landing') {
-                const el = document.getElementById('pricing-section');
-                el?.scrollIntoView({ behavior: 'smooth' });
-              } else {
-                onNavigate('landing');
-              }
-            }}
-            className="hover:text-blue-600 transition-colors"
-          >
-            {t.navPricing}
-          </button>
+          {ENABLE_PAYMENTS && (
+            <button
+              onClick={() => {
+                if (currentView === 'landing') {
+                  const el = document.getElementById('pricing-section');
+                  el?.scrollIntoView({ behavior: 'smooth' });
+                } else {
+                  onNavigate('landing');
+                }
+              }}
+              className="hover:text-blue-600 transition-colors"
+            >
+              {t.navPricing}
+            </button>
+          )}
           <button
             onClick={() => {
               if (currentView === 'landing') {

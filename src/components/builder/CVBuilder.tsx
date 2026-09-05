@@ -15,6 +15,7 @@ import { StepCertificationsProjects } from './StepCertificationsProjects';
 import { StepTemplateCustomizer } from './StepTemplateCustomizer';
 import { TemplateSwitcherModal } from './TemplateSwitcherModal';
 import { getTemplateById } from '../../lib/templatesData';
+import { ENABLE_PAYMENTS } from '../../config/features';
 import { PaymentModal } from '../payment/PaymentModal';
 import { CoverLetterModal } from '../cover-letter/CoverLetterModal';
 import { activityTracker } from '../../lib/activityTracker';
@@ -318,10 +319,10 @@ export const CVBuilder: React.FC<CVBuilderProps> = ({
   };
 
   const handleDownloadPDF = async () => {
-    // 1. Re-evaluate live pass status
+    // 1. Re-evaluate live pass status (only gate if ENABLE_PAYMENTS is true)
     const currentPass = passService.getLocalPass();
 
-    if (!currentPass.canDownload && currentPass.downloadCredits <= 0 && !currentPass.isUnlimited) {
+    if (ENABLE_PAYMENTS && !currentPass.canDownload && currentPass.downloadCredits <= 0 && !currentPass.isUnlimited) {
       setShowPaymentModal(true);
       return;
     }
@@ -374,8 +375,8 @@ export const CVBuilder: React.FC<CVBuilderProps> = ({
     }, 400);
   };
 
-  const isUnlimitedPass = passState.isUnlimited;
-  const hasDownloadCredit = passState.downloadCredits > 0 || isUnlimitedPass;
+  const isUnlimitedPass = !ENABLE_PAYMENTS || passState.isUnlimited;
+  const hasDownloadCredit = !ENABLE_PAYMENTS || passState.downloadCredits > 0 || isUnlimitedPass;
 
   return (
     <div className="min-h-screen bg-slate-100 flex flex-col font-sans">
@@ -514,8 +515,8 @@ export const CVBuilder: React.FC<CVBuilderProps> = ({
         {/* Left Form Wizard */}
         <div className={`w-full space-y-6 ${mobileTab === 'preview' ? 'hidden sm:block' : 'block'}`}>
           
-          {/* Flash Pass Consumed Info Banner if applicable */}
-          {!passState.canEdit && passState.activePass === 'none' && (
+          {/* Flash Pass Consumed Info Banner if applicable (only if payments are enabled) */}
+          {ENABLE_PAYMENTS && !passState.canEdit && passState.activePass === 'none' && (
             <div className="p-4 bg-amber-50 border border-amber-200 rounded-2xl flex items-start justify-between gap-3 text-xs text-amber-800">
               <div className="flex items-start gap-2.5">
                 <AlertTriangle className="w-4 h-4 text-amber-600 shrink-0 mt-0.5" />
@@ -679,7 +680,7 @@ export const CVBuilder: React.FC<CVBuilderProps> = ({
                 <button
                   type="button"
                   onClick={() => {
-                    if (!cv.isPaid) {
+                    if (ENABLE_PAYMENTS && !cv.isPaid) {
                       setShowPaymentModal(true);
                     } else {
                       handleDownloadPDF();
@@ -688,7 +689,7 @@ export const CVBuilder: React.FC<CVBuilderProps> = ({
                   className="px-6 py-2.5 bg-emerald-600 hover:bg-emerald-700 text-white rounded-xl text-xs font-bold shadow-xs transition-colors flex items-center gap-1.5"
                 >
                   <Download className="w-4 h-4" />
-                  <span>{cv.isPaid ? 'Télécharger en PDF HD' : 'Finaliser & Télécharger ($1.99)'}</span>
+                  <span>{(!ENABLE_PAYMENTS || cv.isPaid) ? 'Télécharger en PDF HD' : 'Finaliser & Télécharger ($1.99)'}</span>
                 </button>
               )}
             </div>
@@ -861,8 +862,8 @@ export const CVBuilder: React.FC<CVBuilderProps> = ({
         />
       )}
 
-      {/* Payment Modal */}
-      {showPaymentModal && (
+      {/* Payment Modal - cleanly gated by ENABLE_PAYMENTS feature flag */}
+      {ENABLE_PAYMENTS && showPaymentModal && (
         <PaymentModal
           isOpen={showPaymentModal}
           onClose={() => setShowPaymentModal(false)}

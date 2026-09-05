@@ -1,6 +1,6 @@
 {
   "name": "CV EN LIGNE",
-  "description": "Plateforme professionnelle de création de CV avec assistance IA, templates modernes, Supabase Auth et export PDF.",
+  "description": "VITAREY — Plateforme professionnelle de création de CV avec assistance IA, templates modernes ATS et export PDF gratuit.",
   "requestFramePermissions": [],
   "majorCapabilities": ["MAJOR_CAPABILITY_SERVER_SIDE_GEMINI_API"]
 }

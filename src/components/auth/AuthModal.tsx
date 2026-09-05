@@ -117,13 +117,21 @@ export const AuthModal: React.FC<AuthModalProps> = ({
           >
             <X className="w-4 h-4" />
           </button>
-          <div className="flex items-center gap-2 mb-2">
+          <div className="flex items-center justify-between mb-3">
+            <div className="bg-white px-2.5 py-1 rounded-xl shadow-xs inline-flex items-center">
+              <img
+                src="/images/logo.jpg"
+                alt="VITAREY"
+                className="h-6 w-auto object-contain"
+                referrerPolicy="no-referrer"
+              />
+            </div>
             <span className="px-2.5 py-0.5 bg-white/20 text-white text-[10px] font-bold uppercase rounded-full">
               {isSignUp ? 'Nouveau compte' : 'Espace Utilisateur'}
             </span>
           </div>
           <h3 className="text-xl font-black tracking-tight">
-            {isSignUp ? 'Créer mon compte CV EN LIGNE' : 'Se connecter à mon compte'}
+            {isSignUp ? 'Créer mon compte VITAREY' : 'Connexion à VITAREY'}
           </h3>
           <p className="text-xs text-blue-100 mt-1">
             {isSignUp

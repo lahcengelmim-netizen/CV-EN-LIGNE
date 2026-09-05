@@ -2,6 +2,7 @@ import React, { useState } from 'react';
 import { TemplateId, LanguageCode } from '../../types';
 import { TEMPLATES_CATALOG, getTemplateById } from '../../lib/templatesData';
 import { CVRenderer } from '../templates/CVRenderer';
+import { ENABLE_PAYMENTS } from '../../config/features';
 import {
   Sparkles,
   ArrowRight,
@@ -83,7 +84,11 @@ export const HeroSection: React.FC<HeroSectionProps> = ({ onStartCV, lang = 'fr'
               </div>
               <div className="flex items-center gap-1.5 bg-white/80 px-3 py-1 rounded-xl border border-slate-200/60 shadow-2xs">
                 <Star className="w-4 h-4 fill-amber-400 text-amber-400" />
-                <span>Dès $1.99 (Pass Flash) & Formules Illimitées</span>
+                <span>
+                  {ENABLE_PAYMENTS
+                    ? 'Dès $1.99 (Pass Flash) & Formules Illimitées'
+                    : 'Accès 100% Gratuit (Période Test)'}
+                </span>
               </div>
             </div>
           </div>

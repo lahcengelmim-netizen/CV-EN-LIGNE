@@ -3,6 +3,7 @@ import { CVData, LanguageCode, UserPassState } from '../../types';
 import { COVER_LETTER_TEMPLATES, interpolateCoverLetter } from '../../utils/coverLetterTemplates';
 import { exportCVToPDF } from '../../lib/pdf';
 import { passService } from '../../lib/passService';
+import { ENABLE_PAYMENTS } from '../../config/features';
 import { PaymentModal } from '../payment/PaymentModal';
 import {
   FileText,
@@ -119,7 +120,7 @@ export const CoverLetterModal: React.FC<CoverLetterModalProps> = ({
 
   const handleDownloadPDF = async () => {
     const currentPass = passService.getLocalPass();
-    if (!currentPass.unlockedCoverLetters) {
+    if (ENABLE_PAYMENTS && !currentPass.unlockedCoverLetters) {
       setShowPaymentModal(true);
       return;
     }
@@ -146,7 +147,7 @@ export const CoverLetterModal: React.FC<CoverLetterModalProps> = ({
     }
   };
 
-  const isUnlocked = passState.unlockedCoverLetters;
+  const isUnlocked = !ENABLE_PAYMENTS || passState.unlockedCoverLetters;
 
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center p-3 sm:p-6 bg-slate-900/75 backdrop-blur-md animate-in fade-in duration-200">
@@ -163,7 +164,7 @@ export const CoverLetterModal: React.FC<CoverLetterModalProps> = ({
                 {isUnlocked ? (
                   <span className="px-2 py-0.5 bg-emerald-500/20 text-emerald-300 text-[10px] font-bold rounded-full border border-emerald-500/30 flex items-center gap-1">
                     <ShieldCheck className="w-3 h-3" />
-                    Inclus dans votre Pass
+                    {!ENABLE_PAYMENTS ? 'Accès Gratuit Illimité' : 'Inclus dans votre Pass'}
                   </span>
                 ) : (
                   <span className="px-2 py-0.5 bg-amber-500/20 text-amber-300 text-[10px] font-bold rounded-full border border-amber-500/30 flex items-center gap-1">
@@ -446,8 +447,8 @@ export const CoverLetterModal: React.FC<CoverLetterModalProps> = ({
         </div>
       </div>
 
-      {/* Payment Modal if not unlocked */}
-      {showPaymentModal && (
+      {/* Payment Modal if not unlocked - cleanly gated by ENABLE_PAYMENTS */}
+      {ENABLE_PAYMENTS && showPaymentModal && (
         <PaymentModal
           isOpen={showPaymentModal}
           onClose={() => setShowPaymentModal(false)}

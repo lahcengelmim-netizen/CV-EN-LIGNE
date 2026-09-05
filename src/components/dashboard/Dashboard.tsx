@@ -1,6 +1,7 @@
 import React from 'react';
 import { CVData, LanguageCode } from '../../types';
 import { translations } from '../../lib/translations';
+import { ENABLE_PAYMENTS } from '../../config/features';
 import { Plus, Edit, Copy, Trash2, Download, CheckCircle2, Clock, FileText, Sparkles, User, ExternalLink } from 'lucide-react';
 
 interface DashboardProps {
@@ -62,8 +63,8 @@ export const Dashboard: React.FC<DashboardProps> = ({
         <div className="bg-white p-5 rounded-2xl border border-slate-200 shadow-2xs space-y-1">
           <div className="text-xs font-bold uppercase text-slate-400">CVs Débloqués en HD</div>
           <div className="text-2xl font-black text-emerald-600 flex items-center gap-2">
-            <span>{paidCount}</span>
-            {paidCount > 0 && <CheckCircle2 className="w-5 h-5 text-emerald-500" />}
+            <span>{!ENABLE_PAYMENTS ? cvList.length : paidCount}</span>
+            {(!ENABLE_PAYMENTS ? cvList.length > 0 : paidCount > 0) && <CheckCircle2 className="w-5 h-5 text-emerald-500" />}
           </div>
         </div>
 
@@ -116,10 +117,10 @@ export const Dashboard: React.FC<DashboardProps> = ({
                       Modèle {item.templateId}
                     </span>
 
-                    {item.isPaid ? (
+                    {(!ENABLE_PAYMENTS || item.isPaid) ? (
                       <span className="px-2.5 py-0.5 rounded-full text-[10px] font-bold uppercase bg-emerald-100 text-emerald-800 flex items-center gap-1">
                         <CheckCircle2 className="w-3 h-3" />
-                        Payé & HD
+                        {!ENABLE_PAYMENTS ? 'Prêt & HD (Gratuit)' : 'Payé & HD'}
                       </span>
                     ) : (
                       <span className="px-2.5 py-0.5 rounded-full text-[10px] font-bold uppercase bg-amber-100 text-amber-800">

@@ -1,5 +1,6 @@
 import React, { useState } from 'react';
 import './Pricing.css';
+import { ENABLE_PAYMENTS } from '../config/features';
 
 /**
  * Pricing Component (USD $)
@@ -13,6 +14,10 @@ export const Pricing = ({
   onSelectPlan,
   currency = '$'
 }) => {
+  if (!ENABLE_PAYMENTS) {
+    return null;
+  }
+
   const [selectedPlan, setSelectedPlan] = useState('pro');
 
   const plans = [

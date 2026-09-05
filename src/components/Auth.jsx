@@ -91,7 +91,7 @@ export const Auth = ({
       // Store in localStorage for seamless persistence
       localStorage.setItem('cvenligne_current_user', JSON.stringify(newUser));
 
-      setSuccessMessage('Compte créé avec succès ! Bienvenue sur CV EN LIGNE.');
+      setSuccessMessage('Compte créé avec succès ! Bienvenue sur VITAREY.');
       
       setTimeout(() => {
         if (typeof onAuthSuccess === 'function') {
