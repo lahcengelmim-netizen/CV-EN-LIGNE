@@ -18,6 +18,7 @@ import { activityTracker } from './lib/activityTracker';
 export const App: React.FC = () => {
   const { i18n: i18nInstance } = useTranslation();
   const [currentView, setCurrentView] = useState<'landing' | 'dashboard' | 'builder' | 'admin'>('landing');
+  const [dashboardTab, setDashboardTab] = useState<'cvs' | 'cover-letters'>('cvs');
   const [lang, setLang] = useState<LanguageCode>(() => {
     const validLangs: LanguageCode[] = ['en', 'fr', 'ar', 'es', 'de', 'it', 'pt', 'zh'];
     const saved = (typeof window !== 'undefined' ? localStorage.getItem('cvenligne_lang') : null) as LanguageCode;
@@ -219,6 +220,10 @@ export const App: React.FC = () => {
         <Navbar
           currentView={currentView}
           onNavigate={(view) => setCurrentView(view)}
+          onNavigateToTab={(tab) => {
+            setDashboardTab(tab);
+            setCurrentView('dashboard');
+          }}
           lang={lang}
           onLanguageChange={handleLanguageChange}
           user={user}
@@ -246,6 +251,8 @@ export const App: React.FC = () => {
             onDeleteCV={handleDeleteCV}
             lang={lang}
             user={user}
+            initialTab={dashboardTab}
+            onTabChange={(tab) => setDashboardTab(tab)}
           />
         )}
 

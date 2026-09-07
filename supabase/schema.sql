@@ -1,5 +1,5 @@
 -- ==============================================================================
--- SCHEMA SUPABASE POUR CV EN LIGNE (VITAREY)
+-- SCHEMA SUPABASE POUR VITAREY (CRÉATEUR DE CV & LETTRE DE MOTIVATION)
 -- Exécutez ce script dans l'éditeur SQL de votre tableau de bord Supabase
 -- ==============================================================================
 

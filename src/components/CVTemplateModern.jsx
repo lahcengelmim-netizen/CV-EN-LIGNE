@@ -239,7 +239,7 @@ export const CVTemplateModern = ({
 
         {/* Pied de sidebar */}
         <div style={{ fontSize: '9.5px', opacity: 0.65, textAlign: 'center', letterSpacing: '0.05em' }}>
-          CV-EN-LIGNE • FORMAT STANDARD A4
+          VITAREY • FORMAT STANDARD A4
         </div>
       </aside>
 

@@ -2,6 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { TemplateId, LanguageCode } from '../../types';
 import { TemplateDefinition, getTemplateById } from '../../lib/templatesData';
 import { CVRenderer } from './CVRenderer';
+import { IsolatedIframe } from '../CVPreview';
 import {
   X,
   Sparkles,
@@ -163,23 +164,24 @@ export const TemplatePreviewModal: React.FC<TemplatePreviewModalProps> = ({
         {/* Zone de défilement centrée pour le document A4 */}
         <div className="modal-cv-container">
           <div
-            className="modal-cv-outer-wrapper"
+            className="modal-cv-outer-wrapper overflow-hidden rounded-sm shadow-2xl bg-white"
             style={{
               width: `${794 * scale}px`,
               height: `${1123 * scale}px`
             }}
           >
-            <div
-              className="modal-cv-scaler"
-              style={{
-                transform: `scale(${scale})`
-              }}
+            <IsolatedIframe
+              width={794}
+              height={1123}
+              scale={scale}
             >
               <CVRenderer
                 data={dynamicSampleCV}
                 showWatermark={false}
+                scale={1}
+                id="cv-printable-document"
               />
-            </div>
+            </IsolatedIframe>
           </div>
         </div>
 

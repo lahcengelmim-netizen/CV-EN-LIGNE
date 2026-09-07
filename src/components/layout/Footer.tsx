@@ -22,14 +22,14 @@ export const Footer: React.FC<FooterProps> = ({ lang = 'fr', onNavigate }) => {
               <div className="bg-white px-3.5 py-2 rounded-2xl shadow-sm inline-flex items-center">
                 <img
                   src="/images/logo.jpg"
-                  alt="VITAREY — Online CV Platform"
+                  alt="VITAREY - Créateur de CV & Lettre de Motivation"
                   className="h-10 sm:h-12 w-auto max-w-[200px] object-contain"
                   referrerPolicy="no-referrer"
                 />
               </div>
             </div>
             <p className="text-xs text-slate-400 leading-relaxed">
-              La plateforme intelligente VITAREY pour transformer vos informations en un CV professionnel, moderne et percutant prêt pour l'embauche.
+              La plateforme intelligente VITAREY pour concevoir un CV professionnel d'exception et une lettre de motivation sur-mesure prêts pour l'embauche.
             </p>
             <div className="flex items-center gap-2 text-[11px] text-emerald-400">
               <ShieldCheck className="w-4 h-4" />
@@ -71,36 +71,45 @@ export const Footer: React.FC<FooterProps> = ({ lang = 'fr', onNavigate }) => {
                 <span>Optimisation IA des missions</span>
               </li>
               <li>Accroche professionnelle assistée</li>
-              <li>Générateur de lettre de motivation</li>
+              <li>Générateur de lettre de motivation indépendant</li>
               <li>Export PDF A4 Haute Définition</li>
               <li>Traduction FR, EN et Arabe RTL</li>
             </ul>
           </div>
 
-          {/* Contact & Support */}
+          {/* Support & Contact */}
           <div>
             <h4 className="font-bold text-white uppercase tracking-wider text-xs mb-4">Support & Contact</h4>
             <p className="text-xs text-slate-400 mb-3">
-              Une question ou besoin d'assistance ? Notre équipe dédiée est à votre écoute.
+              Une question ou besoin d'assistance ? L'équipe VITAREY est à votre écoute.
             </p>
             <a
-              href="mailto:support@vitarey.com"
+              href="mailto:contact@vitarey.com"
               className="inline-flex items-center gap-2 px-3 py-2 bg-slate-800 hover:bg-slate-700 text-white rounded-xl text-xs font-semibold transition-colors border border-slate-700"
             >
               <Mail className="w-3.5 h-3.5 text-blue-400" />
-              <span>support@vitarey.com</span>
+              <span>contact@vitarey.com</span>
             </a>
           </div>
         </div>
 
         <div className="border-t border-slate-800 pt-8 flex flex-col sm:flex-row items-center justify-between gap-4 text-[11px] text-slate-500">
           <div>
-            © {new Date().getFullYear()} VITAREY — Online CV Platform. Tous droits réservés.
+            © {new Date().getFullYear()} VITAREY - Créateur de CV & Lettre de Motivation. Tous droits réservés.
           </div>
           <div className="flex items-center gap-4">
             <span className="hover:text-slate-400 cursor-pointer">Conditions Générales</span>
             <span className="hover:text-slate-400 cursor-pointer">Politique de Confidentialité</span>
             <span className="hover:text-slate-400 cursor-pointer">Mentions Légales</span>
+            {onNavigate && (
+              <button
+                onClick={() => onNavigate('admin')}
+                className="hover:text-blue-400 text-slate-400 flex items-center gap-1 transition-colors font-medium ml-2"
+              >
+                <Shield className="w-3 h-3 text-blue-400" />
+                <span>Espace Administrateur</span>
+              </button>
+            )}
           </div>
         </div>
       </div>

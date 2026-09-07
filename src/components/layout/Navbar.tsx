@@ -9,6 +9,7 @@ import { ENABLE_PAYMENTS } from '../../config/features';
 interface NavbarProps {
   currentView: 'landing' | 'dashboard' | 'builder' | 'admin';
   onNavigate: (view: 'landing' | 'dashboard' | 'builder' | 'admin') => void;
+  onNavigateToTab?: (tab: 'cvs' | 'cover-letters') => void;
   lang: LanguageCode;
   onLanguageChange: (lang: LanguageCode) => void;
   user: any;
@@ -21,6 +22,7 @@ interface NavbarProps {
 export const Navbar: React.FC<NavbarProps> = ({
   currentView,
   onNavigate,
+  onNavigateToTab,
   lang,
   onLanguageChange,
   user,
@@ -39,11 +41,11 @@ export const Navbar: React.FC<NavbarProps> = ({
         <div 
           onClick={() => onNavigate('landing')}
           className="flex items-center cursor-pointer group select-none py-1 shrink-0"
-          title="VITAREY — Online CV Platform"
+          title="VITAREY - Créateur de CV & Lettre de Motivation"
         >
           <img
             src="/images/logo.jpg"
-            alt="VITAREY — Online CV Platform"
+            alt="VITAREY - Créateur de CV & Lettre de Motivation"
             className="h-12 sm:h-14 md:h-15 w-auto max-w-[190px] sm:max-w-[240px] md:max-w-[280px] object-contain group-hover:scale-[1.02] transition-transform duration-200"
             referrerPolicy="no-referrer"
           />
@@ -69,6 +71,19 @@ export const Navbar: React.FC<NavbarProps> = ({
             className="hover:text-blue-600 transition-colors"
           >
             {t.navTemplates}
+          </button>
+          <button
+            onClick={() => {
+              if (onNavigateToTab) {
+                onNavigateToTab('cover-letters');
+              } else {
+                onNavigate('dashboard');
+              }
+            }}
+            className="hover:text-purple-600 transition-colors flex items-center gap-1.5 cursor-pointer font-bold text-slate-700"
+          >
+            <Sparkles className="w-3.5 h-3.5 text-purple-600" />
+            <span>{t.navCoverLetters || 'Lettre de Motivation'}</span>
           </button>
           {ENABLE_PAYMENTS && (
             <button

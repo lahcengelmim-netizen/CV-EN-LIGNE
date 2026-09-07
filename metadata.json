@@ -1,6 +1,6 @@
 {
-  "name": "CV EN LIGNE",
-  "description": "VITAREY — Plateforme professionnelle de création de CV avec assistance IA, templates modernes ATS et export PDF gratuit.",
+  "name": "VITAREY",
+  "description": "VITAREY — Créateur de CV & Lettre de Motivation professionnel avec assistance IA, modèles modernes ATS et export PDF.",
   "requestFramePermissions": [],
   "majorCapabilities": ["MAJOR_CAPABILITY_SERVER_SIDE_GEMINI_API"]
 }

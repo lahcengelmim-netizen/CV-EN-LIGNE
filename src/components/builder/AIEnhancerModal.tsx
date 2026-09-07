@@ -54,13 +54,16 @@ export const AIEnhancerModal: React.FC<AIEnhancerModalProps> = ({
 
       const data = await response.json();
       if (!response.ok || !data.success) {
-        throw new Error(data.error || 'Erreur lors de l\'amélioration');
+        console.error('❌ [AIEnhancerModal] Erreur API:', data);
+        const detailMsg = data.details ? `${data.error} (${data.details})` : (data.error || 'Erreur lors de l\'amélioration de l\'expérience');
+        throw new Error(detailMsg);
       }
 
       setResult(data.data);
       setEditedDescription(data.data.improvedDescription || '');
       setEditedTasks(data.data.improvedTasks || []);
     } catch (err: any) {
+      console.error('❌ [AIEnhancerModal] Exception capturée:', err);
       setError(err.message || 'Une erreur est survenue.');
     } finally {
       setLoading(false);

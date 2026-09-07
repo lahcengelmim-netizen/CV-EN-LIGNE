@@ -107,7 +107,7 @@ const fr = {
     contactMessage: 'Votre message',
     contactSubmit: 'Envoyer ma demande',
     contactSuccess: 'Votre message a été envoyé avec succès à notre équipe support. Nous vous répondrons dans les plus brefs délais.',
-    contactEmailDirect: 'support@vitarey.com',
+    contactEmailDirect: 'contact@vitarey.com',
 
     // Wizard Steps
     stepInfo: 'Informations',
@@ -305,7 +305,7 @@ const en = {
     contactMessage: 'Message',
     contactSubmit: 'Send Message',
     contactSuccess: 'Your message has been sent successfully to our support team. We will get back to you promptly.',
-    contactEmailDirect: 'support@vitarey.com',
+    contactEmailDirect: 'contact@vitarey.com',
 
     stepInfo: 'Contact',
     stepProfile: 'Profile',
@@ -492,7 +492,7 @@ const ar = {
     contactMessage: 'رسالتك',
     contactSubmit: 'إرسال الرسالة',
     contactSuccess: 'تم إرسال رسالتك بنجاح إلى فريق الدعم. سنرد عليك في أقرب وقت.',
-    contactEmailDirect: 'support@vitarey.com',
+    contactEmailDirect: 'contact@vitarey.com',
 
     stepInfo: 'البيانات الشخصية',
     stepProfile: 'الملف المهني',

@@ -39,8 +39,8 @@ export const CVBuilder = ({
   const handleDownloadPdf = async () => {
     try {
       setIsDownloading(true);
-      const name = formData.fullName?.trim() || DEFAULT_CV.fullName;
-      const fileName = `CV_${name.replace(/\s+/g, '_')}.pdf`;
+      const name = (formData.fullName?.trim() || DEFAULT_CV.fullName).replace(/\s+/g, '_');
+      const fileName = `VITAREY_CV_${name}.pdf`;
 
       const success = await exportCVToPDF({
         fileName,
@@ -184,16 +184,6 @@ export const CVBuilder = ({
                 ⚡ {t('sections.skills', 'Compétences & Langues')}
               </button>
             </div>
-
-            <button
-              type="button"
-              onClick={() => setShowCoverLetter(true)}
-              className="px-3 py-1.5 bg-purple-50 hover:bg-purple-100 text-purple-700 border border-purple-200 rounded-xl text-xs font-bold transition-all flex items-center gap-1.5 cursor-pointer shadow-xs"
-              title="Créer une lettre de motivation assortie"
-            >
-              <FileText className="w-3.5 h-3.5 text-purple-600" />
-              <span>Lettre de motivation</span>
-            </button>
           </div>
 
           {/* Onglet 1 : Informations personnelles */}
@@ -505,34 +495,6 @@ export const CVBuilder = ({
           />
         </div>
       </div>
-
-      {/* Modal Générateur de Lettre de Motivation Statique */}
-      {showCoverLetter && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center p-3 sm:p-6 bg-slate-900/75 backdrop-blur-md animate-in fade-in duration-200">
-          <div className="bg-slate-50 rounded-2xl max-w-6xl w-full h-[92vh] max-h-[92vh] flex flex-col shadow-2xl border border-slate-200 overflow-hidden relative">
-            <button
-              onClick={() => setShowCoverLetter(false)}
-              className="absolute top-4 right-4 z-50 p-2 bg-slate-800 hover:bg-slate-700 text-white rounded-full transition-colors cursor-pointer shadow-md"
-              title="Fermer"
-            >
-              ✕
-            </button>
-            <div className="flex-1 overflow-y-auto p-4 sm:p-6">
-              <CoverLetterBuilder
-                initialCandidate={{
-                  fullName: formData.fullName || DEFAULT_CV.fullName,
-                  jobTitle: formData.jobTitle || DEFAULT_CV.jobTitle,
-                  email: formData.email || DEFAULT_CV.email,
-                  phone: formData.phone || DEFAULT_CV.phone,
-                  city: formData.city || DEFAULT_CV.city,
-                }}
-                onClose={() => setShowCoverLetter(false)}
-                lang={lang}
-              />
-            </div>
-          </div>
-        </div>
-      )}
     </div>
   );
 };

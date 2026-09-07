@@ -5,6 +5,7 @@ import { storageService } from '../../lib/supabase';
 import { exportCVToPDF, triggerNativePrint } from '../../lib/pdf';
 import { passService } from '../../lib/passService';
 import { CVRenderer } from '../templates/CVRenderer';
+import { IsolatedIframe } from '../CVPreview';
 import { StepPersonalInfo } from './StepPersonalInfo';
 import { StepProfile } from './StepProfile';
 import { StepExperience } from './StepExperience';
@@ -17,7 +18,6 @@ import { TemplateSwitcherModal } from './TemplateSwitcherModal';
 import { getTemplateById } from '../../lib/templatesData';
 import { ENABLE_PAYMENTS } from '../../config/features';
 import { PaymentModal } from '../payment/PaymentModal';
-import { CoverLetterModal } from '../cover-letter/CoverLetterModal';
 import { activityTracker } from '../../lib/activityTracker';
 import {
   ArrowLeft,
@@ -28,6 +28,7 @@ import {
   Lock,
   CheckCircle2,
   Eye,
+  Loader2,
   Edit,
   Save,
   ZoomIn,
@@ -270,7 +271,6 @@ export const CVBuilder: React.FC<CVBuilderProps> = ({
   const [isSaving, setIsSaving] = useState(false);
   const [lastSaved, setLastSaved] = useState<Date>(new Date());
   const [showPaymentModal, setShowPaymentModal] = useState(false);
-  const [showCoverLetterModal, setShowCoverLetterModal] = useState(false);
   const [showTemplateSwitcherModal, setShowTemplateSwitcherModal] = useState(false);
   const [isExportingPDF, setIsExportingPDF] = useState(false);
   const [exportProgressText, setExportProgressText] = useState('');
@@ -331,7 +331,8 @@ export const CVBuilder: React.FC<CVBuilderProps> = ({
       setIsExportingPDF(true);
       setExportProgressText('Génération du PDF HD A4...');
 
-      const fileName = `CV_${cv.personalInfo.firstName}_${cv.personalInfo.lastName}.pdf`.replace(/\s+/g, '_');
+      const safeName = `${cv.personalInfo.firstName || ''}_${cv.personalInfo.lastName || ''}`.trim().replace(/\s+/g, '_') || 'Candidat';
+      const fileName = `VITAREY_CV_${safeName}.pdf`;
       const exportSuccess = await exportCVToPDF({
         fileName,
         elementId: 'cv-printable-document',
@@ -440,22 +441,6 @@ export const CVBuilder: React.FC<CVBuilderProps> = ({
               <span className="sm:hidden">Modèle</span>
             </button>
 
-            {/* Cover letter assistant modal (Accessible with Pro / Monthly / Annual) */}
-            <button
-              onClick={() => {
-                if (!passState.unlockedCoverLetters) {
-                  setShowCoverLetterModal(true);
-                } else {
-                  setShowCoverLetterModal(true);
-                }
-              }}
-              className="px-3 py-2 bg-purple-50 hover:bg-purple-100 text-purple-700 rounded-xl text-xs font-bold transition-colors flex items-center gap-1.5 border border-purple-200 cursor-pointer"
-            >
-              <Sparkles className="w-3.5 h-3.5 text-purple-600" />
-              <span className="hidden md:inline">{t.navCoverLetters}</span>
-              <span className="md:hidden">Lettre IA</span>
-            </button>
-
             {/* Print button */}
             <button
               onClick={triggerNativePrint}
@@ -470,10 +455,14 @@ export const CVBuilder: React.FC<CVBuilderProps> = ({
               <button
                 disabled={isExportingPDF}
                 onClick={handleDownloadPDF}
-                className="px-4 py-2 bg-emerald-600 hover:bg-emerald-700 text-white rounded-xl text-xs font-bold shadow-xs transition-all flex items-center gap-1.5 cursor-pointer disabled:opacity-50"
+                className="px-4 py-2 bg-emerald-600 hover:bg-emerald-700 text-white rounded-xl text-xs font-bold shadow-xs transition-all flex items-center gap-1.5 cursor-pointer disabled:opacity-50 disabled:cursor-not-allowed"
               >
-                <Download className="w-4 h-4" />
-                <span>{isExportingPDF ? exportProgressText || 'Export...' : 'Télécharger PDF HD'}</span>
+                {isExportingPDF ? (
+                  <Loader2 className="w-4 h-4 animate-spin text-white" />
+                ) : (
+                  <Download className="w-4 h-4" />
+                )}
+                <span>{isExportingPDF ? exportProgressText || 'Génération PDF...' : 'Télécharger PDF HD'}</span>
               </button>
             ) : (
               <button
@@ -679,6 +668,7 @@ export const CVBuilder: React.FC<CVBuilderProps> = ({
               ) : (
                 <button
                   type="button"
+                  disabled={isExportingPDF}
                   onClick={() => {
                     if (ENABLE_PAYMENTS && !cv.isPaid) {
                       setShowPaymentModal(true);
@@ -686,10 +676,14 @@ export const CVBuilder: React.FC<CVBuilderProps> = ({
                       handleDownloadPDF();
                     }
                   }}
-                  className="px-6 py-2.5 bg-emerald-600 hover:bg-emerald-700 text-white rounded-xl text-xs font-bold shadow-xs transition-colors flex items-center gap-1.5"
+                  className="px-6 py-2.5 bg-emerald-600 hover:bg-emerald-700 text-white rounded-xl text-xs font-bold shadow-xs transition-colors flex items-center gap-1.5 disabled:opacity-50 disabled:cursor-not-allowed cursor-pointer"
                 >
-                  <Download className="w-4 h-4" />
-                  <span>{(!ENABLE_PAYMENTS || cv.isPaid) ? 'Télécharger en PDF HD' : 'Finaliser & Télécharger ($1.99)'}</span>
+                  {isExportingPDF ? (
+                    <Loader2 className="w-4 h-4 animate-spin text-white" />
+                  ) : (
+                    <Download className="w-4 h-4" />
+                  )}
+                  <span>{isExportingPDF ? exportProgressText || 'Génération PDF...' : (!ENABLE_PAYMENTS || cv.isPaid) ? 'Télécharger en PDF HD' : 'Finaliser & Télécharger ($1.99)'}</span>
                 </button>
               )}
             </div>
@@ -805,27 +799,20 @@ export const CVBuilder: React.FC<CVBuilderProps> = ({
                 }}
                 className="relative shrink-0 shadow-2xl rounded-sm overflow-hidden bg-white ring-1 ring-black/5"
               >
-                {/* Full unscaled A4 page document (794px width, minHeight 1123px) scaled via transform */}
-                <div
-                  ref={cvDocRef}
-                  style={{
-                    width: `${A4_WIDTH}px`,
-                    minHeight: `${A4_HEIGHT}px`,
-                    height: `${docHeight}px`,
-                    transform: `scale(${currentScale})`,
-                    transformOrigin: 'top left',
-                    position: 'absolute',
-                    top: 0,
-                    left: 0,
-                  }}
-                  className="bg-white"
+                {/* Isolated A4 page document rendered in sandboxed iframe (794px width, 1123px min-height) */}
+                <IsolatedIframe
+                  width={A4_WIDTH}
+                  height={docHeight}
+                  scale={currentScale}
+                  onHeightChange={(h) => setDocHeight(h)}
                 >
                   <CVRenderer
                     data={cv}
                     showWatermark={!cv.isPaid}
                     scale={1}
+                    id="cv-printable-document"
                   />
-                </div>
+                </IsolatedIframe>
               </div>
             </div>
           </div>
@@ -870,16 +857,6 @@ export const CVBuilder: React.FC<CVBuilderProps> = ({
           cvData={cv}
           lang={lang}
           onSuccess={handlePaymentSuccess}
-        />
-      )}
-
-      {/* Cover Letter Modal */}
-      {showCoverLetterModal && (
-        <CoverLetterModal
-          isOpen={showCoverLetterModal}
-          onClose={() => setShowCoverLetterModal(false)}
-          cvData={cv}
-          lang={lang}
         />
       )}
     </div>

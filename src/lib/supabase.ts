@@ -416,5 +416,103 @@ export const storageService = {
         console.warn('Supabase save profile failed:', err);
       }
     }
+  },
+
+  // Cover letters persistence
+  async getCoverLetters(userId: string = 'guest'): Promise<CoverLetterData[]> {
+    if (isSupabaseConfigured && supabase) {
+      try {
+        const { data, error } = await supabase
+          .from('cover_letters')
+          .select('*')
+          .eq('user_id', userId)
+          .order('updated_at', { ascending: false });
+
+        if (!error && data && data.length > 0) {
+          return data;
+        }
+      } catch (err) {
+        console.warn('Supabase cover letters fetch failed:', err);
+      }
+    }
+
+    try {
+      const stored = localStorage.getItem(LOCAL_STORAGE_KEY_LETTERS);
+      if (stored) {
+        const list: CoverLetterData[] = JSON.parse(stored);
+        return list;
+      }
+    } catch {
+      // ignore
+    }
+
+    // Default sample cover letter for initial empty state
+    return [
+      {
+        id: 'sample_letter_1',
+        userId,
+        title: 'Candidature spontanée - Tech Innovations',
+        jobTitle: 'Chef de Projet Digital',
+        companyName: 'Tech Innovations SAS',
+        recipientName: 'Madame, Monsieur les Responsables du Recrutement',
+        content: `Madame, Monsieur,\n\nAyant suivi avec un vif intérêt le développement et les réussites récentes de Tech Innovations SAS, je me permets de vous adresser ma candidature pour rejoindre vos équipes en tant que Chef de Projet Digital.\n\nFort d'un parcours riche et diversifié dans la gestion de projets web et la coordination d'équipes agiles, j'ai développé une solide expertise autour du pilotage stratégique et de la conduite du changement. Reconnu pour ma rigueur, ma proactivité et mon sens de l'écoute, je souhaite mettre mon énergie au service de votre dynamique d'innovation.\n\nJe reste à votre entière disposition pour convenir d'un entretien au cours duquel je pourrai vous exposer plus en détail mes motivations et l'adéquation de mon profil avec vos ambitions.\n\nDans cette attente, je vous prie d'agréer l'expression de mes salutations distinguées.`,
+        createdAt: new Date().toISOString(),
+        updatedAt: new Date().toISOString(),
+      }
+    ];
+  },
+
+  async saveCoverLetter(letter: CoverLetterData, userId: string = 'guest'): Promise<void> {
+    try {
+      const stored = localStorage.getItem(LOCAL_STORAGE_KEY_LETTERS);
+      let list: CoverLetterData[] = stored ? JSON.parse(stored) : [];
+      const index = list.findIndex((item) => item.id === letter.id);
+      if (index >= 0) {
+        list[index] = { ...letter, updatedAt: new Date().toISOString() };
+      } else {
+        list.unshift({ ...letter, updatedAt: new Date().toISOString() });
+      }
+      localStorage.setItem(LOCAL_STORAGE_KEY_LETTERS, JSON.stringify(list));
+    } catch {
+      // ignore
+    }
+
+    if (isSupabaseConfigured && supabase) {
+      try {
+        await supabase.from('cover_letters').upsert({
+          id: letter.id,
+          user_id: userId,
+          title: letter.title,
+          job_title: letter.jobTitle,
+          company_name: letter.companyName,
+          recipient_name: letter.recipientName,
+          content: letter.content,
+          updated_at: new Date().toISOString(),
+        });
+      } catch (err) {
+        console.warn('Supabase save cover letter failed:', err);
+      }
+    }
+  },
+
+  async deleteCoverLetter(letterId: string, userId: string = 'guest'): Promise<void> {
+    try {
+      const stored = localStorage.getItem(LOCAL_STORAGE_KEY_LETTERS);
+      if (stored) {
+        const list: CoverLetterData[] = JSON.parse(stored);
+        const filtered = list.filter((item) => item.id !== letterId);
+        localStorage.setItem(LOCAL_STORAGE_KEY_LETTERS, JSON.stringify(filtered));
+      }
+    } catch {
+      // ignore
+    }
+
+    if (isSupabaseConfigured && supabase) {
+      try {
+        await supabase.from('cover_letters').delete().eq('id', letterId).eq('user_id', userId);
+      } catch (err) {
+        console.warn('Supabase delete cover letter failed:', err);
+      }
+    }
   }
 };
