@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import { LanguageCode, TemplateId } from '../../types';
-import { translations } from '../../lib/translations';
+import { useLanguage } from '../../context/LanguageContext';
 import { ContactSection } from '../contact/ContactSection';
 import { HeroSection } from './HeroSection';
 import { TemplatesGallery } from '../templates/TemplatesGallery';
@@ -33,29 +33,29 @@ interface LandingPageProps {
 }
 
 export const LandingPage: React.FC<LandingPageProps> = ({ onStartCV, lang = 'fr' }) => {
-  const t = translations[lang] || translations.fr;
+  const { t } = useLanguage();
   const [activeFaq, setActiveFaq] = useState<number | null>(null);
 
   const faqs = [
     {
-      q: 'Combien coûte la création et le téléchargement de mon CV ?',
-      a: 'Nous proposons 4 formules transparentes sans frais cachés : le Pass Flash à $1.99 (achat unique avec ATS check basique), le Pass Pro à $3.99 (accès 7 jours illimité + IA ATS Check), le Monthly Pass à $7.99/mois, et l\'Annual Pass à $39.99/an (Économisez 50%). Vous pouvez créer et prévisualiser votre CV gratuitement avant tout téléchargement.'
+      q: t('faq.q1', 'Combien coûte la création et le téléchargement de mon CV ?'),
+      a: t('faq.a1', 'Nous proposons 4 formules transparentes sans frais cachés : le Pass Flash à $1.99 (achat unique avec ATS check basique), le Pass Pro à $3.99 (accès 7 jours illimité + IA ATS Check), le Monthly Pass à $7.99/mois, et l\'Annual Pass à $39.99/an (Économisez 50%). Vous pouvez créer et prévisualiser votre CV gratuitement avant tout téléchargement.')
     },
     {
-      q: 'Comment l\'IA améliore-t-elle mes expériences sans mentir ?',
-      a: 'Notre intelligence artificielle agit comme un coach en recrutement : elle analyse vos véritables missions et les reformule avec des verbes d\'action percutants et un vocabulaire adapté à votre secteur. Elle a pour consigne stricte de ne JAMAIS inventer d\'entreprises, de dates ou de faux diplômes.'
+      q: t('faq.q2', 'Comment l\'IA améliore-t-elle mes expériences sans mentir ?'),
+      a: t('faq.a2', 'Notre intelligence artificielle agit comme un coach en recrutement : elle analyse vos véritables missions et les reformule avec des verbes d\'action percutants et un vocabulaire adapté à votre secteur. Elle a pour consigne stricte de ne JAMAIS inventer d\'entreprises, de dates ou de faux diplômes.')
     },
     {
-      q: 'Mon CV est-il compatible avec les logiciels ATS des recruteurs ?',
-      a: 'Oui, absolument. Tous nos 10 modèles professionnels sont conçus selon les critères stricts de lisibilité des systèmes de suivi des candidatures (ATS) : hiérarchie HTML claire, polices standards et structure optimisée.'
+      q: t('faq.q3', 'Mon CV est-il compatible avec les logiciels ATS des recruteurs ?'),
+      a: t('faq.a3', 'Oui, absolument. Tous nos 10 modèles professionnels sont conçus selon les critères stricts de lisibilité des systèmes de suivi des candidatures (ATS) : hiérarchie HTML claire, polices standards et structure optimisée.')
     },
     {
-      q: 'Puis-je modifier mon CV après l\'avoir téléchargé ?',
-      a: 'Oui, votre CV est conservé dans votre espace. Vous pouvez revenir à tout moment pour modifier vos informations ou changer de modèle gratuitement.'
+      q: t('faq.q4', 'Puis-je modifier mon CV après l\'avoir téléchargé ?'),
+      a: t('faq.a4', 'Oui, votre CV est conservé dans votre espace. Vous pouvez revenir à tout moment pour modifier vos informations ou changer de modèle gratuitement.')
     },
     {
-      q: 'La lettre de motivation est-elle incluse ?',
-      a: 'Oui ! Notre plateforme inclut 2 générations complètes de lettres de motivation personnalisées générées par l\'IA en fonction de votre CV et de l\'entreprise que vous ciblez.'
+      q: t('faq.q5', 'La lettre de motivation est-elle incluse ?'),
+      a: t('faq.a5', 'Oui ! Notre plateforme inclut 2 générations complètes de lettres de motivation personnalisées générées par l\'IA en fonction de votre CV et de l\'entreprise que vous ciblez.')
     }
   ];
 
@@ -69,13 +69,13 @@ export const LandingPage: React.FC<LandingPageProps> = ({ onStartCV, lang = 'fr'
         <div className="text-center space-y-3 mb-16">
           <div className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-blue-100 text-blue-800 text-xs font-bold">
             <Zap className="w-3.5 h-3.5" />
-            <span>Processus simple et ultra rapide</span>
+            <span>{t('howItWorks.badge', 'Processus simple et ultra rapide')}</span>
           </div>
           <h2 className="text-3xl sm:text-4xl font-black text-slate-900 tracking-tight">
-            Comment créer votre CV en 4 étapes simples
+            {t('howItWorks.title', 'Comment créer votre CV en 4 étapes simples')}
           </h2>
           <p className="text-sm text-slate-500 max-w-xl mx-auto">
-            Pas besoin de compétences en mise en page : vous fournissez les faits, nous nous chargeons du reste.
+            {t('howItWorks.subtitle', 'Pas besoin de compétences en mise en page : vous fournissez les faits, nous nous chargeons du reste.')}
           </p>
         </div>
 
@@ -83,23 +83,23 @@ export const LandingPage: React.FC<LandingPageProps> = ({ onStartCV, lang = 'fr'
           {[
             {
               step: '01',
-              title: 'Renseignez vos infos',
-              desc: 'Saisissez simplement votre parcours, vos diplômes et coordonnées via notre formulaire guidé pas à pas.'
+              title: t('howItWorks.step1Title', 'Renseignez vos infos'),
+              desc: t('howItWorks.step1Desc', 'Saisissez simplement votre parcours, vos diplômes et coordonnées via notre formulaire guidé pas à pas.')
             },
             {
               step: '02',
-              title: 'Boostez avec l\'IA',
-              desc: 'En 1 clic, notre assistant reformule vos missions avec des verbes d\'action valorisants sans rien inventer.'
+              title: t('howItWorks.step2Title', 'Boostez avec l\'IA'),
+              desc: t('howItWorks.step2Desc', 'En 1 clic, notre assistant reformule vos missions avec des verbes d\'action valorisants sans rien inventer.')
             },
             {
               step: '03',
-              title: 'Choisissez un design',
-              desc: 'Sélectionnez parmi 10 modèles graphiques certifiés ATS et ajustez vos couleurs favorites.'
+              title: t('howItWorks.step3Title', 'Choisissez un design'),
+              desc: t('howItWorks.step3Desc', 'Sélectionnez parmi 10 modèles graphiques certifiés ATS et ajustez vos couleurs favorites.')
             },
             {
               step: '04',
-              title: 'Téléchargez en PDF HD',
-              desc: 'Exportez votre CV A4 haute définition sans filigrane avec modifications illimitées.'
+              title: t('howItWorks.step4Title', 'Téléchargez en PDF HD'),
+              desc: t('howItWorks.step4Desc', 'Exportez votre CV A4 haute définition sans filigrane avec modifications illimitées.')
             }
           ].map((item, idx) => (
             <div
@@ -126,51 +126,51 @@ export const LandingPage: React.FC<LandingPageProps> = ({ onStartCV, lang = 'fr'
             <div className="lg:col-span-7 space-y-4">
               <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-blue-100 text-blue-800 text-xs font-bold">
                 <ShieldCheck className="w-4 h-4 text-emerald-600" />
-                <span>Garantie de véracité & Éthique IA</span>
+                <span>{t('aiShowcase.badge', 'Garantie de véracité & Éthique IA')}</span>
               </div>
               <h2 className="text-2xl sm:text-3xl font-black text-slate-900 tracking-tight">
-                Une IA qui valorise vos réelles compétences sans jamais inventer d'informations
+                {t('aiShowcase.title', "Une IA qui valorise vos réelles compétences sans jamais inventer d'informations")}
               </h2>
               <p className="text-xs sm:text-sm text-slate-600 leading-relaxed">
-                Contrairement à des générateurs génériques qui inventent des postes ou des diplômes fictifs (hallucinations), notre modèle respecte scrupuleusement la réalité de votre parcours. Il structure, clarifie et enrichit votre vocabulaire pour maximiser vos chances auprès des recruteurs.
+                {t('aiShowcase.subtitle', "Contrairement à des générateurs génériques qui inventent des postes ou des diplômes fictifs (hallucinations), notre modèle respecte scrupuleusement la réalité de votre parcours. Il structure, clarifie et enrichit votre vocabulaire pour maximiser vos chances auprès des recruteurs.")}
               </p>
               <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 pt-2 text-xs font-semibold text-slate-700">
                 <div className="flex items-center gap-2">
                   <CheckCircle2 className="w-4 h-4 text-emerald-600 shrink-0" />
-                  <span>Verbes d'action ciblés pour chaque secteur</span>
+                  <span>{t('aiShowcase.benefit1', "Verbes d'action ciblés pour chaque secteur")}</span>
                 </div>
                 <div className="flex items-center gap-2">
                   <CheckCircle2 className="w-4 h-4 text-emerald-600 shrink-0" />
-                  <span>Mots-clés pertinents pour les filtres ATS</span>
+                  <span>{t('aiShowcase.benefit2', 'Mots-clés pertinents pour les filtres ATS')}</span>
                 </div>
                 <div className="flex items-center gap-2">
                   <CheckCircle2 className="w-4 h-4 text-emerald-600 shrink-0" />
-                  <span>Zéro fausse certification inventée</span>
+                  <span>{t('aiShowcase.benefit3', 'Zéro fausse certification inventée')}</span>
                 </div>
                 <div className="flex items-center gap-2">
                   <CheckCircle2 className="w-4 h-4 text-emerald-600 shrink-0" />
-                  <span>Validation humaine avant d'appliquer</span>
+                  <span>{t('aiShowcase.benefit4', "Validation humaine avant d'appliquer")}</span>
                 </div>
               </div>
             </div>
 
             <div className="lg:col-span-5 bg-white p-6 rounded-2xl border border-blue-200/80 shadow-md space-y-4 text-xs">
               <div className="font-bold text-slate-800 flex items-center justify-between border-b border-slate-100 pb-2">
-                <span>Exemple d'optimisation IA</span>
-                <span className="text-blue-600 font-semibold">Avant / Après</span>
+                <span>{t('aiShowcase.exampleTitle', "Exemple d'optimisation IA")}</span>
+                <span className="text-blue-600 font-semibold">{t('aiShowcase.beforeAfter', 'Avant / Après')}</span>
               </div>
 
               <div className="space-y-1">
-                <span className="text-[10px] uppercase font-bold text-slate-400">Votre saisie brute :</span>
+                <span className="text-[10px] uppercase font-bold text-slate-400">{t('aiShowcase.beforeLabel', 'Votre saisie brute :')}</span>
                 <p className="p-2.5 bg-slate-50 text-slate-600 rounded-lg italic">
-                  « Je préparais les commandes dans l'entrepôt et vérifiais les stocks. »
+                  {t('aiShowcase.beforeText', "« Je préparais les commandes dans l'entrepôt et vérifiais les stocks. »")}
                 </p>
               </div>
 
               <div className="space-y-1">
-                <span className="text-[10px] uppercase font-bold text-blue-600">Formulation valorisée par l'IA :</span>
+                <span className="text-[10px] uppercase font-bold text-blue-600">{t('aiShowcase.afterLabel', "Formulation valorisée par l'IA :")}</span>
                 <p className="p-2.5 bg-blue-50/70 text-slate-900 rounded-lg font-medium border border-blue-100">
-                  « Gestion et préparation rigoureuse des commandes logistiques, optimisation de la rotation des stocks et respect des cadences d'expédition. »
+                  {t('aiShowcase.afterText', "« Gestion et préparation rigoureuse des commandes logistiques, optimisation de la rotation des stocks et respect des cadences d'expédition. »")}
                 </p>
               </div>
             </div>
@@ -181,9 +181,9 @@ export const LandingPage: React.FC<LandingPageProps> = ({ onStartCV, lang = 'fr'
       {/* 5. COMPARISON TABLE */}
       <section className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <div className="text-center space-y-3 mb-12">
-          <h2 className="text-3xl font-black text-slate-900 tracking-tight">Pourquoi choisir VITAREY ?</h2>
+          <h2 className="text-3xl font-black text-slate-900 tracking-tight">{t('comparison.title', 'Pourquoi choisir VITAREY ?')}</h2>
           <p className="text-xs sm:text-sm text-slate-500 max-w-xl mx-auto">
-            Comparez notre solution transparente avec les méthodes classiques et les abonnements mensuels coûteux.
+            {t('comparison.subtitle', 'Comparez notre solution transparente avec les méthodes classiques et les abonnements mensuels coûteux.')}
           </p>
         </div>
 
@@ -191,15 +191,15 @@ export const LandingPage: React.FC<LandingPageProps> = ({ onStartCV, lang = 'fr'
           <table className="w-full text-left text-xs sm:text-sm border-collapse">
             <thead>
               <tr className="border-b border-slate-200 bg-slate-50/90 text-slate-800">
-                <th className="p-4 sm:p-5 font-bold text-slate-900 w-1/4">Critères</th>
-                <th className="p-4 sm:p-5 font-bold text-slate-700 w-1/4">Word / Modèle manuel</th>
-                <th className="p-4 sm:p-5 font-bold text-slate-700 w-1/4">Sites à abonnement ($29/mois)</th>
+                <th className="p-4 sm:p-5 font-bold text-slate-900 w-1/4">{t('comparison.criteria', 'Critères')}</th>
+                <th className="p-4 sm:p-5 font-bold text-slate-700 w-1/4">{t('comparison.manualWord', 'Word / Modèle manuel')}</th>
+                <th className="p-4 sm:p-5 font-bold text-slate-700 w-1/4">{t('comparison.subscriptionSites', 'Sites à abonnement ($29/mois)')}</th>
                 <th className="p-4 sm:p-5 font-bold bg-blue-50/90 border-x-2 border-t-2 border-blue-300 w-1/4">
                   <div className="flex flex-wrap items-center gap-2">
                     <span className="text-base font-black text-blue-900 tracking-tight">VITAREY</span>
                     <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded-full bg-blue-600 text-white text-[10px] font-black uppercase tracking-wider shadow-2xs">
                       <Sparkles className="w-3 h-3 text-amber-300" />
-                      Recommandé
+                      {t('comparison.recommended', 'Recommandé')}
                     </span>
                   </div>
                 </th>
@@ -207,44 +207,44 @@ export const LandingPage: React.FC<LandingPageProps> = ({ onStartCV, lang = 'fr'
             </thead>
             <tbody className="divide-y divide-slate-100 text-slate-700">
               <tr>
-                <td className="p-4 sm:p-5 font-semibold text-slate-900">Prix transparent</td>
-                <td className="p-4 sm:p-5 text-slate-700 font-medium">Gratuit mais chronophage</td>
-                <td className="p-4 sm:p-5 text-rose-600 font-semibold">Abonnement $29/mois reconduit automatiquement</td>
+                <td className="p-4 sm:p-5 font-semibold text-slate-900">{t('comparison.rowPrice', 'Prix transparent')}</td>
+                <td className="p-4 sm:p-5 text-slate-700 font-medium">{t('comparison.freeTimeConsuming', 'Gratuit mais chronophage')}</td>
+                <td className="p-4 sm:p-5 text-rose-600 font-semibold">{t('comparison.recurringSub', 'Abonnement $29/mois reconduit automatiquement')}</td>
                 <td className="p-4 sm:p-5 bg-blue-50/60 border-x-2 border-blue-300">
                   <div className="flex flex-col">
                     <div className="flex items-baseline gap-1.5">
                       <span className="text-base font-black text-blue-900">
-                        {ENABLE_PAYMENTS ? '$1.99' : 'Gratuit'}
+                        {ENABLE_PAYMENTS ? '$1.99' : t('pricing.free', 'Gratuit')}
                       </span>
-                      {ENABLE_PAYMENTS && <span className="text-xs font-bold text-blue-700">Pass Flash</span>}
+                      {ENABLE_PAYMENTS && <span className="text-xs font-bold text-blue-700">{t('comparison.flashPass', 'Pass Flash')}</span>}
                     </div>
                     <span className="text-[11px] font-bold text-emerald-700">
-                      {ENABLE_PAYMENTS ? 'Achat unique sans abonnement caché' : 'Accès 100% gratuit pendant la période de test'}
+                      {ENABLE_PAYMENTS ? t('comparison.singlePurchase', 'Achat unique sans abonnement caché') : t('comparison.freeTrial', 'Accès 100% gratuit pendant la période de test')}
                     </span>
                   </div>
                 </td>
               </tr>
               <tr>
-                <td className="p-4 sm:p-5 font-semibold text-slate-900">Assistant IA de valorisation</td>
+                <td className="p-4 sm:p-5 font-semibold text-slate-900">{t('comparison.rowAi', 'Assistant IA de valorisation')}</td>
                 <td className="p-4 sm:p-5">
-                  <span className="inline-flex items-center justify-center w-6 h-6 rounded-full bg-slate-100 text-slate-600" title="Non inclus">
+                  <span className="inline-flex items-center justify-center w-6 h-6 rounded-full bg-slate-100 text-slate-600" title={t('comparison.notIncluded', 'Non inclus')}>
                     <XIcon className="w-4 h-4 stroke-[2.5]" />
                   </span>
                 </td>
-                <td className="p-4 sm:p-5 text-slate-700 font-medium">Souvent basique ou absent</td>
+                <td className="p-4 sm:p-5 text-slate-700 font-medium">{t('comparison.oftenBasic', 'Souvent basique ou absent')}</td>
                 <td className="p-4 sm:p-5 bg-blue-50/60 border-x-2 border-blue-300">
                   <div className="flex items-center gap-2">
                     <span className="inline-flex items-center justify-center w-6 h-6 rounded-full bg-emerald-100 text-emerald-700 shadow-2xs">
                       <Check className="w-4 h-4 stroke-[3]" />
                     </span>
-                    <span className="font-bold text-slate-900">Inclus (Gemini IA Pro)</span>
+                    <span className="font-bold text-slate-900">{t('comparison.includedGemini', 'Inclus (Gemini IA Pro)')}</span>
                   </div>
                 </td>
               </tr>
               <tr>
-                <td className="p-4 sm:p-5 font-semibold text-slate-900">Mise en page automatique A4</td>
+                <td className="p-4 sm:p-5 font-semibold text-slate-900">{t('comparison.rowA4', 'Mise en page automatique A4')}</td>
                 <td className="p-4 sm:p-5">
-                  <span className="inline-flex items-center justify-center w-6 h-6 rounded-full bg-slate-100 text-slate-600" title="Non inclus">
+                  <span className="inline-flex items-center justify-center w-6 h-6 rounded-full bg-slate-100 text-slate-600" title={t('comparison.notIncluded', 'Non inclus')}>
                     <XIcon className="w-4 h-4 stroke-[2.5]" />
                   </span>
                 </td>
@@ -258,41 +258,41 @@ export const LandingPage: React.FC<LandingPageProps> = ({ onStartCV, lang = 'fr'
                     <span className="inline-flex items-center justify-center w-6 h-6 rounded-full bg-emerald-100 text-emerald-700 shadow-2xs">
                       <Check className="w-4 h-4 stroke-[3]" />
                     </span>
-                    <span className="font-bold text-slate-900">Format A4 & ATS certifié</span>
+                    <span className="font-bold text-slate-900">{t('comparison.formatA4Certified', 'Format A4 & ATS certifié')}</span>
                   </div>
                 </td>
               </tr>
               <tr>
-                <td className="p-4 sm:p-5 font-semibold text-slate-900">Lettre de motivation IA incluse</td>
+                <td className="p-4 sm:p-5 font-semibold text-slate-900">{t('comparison.rowCoverLetter', 'Lettre de motivation IA incluse')}</td>
                 <td className="p-4 sm:p-5">
-                  <span className="inline-flex items-center justify-center w-6 h-6 rounded-full bg-slate-100 text-slate-600" title="Non inclus">
+                  <span className="inline-flex items-center justify-center w-6 h-6 rounded-full bg-slate-100 text-slate-600" title={t('comparison.notIncluded', 'Non inclus')}>
                     <XIcon className="w-4 h-4 stroke-[2.5]" />
                   </span>
                 </td>
-                <td className="p-4 sm:p-5 text-slate-700 font-medium">Option payante supplémentaire</td>
+                <td className="p-4 sm:p-5 text-slate-700 font-medium">{t('comparison.paidOption', 'Option payante supplémentaire')}</td>
                 <td className="p-4 sm:p-5 bg-blue-50/60 border-x-2 border-blue-300">
                   <div className="flex items-center gap-2">
                     <span className="inline-flex items-center justify-center w-6 h-6 rounded-full bg-emerald-100 text-emerald-700 shadow-2xs">
                       <Check className="w-4 h-4 stroke-[3]" />
                     </span>
-                    <span className="font-bold text-slate-900">Inclus (Générateur ciblé)</span>
+                    <span className="font-bold text-slate-900">{t('comparison.includedTargeted', 'Inclus (Générateur ciblé)')}</span>
                   </div>
                 </td>
               </tr>
               <tr>
-                <td className="p-4 sm:p-5 font-semibold text-slate-900">Modifications gratuites futures</td>
+                <td className="p-4 sm:p-5 font-semibold text-slate-900">{t('comparison.rowEdits', 'Modifications gratuites futures')}</td>
                 <td className="p-4 sm:p-5">
                   <span className="inline-flex items-center justify-center w-6 h-6 rounded-full bg-slate-100 text-slate-700">
                     <Check className="w-4 h-4 stroke-[2.5]" />
                   </span>
                 </td>
-                <td className="p-4 sm:p-5 text-rose-600 font-semibold">Bloqué si l'abonnement expire</td>
+                <td className="p-4 sm:p-5 text-rose-600 font-semibold">{t('comparison.blockedSub', "Bloqué si l'abonnement expire")}</td>
                 <td className="p-4 sm:p-5 bg-blue-50/60 border-x-2 border-b-2 border-blue-300">
                   <div className="flex items-center gap-2">
                     <span className="inline-flex items-center justify-center w-6 h-6 rounded-full bg-emerald-100 text-emerald-700 shadow-2xs">
                       <Check className="w-4 h-4 stroke-[3]" />
                     </span>
-                    <span className="font-bold text-slate-900">Modifications illimitées à vie</span>
+                    <span className="font-bold text-slate-900">{t('comparison.unlimitedLifetime', 'Modifications illimitées à vie')}</span>
                   </div>
                 </td>
               </tr>
@@ -306,11 +306,11 @@ export const LandingPage: React.FC<LandingPageProps> = ({ onStartCV, lang = 'fr'
         <div className="text-center space-y-3 mb-12">
           <div className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-emerald-100 text-emerald-800 text-xs font-bold">
             <Star className="w-3.5 h-3.5 fill-emerald-600 text-emerald-600" />
-            <span>Note moyenne de 4.9/5 basée sur +12 000 recrutements</span>
+            <span>{t('testimonials.badge', 'Note moyenne de 4.9/5 basée sur +12 000 recrutements')}</span>
           </div>
-          <h2 className="text-3xl font-black text-slate-900 tracking-tight">Ils ont décroché leur job avec VITAREY</h2>
+          <h2 className="text-3xl font-black text-slate-900 tracking-tight">{t('testimonials.title', 'Ils ont décroché leur job avec VITAREY')}</h2>
           <p className="text-xs sm:text-sm text-slate-500 max-w-xl mx-auto">
-            Découvrez comment notre outil a aidé des étudiants, des diplômés et des professionnels en reconversion.
+            {t('testimonials.subtitle', 'Découvrez comment notre outil a aidé des étudiants, des diplômés et des professionnels en reconversion.')}
           </p>
         </div>
 
@@ -318,24 +318,24 @@ export const LandingPage: React.FC<LandingPageProps> = ({ onStartCV, lang = 'fr'
           {[
             {
               name: 'Sarah M.',
-              role: 'Étudiante en Master Marketing',
-              review: '« J’ai décroché mon stage de fin d’études en seulement deux semaines ! L’IA a parfaitement formulé mes expériences universitaires avec des verbes valorisants. »',
+              role: t('testimonials.sarahRole', 'Étudiante en Master Marketing'),
+              review: t('testimonials.sarahReview', '« J’ai décroché mon stage de fin d’études en seulement deux semaines ! L’IA a parfaitement formulé mes expériences universitaires avec des verbes valorisants. »'),
               rating: 5,
-              badge: 'Stage validé'
+              badge: t('testimonials.sarahBadge', 'Stage validé')
             },
             {
               name: 'Thomas B.',
-              role: 'Développeur Junior',
-              review: '« Pour $1.99, c’est le meilleur investissement de ma recherche d’emploi. Le PDF est parfaitement calibré A4, lisible sur mobile et approuvé par les ATS. »',
+              role: t('testimonials.thomasRole', 'Développeur Junior'),
+              review: t('testimonials.thomasReview', '« Pour $1.99, c’est le meilleur investissement de ma recherche d’emploi. Le PDF est parfaitement calibré A4, lisible sur mobile et approuvé par les ATS. »'),
               rating: 5,
-              badge: 'Premier CDI'
+              badge: t('testimonials.thomasBadge', 'Premier CDI')
             },
             {
               name: 'Fatima Z.',
-              role: 'Reconversion Chef de Projet',
-              review: '« Je ne savais pas comment valoriser mes 8 ans dans le commerce. L’accroche et les compétences suggérées par l’IA ont fait toute la différence lors des entretiens. »',
+              role: t('testimonials.fatimaRole', 'Reconversion Chef de Projet'),
+              review: t('testimonials.fatimaReview', '« Je ne savais pas comment valoriser mes 8 ans dans le commerce. L’accroche et les compétences suggérées par l’IA ont fait toute la différence lors des entretiens. »'),
               rating: 5,
-              badge: 'Reconversion réussie'
+              badge: t('testimonials.fatimaBadge', 'Reconversion réussie')
             }
           ].map((item, idx) => (
             <div
@@ -380,9 +380,9 @@ export const LandingPage: React.FC<LandingPageProps> = ({ onStartCV, lang = 'fr'
         <div className="text-center space-y-3 mb-12">
           <div className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-blue-100 text-blue-800 text-xs font-bold">
             <HelpCircle className="w-3.5 h-3.5" />
-            <span>Vos questions</span>
+            <span>{t('faq.badge', 'Vos questions')}</span>
           </div>
-          <h2 className="text-3xl font-black text-slate-900 tracking-tight">Foire Aux Questions</h2>
+          <h2 className="text-3xl font-black text-slate-900 tracking-tight">{t('faq.title', 'Foire Aux Questions')}</h2>
         </div>
 
         <div className="space-y-4">

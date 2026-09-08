@@ -1,6 +1,6 @@
 import React, { useState, useEffect, useRef, useCallback } from 'react';
 import { CVData, LanguageCode, TemplateId, CVTheme, UserPassState } from '../../types';
-import { translations } from '../../lib/translations';
+import { useLanguage } from '../../context/LanguageContext';
 import { storageService } from '../../lib/supabase';
 import { exportCVToPDF, triggerNativePrint } from '../../lib/pdf';
 import { passService } from '../../lib/passService';
@@ -158,7 +158,7 @@ export const CVBuilder: React.FC<CVBuilderProps> = ({
   onBackToDashboard,
   onLanguageChange
 }) => {
-  const t = translations[lang] || translations.fr;
+  const { t, language } = useLanguage();
   const [cv, setCv] = useState<CVData>(initialCv || DEFAULT_CV);
   const [currentStep, setCurrentStep] = useState(1);
   const [mobileTab, setMobileTab] = useState<'form' | 'preview'>('form');
@@ -391,7 +391,7 @@ export const CVBuilder: React.FC<CVBuilderProps> = ({
                 className="p-2 hover:bg-slate-100 rounded-xl text-slate-600 transition-colors flex items-center gap-1.5 text-xs font-semibold cursor-pointer"
               >
                 <ArrowLeft className="w-4 h-4" />
-                <span className="hidden sm:inline">Mes CVs</span>
+                <span className="hidden sm:inline">{t('builder.backToDashboard', 'Mes CVs')}</span>
               </button>
             )}
 
@@ -408,22 +408,22 @@ export const CVBuilder: React.FC<CVBuilderProps> = ({
                 {isUnlimitedPass ? (
                   <span className="px-2.5 py-0.5 bg-emerald-100 text-emerald-800 text-[10px] font-bold rounded-full flex items-center gap-1">
                     <ShieldCheck className="w-3 h-3 text-emerald-600" />
-                    Pass Illimité Actif
+                    {t('builder.unlimitedPassActive', 'Pass Illimité Actif')}
                   </span>
                 ) : passState.downloadCredits > 0 ? (
                   <span className="px-2.5 py-0.5 bg-blue-100 text-blue-800 text-[10px] font-bold rounded-full flex items-center gap-1">
                     <CheckCircle2 className="w-3 h-3 text-blue-600" />
-                    Pass Flash (1 crédit)
+                    {t('builder.flashPassActive', 'Pass Flash (1 crédit)')}
                   </span>
                 ) : cv.isPaid ? (
                   <span className="px-2 py-0.5 bg-slate-100 text-slate-700 text-[10px] font-bold rounded-full flex items-center gap-1">
                     <Check className="w-3 h-3 text-slate-500" />
-                    Téléchargé
+                    {t('builder.downloadCredit', 'Téléchargé')}
                   </span>
                 ) : null}
               </div>
               <div className="text-[11px] text-slate-400 flex items-center gap-2 px-1">
-                <span>{isSaving ? 'Enregistrement automatique...' : `Enregistré à ${lastSaved.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}`}</span>
+                <span>{isSaving ? t('builder.autoSaving', 'Enregistrement automatique...') : `${t('builder.savedAt', 'Enregistré à')} ${lastSaved.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}`}</span>
               </div>
             </div>
           </div>
@@ -434,18 +434,18 @@ export const CVBuilder: React.FC<CVBuilderProps> = ({
             <button
               onClick={() => setShowTemplateSwitcherModal(true)}
               className="px-3 py-2 bg-slate-100 hover:bg-slate-200 text-slate-800 rounded-xl text-xs font-bold transition-colors flex items-center gap-1.5 border border-slate-200 cursor-pointer"
-              title="Changer de modèle de CV"
+              title={t('builder.switchTemplate', 'Changer de modèle de CV')}
             >
               <Layout className="w-3.5 h-3.5 text-blue-600" />
-              <span className="hidden sm:inline">Modèle : {currentTemplateDef.title}</span>
-              <span className="sm:hidden">Modèle</span>
+              <span className="hidden sm:inline">{t('builder.templateActive', 'Modèle :')} {currentTemplateDef.title}</span>
+              <span className="sm:hidden">{t('builder.template', 'Modèle')}</span>
             </button>
 
             {/* Print button */}
             <button
               onClick={triggerNativePrint}
               className="p-2 text-slate-600 hover:bg-slate-100 rounded-xl transition-colors hidden sm:flex items-center cursor-pointer"
-              title="Imprimer"
+              title={t('builder.print', 'Imprimer')}
             >
               <Printer className="w-4 h-4" />
             </button>
@@ -462,7 +462,7 @@ export const CVBuilder: React.FC<CVBuilderProps> = ({
                 ) : (
                   <Download className="w-4 h-4" />
                 )}
-                <span>{isExportingPDF ? exportProgressText || 'Génération PDF...' : 'Télécharger PDF HD'}</span>
+                <span>{isExportingPDF ? exportProgressText || t('builder.generatingPdf', 'Génération PDF...') : t('builder.downloadPdf', 'Télécharger PDF HD')}</span>
               </button>
             ) : (
               <button
@@ -470,7 +470,7 @@ export const CVBuilder: React.FC<CVBuilderProps> = ({
                 className="px-4 py-2 bg-gradient-to-r from-blue-600 to-indigo-600 hover:from-blue-700 hover:to-indigo-700 text-white rounded-xl text-xs font-bold shadow-xs transition-all flex items-center gap-1.5 cursor-pointer"
               >
                 <Lock className="w-3.5 h-3.5 text-yellow-300" />
-                <span>Débloquer & Télécharger ($1.99)</span>
+                <span>{t('builder.unlockAndDownload', 'Débloquer & Télécharger ($1.99)')}</span>
               </button>
             )}
           </div>
@@ -485,7 +485,7 @@ export const CVBuilder: React.FC<CVBuilderProps> = ({
             }`}
           >
             <Edit className="w-3.5 h-3.5" />
-            Formulaire ({currentStep}/{totalSteps})
+            {t('builder.formTab', 'Formulaire')} ({currentStep}/{totalSteps})
           </button>
           <button
             onClick={() => setMobileTab('preview')}
@@ -494,7 +494,7 @@ export const CVBuilder: React.FC<CVBuilderProps> = ({
             }`}
           >
             <Eye className="w-3.5 h-3.5" />
-            Aperçu Direct
+            {t('builder.previewTab', 'Aperçu Direct')}
           </button>
         </div>
       </header>
@@ -529,10 +529,10 @@ export const CVBuilder: React.FC<CVBuilderProps> = ({
           <div className="bg-white p-4 rounded-2xl border border-slate-200/80 shadow-2xs">
             <div className="flex items-center justify-between mb-2">
               <span className="text-xs font-bold text-slate-700">
-                Étape {currentStep} sur {totalSteps}
+                {t('builder.step', 'Étape')} {currentStep} {t('builder.of', 'sur')} {totalSteps}
               </span>
               <span className="text-xs text-blue-600 font-bold">
-                {Math.round((currentStep / totalSteps) * 100)}% complété
+                {Math.round((currentStep / totalSteps) * 100)}% {t('builder.completed', 'complété')}
               </span>
             </div>
             <div className="w-full bg-slate-100 h-2 rounded-full overflow-hidden">
@@ -545,14 +545,14 @@ export const CVBuilder: React.FC<CVBuilderProps> = ({
             {/* Quick Step Jump Tabs */}
             <div className="flex items-center justify-between gap-1 mt-3 overflow-x-auto pb-1 text-[11px] font-semibold text-slate-500">
               {[
-                { s: 1, label: 'Infos' },
-                { s: 2, label: 'Profil' },
-                { s: 3, label: 'Expérience' },
-                { s: 4, label: 'Formation' },
-                { s: 5, label: 'Compétences' },
-                { s: 6, label: 'Langues' },
-                { s: 7, label: 'Projets' },
-                { s: 8, label: 'Modèle' }
+                { s: 1, label: t('builder.steps.personal', 'Infos') },
+                { s: 2, label: t('builder.steps.profile', 'Profil') },
+                { s: 3, label: t('builder.steps.experience', 'Expérience') },
+                { s: 4, label: t('builder.steps.education', 'Formation') },
+                { s: 5, label: t('builder.steps.skills', 'Compétences') },
+                { s: 6, label: t('builder.steps.languages', 'Langues') },
+                { s: 7, label: t('builder.steps.certifications', 'Projets') },
+                { s: 8, label: t('builder.steps.customizer', 'Modèle') }
               ].map((item) => (
                 <button
                   key={item.s}
@@ -653,7 +653,7 @@ export const CVBuilder: React.FC<CVBuilderProps> = ({
                 className="px-4 py-2.5 text-xs font-semibold text-slate-600 hover:text-slate-900 rounded-xl hover:bg-slate-100 transition-colors flex items-center gap-1.5 disabled:opacity-40 disabled:pointer-events-none"
               >
                 <ArrowLeft className="w-4 h-4" />
-                <span>{t.btnBack}</span>
+                <span>{t('builder.prevStep', 'Retour')}</span>
               </button>
 
               {currentStep < totalSteps ? (
@@ -662,7 +662,7 @@ export const CVBuilder: React.FC<CVBuilderProps> = ({
                   onClick={() => setCurrentStep((s) => Math.min(totalSteps, s + 1))}
                   className="px-6 py-2.5 bg-blue-600 hover:bg-blue-700 text-white rounded-xl text-xs font-bold shadow-xs transition-colors flex items-center gap-1.5"
                 >
-                  <span>{t.btnNext}</span>
+                  <span>{t('builder.nextStep', 'Étape suivante')}</span>
                   <ArrowRight className="w-4 h-4" />
                 </button>
               ) : (
@@ -683,7 +683,7 @@ export const CVBuilder: React.FC<CVBuilderProps> = ({
                   ) : (
                     <Download className="w-4 h-4" />
                   )}
-                  <span>{isExportingPDF ? exportProgressText || 'Génération PDF...' : (!ENABLE_PAYMENTS || cv.isPaid) ? 'Télécharger en PDF HD' : 'Finaliser & Télécharger ($1.99)'}</span>
+                  <span>{isExportingPDF ? exportProgressText || t('builder.generatingPdf', 'Génération PDF...') : (!ENABLE_PAYMENTS || cv.isPaid) ? t('builder.downloadPdf', 'Télécharger en PDF HD') : t('builder.unlockAndDownload', 'Finaliser & Télécharger ($1.99)')}</span>
                 </button>
               )}
             </div>
@@ -701,13 +701,13 @@ export const CVBuilder: React.FC<CVBuilderProps> = ({
                     <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-emerald-400 opacity-75"></span>
                     <span className="relative inline-flex rounded-full h-2 w-2 bg-emerald-500"></span>
                   </span>
-                  <span className="font-bold text-xs text-slate-800">Aperçu en direct (A4)</span>
+                  <span className="font-bold text-xs text-slate-800">{t('builder.livePreviewA4', 'Aperçu en direct (A4)')}</span>
                   <span className={`text-[10px] px-1.5 py-0.5 rounded font-medium ${
                     isAutoFit 
                       ? 'text-emerald-700 bg-emerald-50 border border-emerald-200/60' 
                       : 'text-slate-500 bg-slate-100'
                   }`}>
-                    {isAutoFit ? 'Page entière cadrée' : 'Zoom personnalisé'}
+                    {isAutoFit ? t('builder.fullPageFitted', 'Page entière cadrée') : t('builder.customZoom', 'Zoom personnalisé')}
                   </span>
                 </div>
 
@@ -717,7 +717,7 @@ export const CVBuilder: React.FC<CVBuilderProps> = ({
                     type="button"
                     onClick={handleZoomOut}
                     className="p-1 text-slate-600 hover:text-slate-900 hover:bg-white rounded-lg transition-colors cursor-pointer"
-                    title="Zoom arrière"
+                    title={t('builder.zoomOut', 'Zoom arrière')}
                   >
                     <ZoomOut className="w-3.5 h-3.5" />
                   </button>
@@ -730,7 +730,7 @@ export const CVBuilder: React.FC<CVBuilderProps> = ({
                         ? 'bg-blue-600 text-white shadow-2xs' 
                         : 'text-slate-700 hover:bg-white hover:text-blue-600'
                     }`}
-                    title="Cliquer pour réajuster la page entière (Auto-fit)"
+                    title={t('builder.autoFit', 'Cliquer pour réajuster la page entière (Auto-fit)')}
                   >
                     {Math.round(currentScale * 100)}%{isAutoFit ? ' • Auto' : ''}
                   </button>
@@ -739,7 +739,7 @@ export const CVBuilder: React.FC<CVBuilderProps> = ({
                     type="button"
                     onClick={handleZoomIn}
                     className="p-1 text-slate-600 hover:text-slate-900 hover:bg-white rounded-lg transition-colors cursor-pointer"
-                    title="Zoom avant"
+                    title={t('builder.zoomIn', 'Zoom avant')}
                   >
                     <ZoomIn className="w-3.5 h-3.5" />
                   </button>
@@ -752,7 +752,7 @@ export const CVBuilder: React.FC<CVBuilderProps> = ({
                         ? 'text-blue-600 bg-blue-50 hover:bg-blue-100' 
                         : 'text-slate-500 hover:text-slate-800 hover:bg-white'
                     }`}
-                    title="Ajuster toute la page au cadre disponible"
+                    title={t('builder.fitAll', 'Ajuster toute la page au cadre disponible')}
                   >
                     <Maximize2 className="w-3.5 h-3.5" />
                   </button>
@@ -780,7 +780,7 @@ export const CVBuilder: React.FC<CVBuilderProps> = ({
                   className="px-2.5 py-1 bg-blue-50 hover:bg-blue-100 text-blue-700 rounded-lg text-[11px] font-bold transition-colors flex items-center gap-1 cursor-pointer"
                 >
                   <Layout className="w-3 h-3 text-blue-600" />
-                  <span>Changer de modèle</span>
+                  <span>{t('builder.switchTemplate', 'Changer de modèle')}</span>
                 </button>
               </div>
             </div>

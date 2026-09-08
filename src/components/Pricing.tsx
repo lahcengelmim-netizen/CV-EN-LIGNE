@@ -1,16 +1,14 @@
 import React, { useState } from 'react';
 import './Pricing.css';
 import { ENABLE_PAYMENTS } from '../config/features';
+import { useLanguage } from '../context/LanguageContext';
 
-/**
- * Pricing Component (USD $)
- * 4 Formulas:
- * - Flash Pass ($1.99): Single Purchase (1 Watermark-Free HD PDF Download + Basic ATS Check)
- * - Pro Pass ($3.99 - MOST POPULAR): 7-Day Full Access + All Templates + AI ATS Check
- * - Monthly Pass ($7.99/mo): Unlimited Monthly Access + AI Cover Letters + Priority Support
- * - Annual Pass ($39.99/yr - SAVE 50%): 1-Year All-Inclusive Access
- */
-export const Pricing = ({
+export interface PricingProps {
+  onSelectPlan?: (planId: string, plan: any) => void;
+  currency?: string;
+}
+
+export const Pricing: React.FC<PricingProps> = ({
   onSelectPlan,
   currency = '$'
 }) => {
@@ -18,99 +16,96 @@ export const Pricing = ({
     return null;
   }
 
+  const { t } = useLanguage();
   const [selectedPlan, setSelectedPlan] = useState('pro');
 
   const plans = [
     {
       id: 'flash',
-      name: 'Pass Flash',
-      tagline: 'Single Purchase',
+      name: t('pricing.flashTitle', 'Pass Flash'),
+      tagline: t('pricing.flashTagline', 'Achat Unique'),
       price: '1.99',
-      period: 'One-time payment',
-      description: 'Ideal for a targeted, one-time job application with no ongoing commitment.',
+      period: t('pricing.flashPeriod', 'Paiement unique'),
+      description: t('pricing.flashDesc', 'Idéal pour une candidature ciblée et ponctuelle sans engagement dans la durée.'),
       isPopular: false,
       badgeText: null,
-      ctaText: 'Download 1 Resume ($1.99)',
+      ctaText: t('pricing.flashCta', 'Télécharger 1 CV ($1.99)'),
       buttonVariant: 'secondary',
       features: [
-        '1 High-Definition PDF Resume Download',
-        '100% Watermark-Free',
-        'Basic ATS Compatibility Check',
-        'Instant Export to Recruiter Format',
-        'Standard Vector A4 Format'
+        t('pricing.features.flash1', '1 Téléchargement PDF Haute Définition'),
+        t('pricing.features.flash2', '100% Sans Filigrane'),
+        t('pricing.features.flash3', 'Vérification ATS Basique'),
+        t('pricing.features.flash4', 'Export Instantané au Format Recruteur'),
+        t('pricing.features.flash5', 'Format A4 Vectoriel Standard')
       ],
       disabledFeatures: [
-        'AI Cover Letter Generator',
-        'Unlimited Downloads',
-        'Ongoing Revisions & Storage'
+        t('pricing.features.monthly3', 'Générateur de Lettres de Motivation IA'),
+        t('pricing.features.pro1', 'Téléchargements ILLIMITÉS')
       ]
     },
     {
       id: 'pro',
-      name: 'Pass Pro',
-      tagline: 'Most Recommended',
+      name: t('pricing.proTitle', 'Pass Pro'),
+      tagline: t('pricing.proTagline', 'Le Plus Recommandé'),
       price: '3.99',
-      period: '7-day full access',
-      description: 'The favorite choice for active applicants applying to multiple positions.',
+      period: t('pricing.proPeriod', 'Accès complet 7 jours'),
+      description: t('pricing.proDesc', 'Le choix favori des candidats actifs postulant à plusieurs offres d\'emploi.'),
       isPopular: true,
-      badgeText: '⭐ MOST POPULAR',
-      ctaText: 'Get 7-Day Pro Access ($3.99)',
+      badgeText: t('pricing.mostPopular', '⭐ PLUS POPULAIRE'),
+      ctaText: t('pricing.proCta', 'Activer le Pass Pro 7 Jours ($3.99)'),
       buttonVariant: 'primary',
       features: [
-        'UNLIMITED Downloads for 7 full days',
-        'Full access to all 10 ATS-Certified Templates',
-        'Complete AI-Powered ATS Resume Analysis',
-        '24/7 Unlimited Edits & Color Customization',
-        'High-Resolution Vector A4 PDF Export',
-        '1 Custom AI Cover Letter included'
+        t('pricing.features.pro1', 'Téléchargements ILLIMITÉS pendant 7 jours'),
+        t('pricing.features.pro2', '100% Sans Filigrane & Résolution Maximale'),
+        t('pricing.features.pro3', 'Audit de Compatibilité ATS par IA'),
+        t('pricing.features.pro4', 'Accès aux 10 Modèles Premium ATS'),
+        t('pricing.features.pro5', 'Assistant IA pour CV & Lettre de Motivation')
       ],
       disabledFeatures: []
     },
     {
       id: 'monthly',
-      name: 'Monthly Pass',
-      tagline: 'Maximum Flexibility',
+      name: t('pricing.monthlyTitle', 'Pass Mensuel'),
+      tagline: t('pricing.monthlyTagline', 'Recherche Intensive'),
       price: '7.99',
-      period: '/ month (cancel anytime)',
-      description: 'For career professionals actively pursuing opportunities on an ongoing basis.',
+      period: t('pricing.monthlyPeriod', '/ mois'),
+      description: t('pricing.monthlyDesc', 'Idéal pour les transitions de carrière et réorientations nécessitant des adaptations continues.'),
       isPopular: false,
       badgeText: null,
-      ctaText: 'Start Monthly Pass ($7.99/mo)',
+      ctaText: t('pricing.monthlyCta', 'Choisir le Pass Mensuel ($7.99/m)'),
       buttonVariant: 'secondary',
       features: [
-        'Unlimited Resume Creations & Downloads',
-        'Unlimited AI Cover Letter Generator',
-        'Access to all Current & Upcoming Templates',
-        'Priority 24/7 Customer & Career Support',
-        'Encrypted Cloud Resume Backups',
-        '1-Click cancellation at any moment'
+        t('pricing.features.monthly1', 'Téléchargements ILLIMITÉS chaque mois'),
+        t('pricing.features.monthly2', 'Modèles Premium Débloqués en continu'),
+        t('pricing.features.monthly3', 'Générateur de Lettres de Motivation IA'),
+        t('pricing.features.monthly4', 'Audit ATS Avancé avec score de compatibilité'),
+        t('pricing.features.monthly5', 'Support prioritaire par email 7j/7')
       ],
       disabledFeatures: []
     },
     {
       id: 'annual',
-      name: 'Annual Pass',
-      tagline: 'Best Career Value',
+      name: t('pricing.annualTitle', 'Pass Annuel'),
+      tagline: t('pricing.annualTagline', 'Tranquillité Totale'),
       price: '39.99',
-      period: '/ year (~$3.33/month)',
-      description: 'The ultimate all-inclusive toolkit for ongoing career growth and promotions.',
+      period: t('pricing.annualPeriod', '/ an'),
+      description: t('pricing.annualDesc', 'Pour cadres, freelances et professionnels souhaitant maintenir leurs dossiers à jour toute l\'année.'),
       isPopular: false,
-      badgeText: '🔥 SAVE 50%',
-      ctaText: 'Get 1-Year Access ($39.99/yr)',
+      badgeText: t('pricing.annualSaveBadge', '⭐ ÉCONOMISEZ 50%'),
+      ctaText: t('pricing.annualCta', 'Activer le Pass Annuel ($39.99/an)'),
       buttonVariant: 'accent',
       features: [
-        'Full 365-Day Unlimited All-Inclusive Access',
-        'All 10+ Certified Templates & Future Releases',
-        'Unlimited Tailored AI Cover Letters',
-        'Multi-Profile & Multi-Version Resume Management',
-        'VIP Priority Email Support',
-        'Save over 50% compared to the Monthly plan'
+        t('pricing.features.annual1', 'Accès ILLIMITÉ pendant 1 an complet'),
+        t('pricing.features.annual2', 'Tous les modèles actuels et futurs inclus'),
+        t('pricing.features.annual3', 'Générateur de Lettres de Motivation Illimité'),
+        t('pricing.features.annual4', 'Optimiseur IA de CV sans restriction'),
+        t('pricing.features.annual5', 'Gestion multi-CVs illimitée dans le cloud')
       ],
       disabledFeatures: []
     }
   ];
 
-  const handlePlanClick = (plan) => {
+  const handlePlanClick = (plan: any) => {
     setSelectedPlan(plan.id);
     if (typeof onSelectPlan === 'function') {
       onSelectPlan(plan.id, plan);
@@ -123,12 +118,14 @@ export const Pricing = ({
         
         {/* Section Header */}
         <div className="pricing-header">
-          <div className="pricing-pill">Transparent &amp; Fair Pricing</div>
+          <div className="pricing-pill">
+            {t('pricing.pill', 'Tarification Transparente & Équitable')}
+          </div>
           <h2 className="pricing-title">
-            Invest in Your Career with the Right Plan
+            {t('pricing.title', 'Des formules adaptées à chaque étape de votre recherche d\'emploi')}
           </h2>
           <p className="pricing-subtitle">
-            Build and preview your resume 100% free. Unlock watermark-free, high-definition A4 PDF downloads whenever you are ready.
+            {t('pricing.subtitle', 'Créez et prévisualisez votre CV gratuitement. Débloquez les exports haute définition dès que vous êtes prêt.')}
           </p>
         </div>
 
@@ -184,11 +181,13 @@ export const Pricing = ({
 
                 {/* Features List */}
                 <div className="card-features">
-                  <div className="features-title">What is included:</div>
+                  <div className="features-title">
+                    {t('pricing.includedTitle', 'Inclus dans cette formule :')}
+                  </div>
                   <ul className="features-list">
                     {plan.features.map((feat, idx) => (
                       <li key={idx} className="feature-item enabled">
-                        <svg className="feature-icon check" viewBox="0 0 20 20" fill="currentColor">
+                        <svg className="feature-icon check shrink-0" viewBox="0 0 20 20" fill="currentColor">
                           <path
                             fillRule="evenodd"
                             d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z"
@@ -200,7 +199,7 @@ export const Pricing = ({
                     ))}
                     {plan.disabledFeatures.map((feat, idx) => (
                       <li key={`dis-${idx}`} className="feature-item disabled">
-                        <svg className="feature-icon cross" viewBox="0 0 20 20" fill="currentColor">
+                        <svg className="feature-icon cross shrink-0" viewBox="0 0 20 20" fill="currentColor">
                           <path
                             fillRule="evenodd"
                             d="M4.293 4.293a1 1 0 011.414 0L10 8.586l4.293-4.293a1 1 0 111.414 1.414L11.414 10l4.293 4.293a1 1 0 01-1.414 1.414L10 11.414l-4.293 4.293a1 1 0 01-1.414-1.414L8.586 10 4.293 5.707a1 1 0 010-1.414z"
@@ -223,24 +222,30 @@ export const Pricing = ({
           <div className="reassurance-item">
             <div className="reassurance-icon-box">🔒</div>
             <div className="reassurance-text">
-              <span className="reassurance-title">100% Secure Payment (SSL Encryption)</span>
-              <span className="reassurance-desc">256-bit Banking Level Security</span>
+              <span className="reassurance-title">
+                {t('pricing.guarantee1', 'Paiement Sécurisé SSL')}
+              </span>
+              <span className="reassurance-desc">{t('pricing.guarantee1Sub', 'Sécurité bancaire 256 bits')}</span>
             </div>
           </div>
 
           <div className="reassurance-item">
             <div className="reassurance-icon-box">⚡</div>
             <div className="reassurance-text">
-              <span className="reassurance-title">Instant High-Quality PDF Download</span>
-              <span className="reassurance-desc">Vector A4 format without watermarks</span>
+              <span className="reassurance-title">
+                {t('pricing.guarantee2', 'Format A4 Vectoriel Haute Définition')}
+              </span>
+              <span className="reassurance-desc">{t('pricing.guarantee2Sub', 'Conforme A4 & ATS')}</span>
             </div>
           </div>
 
           <div className="reassurance-item">
             <div className="reassurance-icon-box">🛡️</div>
             <div className="reassurance-text">
-              <span className="reassurance-title">Satisfied or Refunded (14 days)</span>
-              <span className="reassurance-desc">14-day hassle-free money-back guarantee</span>
+              <span className="reassurance-title">
+                {t('pricing.guarantee3', '100% Sans Filigrane')}
+              </span>
+              <span className="reassurance-desc">{t('pricing.guarantee3Sub', 'Export sans filigrane')}</span>
             </div>
           </div>
         </div>

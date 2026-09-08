@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import { Experience, LanguageCode } from '../../types';
-import { translations } from '../../lib/translations';
+import { useLanguage } from '../../context/LanguageContext';
 import {
   Briefcase,
   Plus,
@@ -21,11 +21,10 @@ interface Props {
   lang?: LanguageCode;
 }
 
-export const StepExperience: React.FC<Props> = ({ experiences, onChange, lang = 'fr' }) => {
-  const t = translations[lang] || translations.fr;
+export const StepExperience: React.FC<Props> = ({ experiences, onChange }) => {
+  const { t, language } = useLanguage();
   const [activeExpForAI, setActiveExpForAI] = useState<Experience | null>(null);
 
-  // États pour l'optimisation ATS par élément d'expérience
   const [optimizingId, setOptimizingId] = useState<string | null>(null);
   const [previousTasksMap, setPreviousTasksMap] = useState<Record<string, string[]>>({});
   const [adviceMap, setAdviceMap] = useState<Record<string, string>>({});
@@ -78,14 +77,11 @@ export const StepExperience: React.FC<Props> = ({ experiences, onChange, lang = 
     handleUpdate(expId, { tasks: newTasks.length > 0 ? newTasks : [''] });
   };
 
-  /**
-   * Optimise directement les tâches en puces ATS pour une expérience donnée
-   */
   const handleOptimizeDutiesATS = async (exp: Experience) => {
     if (!exp.position && !exp.company) {
       setErrorMap((prev) => ({
         ...prev,
-        [exp.id]: 'Veuillez au minimum renseigner l\'intitulé du poste ou l\'entreprise pour guider l\'IA.',
+        [exp.id]: t('ai.missingExpContext', 'Veuillez au minimum renseigner l\'intitulé du poste ou l\'entreprise pour guider l\'IA.'),
       }));
       return;
     }
@@ -93,59 +89,44 @@ export const StepExperience: React.FC<Props> = ({ experiences, onChange, lang = 
     setOptimizingId(exp.id);
     setErrorMap((prev) => ({ ...prev, [exp.id]: '' }));
     setSuccessMap((prev) => ({ ...prev, [exp.id]: false }));
-
-    // Sauvegarde les tâches actuelles pour permettre l'annulation
     setPreviousTasksMap((prev) => ({ ...prev, [exp.id]: [...exp.tasks] }));
 
     try {
-      // 1. Appel du helper formatExperienceTasks via Gemini SDK
       const result = await formatExperienceTasks({
-        position: exp.position || 'Poste professionnel',
-        company: exp.company || '',
+        position: exp.position,
+        company: exp.company,
         tasks: exp.tasks,
-        description: exp.description || '',
-        language: lang,
+        description: exp.description,
+        language: language,
       });
 
-      if (!result.improvedTasks || result.improvedTasks.length === 0) {
-        throw new Error('Aucune tâche générée par Gemini.');
+      if (result.improvedTasks && result.improvedTasks.length > 0) {
+        handleUpdate(exp.id, { tasks: result.improvedTasks });
       }
-
-      // Mise à jour de l'expérience avec les puces ATS générées
-      handleUpdate(exp.id, {
-        tasks: result.improvedTasks,
-        description: exp.description || result.improvedDescription || '',
-      });
-
       if (result.advice) {
-        setAdviceMap((prev) => ({ ...prev, [exp.id]: result.advice! }));
+        setAdviceMap((prev) => ({ ...prev, [exp.id]: result.advice || '' }));
       }
       setSuccessMap((prev) => ({ ...prev, [exp.id]: true }));
     } catch (err: any) {
-      console.warn(`⚠️ [StepExperience] Erreur formatExperienceTasks pour ${exp.id}, tentative backend Express...`);
+      console.warn('⚠️ [StepExperience] Fallback backend...');
 
-      // 2. Repli de secours via l'API Express
       try {
-        const res = await fetch('/api/ai/enhance-experience', {
+        const res = await fetch('/api/ai/format-duties', {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
           body: JSON.stringify({
             position: exp.position,
             company: exp.company,
+            rawTasks: exp.tasks,
             rawDescription: exp.description,
-            tasks: exp.tasks,
-            lang,
+            lang: language,
           }),
         });
         const data = await res.json();
-
-        if (res.ok && data.success && data.data?.improvedTasks) {
-          handleUpdate(exp.id, {
-            tasks: data.data.improvedTasks,
-            description: exp.description || data.data.improvedDescription || '',
-          });
-          if (data.data.advice) {
-            setAdviceMap((prev) => ({ ...prev, [exp.id]: data.data.advice }));
+        if (res.ok && data.success && data.data?.formattedTasks) {
+          handleUpdate(exp.id, { tasks: data.data.formattedTasks });
+          if (data.data.interviewAdvice) {
+            setAdviceMap((prev) => ({ ...prev, [exp.id]: data.data.interviewAdvice }));
           }
           setSuccessMap((prev) => ({ ...prev, [exp.id]: true }));
           return;
@@ -188,9 +169,11 @@ export const StepExperience: React.FC<Props> = ({ experiences, onChange, lang = 
     <div className="space-y-6 animate-in fade-in duration-200">
       <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3">
         <div>
-          <h2 className="text-xl font-bold text-slate-900 tracking-tight">3. Expérience Professionnelle</h2>
+          <h2 className="text-xl font-bold text-slate-900 tracking-tight">
+            {t('form.experience.title', '3. Expériences Professionnelles')}
+          </h2>
           <p className="text-xs sm:text-sm text-slate-500 mt-1">
-            Ajoutez vos postes passés et actuels. Optimisez vos missions au format ATS avec l'IA en un clic.
+            {t('form.experience.subtitle', 'Ajoutez vos postes passés et actuels. Optimisez vos missions au format ATS avec l\'IA en un clic.')}
           </p>
         </div>
 
@@ -200,23 +183,25 @@ export const StepExperience: React.FC<Props> = ({ experiences, onChange, lang = 
           className="self-start sm:self-auto inline-flex items-center gap-1.5 px-4 py-2 bg-blue-600 hover:bg-blue-700 text-white rounded-xl text-xs font-bold shadow-xs transition-colors cursor-pointer"
         >
           <Plus className="w-4 h-4" />
-          <span>{t.expAdd}</span>
+          <span>{t('form.experience.add', 'Ajouter une expérience')}</span>
         </button>
       </div>
 
       {experiences.length === 0 ? (
         <div className="p-8 text-center bg-slate-50 rounded-2xl border-2 border-dashed border-slate-200 space-y-3">
           <Briefcase className="w-8 h-8 text-slate-400 mx-auto" />
-          <div className="text-sm font-semibold text-slate-700">Aucune expérience ajoutée</div>
+          <div className="text-sm font-semibold text-slate-700">
+            {t('form.experience.empty', 'Aucune expérience ajoutée')}
+          </div>
           <p className="text-xs text-slate-500 max-w-sm mx-auto">
-            Même un stage, une alternance, un bénévolat ou un projet personnel valorise votre profil.
+            {t('form.experience.emptyDesc', 'Même un stage, une alternance, un bénévolat ou un projet personnel valorise votre profil.')}
           </p>
           <button
             type="button"
             onClick={handleAdd}
             className="px-4 py-2 bg-blue-600 text-white rounded-xl text-xs font-bold cursor-pointer hover:bg-blue-700 transition-colors"
           >
-            Ajouter une première expérience
+            {t('form.experience.addFirst', 'Ajouter une première expérience')}
           </button>
         </div>
       ) : (
@@ -233,26 +218,25 @@ export const StepExperience: React.FC<Props> = ({ experiences, onChange, lang = 
                 key={exp.id}
                 className="p-5 sm:p-6 bg-slate-50/90 rounded-2xl border border-slate-200 space-y-5 transition-all relative"
               >
-                {/* En-tête de carte avec numérotation et actions */}
+                {/* Header card */}
                 <div className="flex items-center justify-between border-b border-slate-200/80 pb-3">
                   <div className="flex items-center gap-2">
                     <span className="w-6 h-6 rounded-full bg-blue-100 text-blue-800 text-xs font-bold flex items-center justify-center">
                       {idx + 1}
                     </span>
                     <span className="font-bold text-sm text-slate-800">
-                      {exp.position || 'Poste sans titre'} {exp.company ? `— ${exp.company}` : ''}
+                      {exp.position || t('form.experience.untitled', 'Poste sans titre')} {exp.company ? `— ${exp.company}` : ''}
                     </span>
                   </div>
 
                   <div className="flex items-center gap-2">
-                    {/* Bouton Modal IA détaillé */}
                     <button
                       type="button"
                       onClick={() => setActiveExpForAI(exp)}
                       className="inline-flex items-center gap-1.5 px-3 py-1.5 bg-gradient-to-r from-blue-600 to-indigo-600 text-white rounded-lg text-xs font-bold shadow-xs hover:from-blue-700 hover:to-indigo-700 transition-colors cursor-pointer"
                     >
                       <Sparkles className="w-3.5 h-3.5 text-yellow-300" />
-                      <span className="hidden sm:inline">Assistant IA complet</span>
+                      <span className="hidden sm:inline">{t('ai.fullAssistant', 'Assistant IA complet')}</span>
                       <span className="sm:hidden">IA</span>
                     </button>
 
@@ -260,18 +244,18 @@ export const StepExperience: React.FC<Props> = ({ experiences, onChange, lang = 
                       type="button"
                       onClick={() => handleRemove(exp.id)}
                       className="p-1.5 text-slate-400 hover:text-red-600 hover:bg-red-50 rounded-lg transition-colors cursor-pointer"
-                      title="Supprimer cette expérience"
+                      title={t('form.experience.remove', 'Supprimer cette expérience')}
                     >
                       <Trash2 className="w-4 h-4" />
                     </button>
                   </div>
                 </div>
 
-                {/* Grille de saisie */}
+                {/* Grid Inputs */}
                 <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                   <div>
                     <label className="block text-xs font-bold text-slate-700 uppercase tracking-wider mb-1">
-                      {t.expPosition} <span className="text-red-500">*</span>
+                      {t('form.experience.position', 'Intitulé du poste')} <span className="text-red-500">*</span>
                     </label>
                     <input
                       type="text"
@@ -285,7 +269,7 @@ export const StepExperience: React.FC<Props> = ({ experiences, onChange, lang = 
 
                   <div>
                     <label className="block text-xs font-bold text-slate-700 uppercase tracking-wider mb-1">
-                      {t.expCompany} <span className="text-red-500">*</span>
+                      {t('form.experience.company', 'Entreprise / Organisation')} <span className="text-red-500">*</span>
                     </label>
                     <input
                       type="text"
@@ -299,7 +283,7 @@ export const StepExperience: React.FC<Props> = ({ experiences, onChange, lang = 
 
                   <div>
                     <label className="block text-xs font-bold text-slate-700 uppercase tracking-wider mb-1">
-                      {t.expCity}
+                      {t('form.experience.city', 'Ville')}
                     </label>
                     <input
                       type="text"
@@ -313,7 +297,7 @@ export const StepExperience: React.FC<Props> = ({ experiences, onChange, lang = 
                   <div className="grid grid-cols-2 gap-2">
                     <div>
                       <label className="block text-xs font-bold text-slate-700 uppercase tracking-wider mb-1">
-                        {t.expStartDate}
+                        {t('form.experience.startDate', 'Date de début')}
                       </label>
                       <input
                         type="text"
@@ -326,12 +310,12 @@ export const StepExperience: React.FC<Props> = ({ experiences, onChange, lang = 
 
                     <div>
                       <label className="block text-xs font-bold text-slate-700 uppercase tracking-wider mb-1">
-                        {t.expEndDate}
+                        {t('form.experience.endDate', 'Date de fin')}
                       </label>
                       <input
                         type="text"
                         disabled={exp.current}
-                        value={exp.current ? 'Présent' : exp.endDate}
+                        value={exp.current ? t('form.experience.present', 'Présent') : exp.endDate}
                         onChange={(e) => handleUpdate(exp.id, { endDate: e.target.value })}
                         placeholder="Ex : 2024 ou 06/2024"
                         className="w-full p-2.5 bg-white border border-slate-300 rounded-xl text-sm focus:ring-2 focus:ring-blue-500 focus:outline-hidden disabled:bg-slate-100 disabled:text-slate-500"
@@ -340,7 +324,7 @@ export const StepExperience: React.FC<Props> = ({ experiences, onChange, lang = 
                   </div>
                 </div>
 
-                {/* Case Poste actuel */}
+                {/* Current checkbox */}
                 <div className="flex items-center gap-2">
                   <input
                     type="checkbox"
@@ -350,14 +334,14 @@ export const StepExperience: React.FC<Props> = ({ experiences, onChange, lang = 
                     className="w-4 h-4 text-blue-600 rounded-sm border-slate-300 focus:ring-blue-500 cursor-pointer"
                   />
                   <label htmlFor={`current_${exp.id}`} className="text-xs font-medium text-slate-700 cursor-pointer">
-                    {t.expCurrent}
+                    {t('form.experience.current', 'J\'occupe actuellement ce poste')}
                   </label>
                 </div>
 
-                {/* Description générale */}
+                {/* Description */}
                 <div>
                   <label className="block text-xs font-bold text-slate-700 uppercase tracking-wider mb-1">
-                    {t.expDescription}
+                    {t('form.experience.description', 'Description générale du rôle')}
                   </label>
                   <textarea
                     rows={2}
@@ -368,24 +352,23 @@ export const StepExperience: React.FC<Props> = ({ experiences, onChange, lang = 
                   />
                 </div>
 
-                {/* Section Tâches et Missions avec le bouton d'optimisation ATS */}
+                {/* Tasks & AI */}
                 <div className="space-y-3 pt-1">
                   <div className="flex flex-wrap items-center justify-between gap-2">
                     <label className="block text-xs font-bold text-slate-700 uppercase tracking-wider">
-                      {t.expTasks} (Missions & réalisations concrètes)
+                      {t('form.experience.tasks', 'Missions clés et réalisations mesurables')}
                     </label>
 
-                    {/* Bouton d'optimisation ATS des missions avec Gemini */}
                     <div className="flex items-center gap-2">
                       {hasUndo && (
                         <button
                           type="button"
                           onClick={() => handleUndoTasks(exp.id)}
                           className="inline-flex items-center gap-1 px-2.5 py-1 text-xs font-semibold text-slate-600 hover:text-slate-900 hover:bg-slate-200/70 rounded-lg transition-colors cursor-pointer"
-                          title="Restaurer les puces précédentes"
+                          title={t('common.undo', 'Annuler')}
                         >
                           <Undo2 className="w-3.5 h-3.5" />
-                          <span>Annuler</span>
+                          <span>{t('common.undo', 'Annuler')}</span>
                         </button>
                       )}
 
@@ -395,54 +378,50 @@ export const StepExperience: React.FC<Props> = ({ experiences, onChange, lang = 
                         disabled={isOptimizingThis}
                         onClick={() => handleOptimizeDutiesATS(exp)}
                         className="inline-flex items-center gap-1.5 px-3 py-1.5 bg-gradient-to-r from-emerald-600 to-teal-600 hover:from-emerald-700 hover:to-teal-700 text-white rounded-xl text-xs font-bold shadow-xs hover:shadow-md transition-all disabled:opacity-60 cursor-pointer"
-                        title="Réécrire et formater automatiquement les missions en puces d'action ATS conformes"
                       >
                         {isOptimizingThis ? (
                           <>
                             <Loader2 className="w-3.5 h-3.5 animate-spin" />
-                            <span>Optimisation ATS en cours...</span>
+                            <span>{t('ai.optimizingAts', 'Optimisation ATS en cours...')}</span>
                           </>
                         ) : (
                           <>
                             <Sparkles className="w-3.5 h-3.5 text-amber-200" />
-                            <span>Optimiser en puces ATS avec l'IA</span>
+                            <span>{t('form.experience.aiEnhance', 'Optimiser avec l\'IA')}</span>
                           </>
                         )}
                       </button>
                     </div>
                   </div>
 
-                  {/* Notification de succès */}
                   {successThis && (
                     <div className="p-2.5 bg-emerald-50 border border-emerald-200 rounded-xl flex items-center justify-between text-xs text-emerald-800 font-semibold animate-in fade-in">
                       <div className="flex items-center gap-2">
                         <CheckCircle2 className="w-4 h-4 text-emerald-600 shrink-0" />
-                        <span>Missions reformulées en puces d'impact ATS avec succès !</span>
+                        <span>{t('ai.tasksSuccess', 'Missions reformulées en puces d\'impact ATS avec succès !')}</span>
                       </div>
                       {hasUndo && (
                         <button
                           type="button"
                           onClick={() => handleUndoTasks(exp.id)}
-                          className="text-emerald-700 underline text-[11px] hover:text-emerald-900"
+                          className="text-emerald-700 underline text-[11px] hover:text-emerald-900 cursor-pointer"
                         >
-                          Rétablir la version précédente
+                          {t('common.restore', 'Rétablir la version précédente')}
                         </button>
                       )}
                     </div>
                   )}
 
-                  {/* Conseil entretien généré par Gemini */}
                   {adviceThis && (
                     <div className="p-3 bg-amber-50 border border-amber-200 rounded-xl flex items-start gap-2 text-xs text-amber-900 animate-in fade-in">
                       <Lightbulb className="w-4 h-4 text-amber-600 shrink-0 mt-0.5" />
                       <div className="space-y-0.5">
-                        <span className="font-bold">Conseil pour vos entretiens :</span>
+                        <span className="font-bold">{t('ai.interviewAdvice', 'Conseil pour vos entretiens :')}</span>
                         <p className="text-amber-800 leading-relaxed">{adviceThis}</p>
                       </div>
                     </div>
                   )}
 
-                  {/* Message d'erreur localisé */}
                   {errorThis && (
                     <div className="p-2.5 bg-red-50 text-red-700 text-xs rounded-xl border border-red-200 flex items-center gap-2 animate-in fade-in">
                       <AlertCircle className="w-4 h-4 text-red-600 shrink-0" />
@@ -450,7 +429,6 @@ export const StepExperience: React.FC<Props> = ({ experiences, onChange, lang = 
                     </div>
                   )}
 
-                  {/* Liste des champs d'édition de tâches */}
                   <div className="space-y-2">
                     {exp.tasks.map((task, taskIdx) => (
                       <div key={taskIdx} className="flex items-center gap-2">
@@ -479,7 +457,7 @@ export const StepExperience: React.FC<Props> = ({ experiences, onChange, lang = 
                       className="text-xs font-semibold text-blue-600 hover:text-blue-700 flex items-center gap-1 pt-1 cursor-pointer"
                     >
                       <Plus className="w-3 h-3" />
-                      Ajouter une mission manuellement
+                      {t('form.experience.addTask', 'Ajouter une puce')}
                     </button>
                   </div>
                 </div>
@@ -489,7 +467,6 @@ export const StepExperience: React.FC<Props> = ({ experiences, onChange, lang = 
         </div>
       )}
 
-      {/* Modal IA détaillée si l'utilisateur souhaite comparer avant d'appliquer */}
       {activeExpForAI && (
         <AIEnhancerModal
           isOpen={Boolean(activeExpForAI)}
@@ -498,7 +475,7 @@ export const StepExperience: React.FC<Props> = ({ experiences, onChange, lang = 
           company={activeExpForAI.company}
           originalDescription={activeExpForAI.description}
           originalTasks={activeExpForAI.tasks}
-          lang={lang}
+          lang={language}
           onAccept={(desc, tasks) => {
             handleUpdate(activeExpForAI.id, {
               description: desc,

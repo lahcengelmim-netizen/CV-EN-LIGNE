@@ -1,8 +1,9 @@
 import React, { useState, useEffect, useRef } from 'react';
+import { useLanguage } from '../../context/LanguageContext';
 import './LanguageSelector.css';
 
 export interface LanguageItem {
-  code: 'en' | 'fr' | 'ar' | 'es' | 'de' | 'it' | 'pt' | 'zh';
+  code: 'fr' | 'en' | 'ar';
   name: string;
   short: string;
   flag: string;
@@ -10,33 +11,30 @@ export interface LanguageItem {
 }
 
 export const AVAILABLE_LANGUAGES: LanguageItem[] = [
-  { code: 'en', name: 'English', short: 'EN', flag: '🇬🇧', dir: 'ltr' },
   { code: 'fr', name: 'Français', short: 'FR', flag: '🇫🇷', dir: 'ltr' },
+  { code: 'en', name: 'English', short: 'EN', flag: '🇬🇧', dir: 'ltr' },
   { code: 'ar', name: 'العربية', short: 'AR', flag: '🇸🇦', dir: 'rtl' },
-  { code: 'es', name: 'Español', short: 'ES', flag: '🇪🇸', dir: 'ltr' },
-  { code: 'de', name: 'Deutsch', short: 'DE', flag: '🇩🇪', dir: 'ltr' },
-  { code: 'it', name: 'Italiano', short: 'IT', flag: '🇮🇹', dir: 'ltr' },
-  { code: 'pt', name: 'Português', short: 'PT', flag: '🇵🇹', dir: 'ltr' },
-  { code: 'zh', name: '中文', short: 'ZH', flag: '🇨🇳', dir: 'ltr' },
 ];
 
 export interface LanguageSelectorProps {
   currentLang?: string;
-  onLanguageChange?: (langCode: any) => void;
+  onLanguageChange?: (langCode: string) => void;
   className?: string;
   showFullName?: boolean;
 }
 
 export const LanguageSelector: React.FC<LanguageSelectorProps> = ({
-  currentLang = 'en',
+  currentLang: propCurrentLang,
   onLanguageChange,
   className = '',
   showFullName = true,
 }) => {
+  const { language, changeLanguage } = useLanguage();
   const [isOpen, setIsOpen] = useState(false);
   const dropdownRef = useRef<HTMLDivElement>(null);
 
-  const activeCode = currentLang || 'en';
+  // Use context language by default, or prop if provided
+  const activeCode = propCurrentLang || language || 'fr';
   const activeLanguage =
     AVAILABLE_LANGUAGES.find((lang) => lang.code === activeCode) ||
     AVAILABLE_LANGUAGES[0];
@@ -64,20 +62,7 @@ export const LanguageSelector: React.FC<LanguageSelectorProps> = ({
   }, []);
 
   const handleSelectLanguage = (lang: LanguageItem) => {
-    if (typeof document !== 'undefined') {
-      const isRtl = lang.code === 'ar';
-      document.documentElement.dir = isRtl ? 'rtl' : 'ltr';
-      document.documentElement.lang = lang.code;
-      if (isRtl) {
-        document.documentElement.classList.add('rtl');
-      } else {
-        document.documentElement.classList.remove('rtl');
-      }
-    }
-
-    if (typeof window !== 'undefined') {
-      localStorage.setItem('cvenligne_lang', lang.code);
-    }
+    changeLanguage(lang.code);
 
     if (onLanguageChange) {
       onLanguageChange(lang.code);
@@ -99,7 +84,7 @@ export const LanguageSelector: React.FC<LanguageSelectorProps> = ({
         <span className="lang-trigger-flag" role="img" aria-hidden="true">
           {activeLanguage.flag}
         </span>
-        <span className="lang-trigger-code">{activeLanguage.short}</span>
+        <span className="lang-trigger-code font-bold">{activeLanguage.short}</span>
         {showFullName && (
           <span className="lang-trigger-name hidden md:inline">
             {activeLanguage.name}
@@ -144,7 +129,7 @@ export const LanguageSelector: React.FC<LanguageSelectorProps> = ({
                     {lang.flag}
                   </span>
                   <div className="lang-menu-info">
-                    <span className="lang-menu-name">{lang.name}</span>
+                    <span className="lang-menu-name font-medium">{lang.name}</span>
                     <span className="lang-menu-code">{lang.short}</span>
                   </div>
                 </div>

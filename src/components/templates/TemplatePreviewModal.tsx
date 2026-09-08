@@ -3,6 +3,7 @@ import { TemplateId, LanguageCode } from '../../types';
 import { TemplateDefinition, getTemplateById } from '../../lib/templatesData';
 import { CVRenderer } from './CVRenderer';
 import { IsolatedIframe } from '../CVPreview';
+import { useLanguage } from '../../context/LanguageContext';
 import {
   X,
   Sparkles,
@@ -38,6 +39,7 @@ export const TemplatePreviewModal: React.FC<TemplatePreviewModalProps> = ({
   onSelectTemplate,
   lang = 'fr'
 }) => {
+  const { t } = useLanguage();
   const template: TemplateDefinition = getTemplateById(templateId);
   const [selectedColor, setSelectedColor] = useState<string>(template.defaultColor || '#1e3a8a');
   const [scale, setScale] = useState<number>(0.78);
@@ -91,12 +93,12 @@ export const TemplatePreviewModal: React.FC<TemplatePreviewModalProps> = ({
         <div className="template-modal-header">
           <div className="template-modal-title-group">
             <h2 id="template-modal-title" className="template-modal-title">
-              Aperçu Grand Format : {template.name}
+              {t('templates.fullPreview', 'Aperçu Grand Format')} : {template.name}
             </h2>
             <span className="template-modal-badge">{template.badge}</span>
             <span className="template-modal-ats">
               <ShieldCheck className="w-3.5 h-3.5" />
-              Score ATS : {template.atsScore}%
+              {t('templates.atsScore', 'Score ATS')} : {template.atsScore}%
             </span>
           </div>
 
@@ -104,8 +106,8 @@ export const TemplatePreviewModal: React.FC<TemplatePreviewModalProps> = ({
             type="button"
             className="template-modal-close-btn"
             onClick={onClose}
-            title="Fermer l'aperçu (Échap)"
-            aria-label="Fermer"
+            title={t('common.close', 'Fermer')}
+            aria-label={t('common.close', 'Fermer')}
           >
             <X className="w-5 h-5" />
           </button>
@@ -114,7 +116,7 @@ export const TemplatePreviewModal: React.FC<TemplatePreviewModalProps> = ({
         {/* Barre de personnalisation des couleurs et zoom */}
         <div className="template-modal-controls-bar">
           <div className="template-modal-color-picker">
-            <span className="template-modal-color-label">Couleur du modèle :</span>
+            <span className="template-modal-color-label">{t('templates.templateColor', 'Couleur du modèle :')}</span>
             <div className="template-modal-palette">
               {COLOR_PRESETS.map((color) => {
                 const isSelected = selectedColor.toLowerCase() === color.hex.toLowerCase();
@@ -137,7 +139,7 @@ export const TemplatePreviewModal: React.FC<TemplatePreviewModalProps> = ({
               type="button"
               className="template-modal-zoom-btn"
               onClick={() => setScale((s) => Math.max(0.5, Number((s - 0.05).toFixed(2))))}
-              title="Réduire"
+              title={t('templates.zoomOut', 'Réduire')}
             >
               <ZoomOut className="w-3.5 h-3.5" />
             </button>
@@ -146,7 +148,7 @@ export const TemplatePreviewModal: React.FC<TemplatePreviewModalProps> = ({
               type="button"
               className="template-modal-zoom-btn"
               onClick={() => setScale((s) => Math.min(1.1, Number((s + 0.05).toFixed(2))))}
-              title="Agrandir"
+              title={t('templates.zoomIn', 'Agrandir')}
             >
               <ZoomIn className="w-3.5 h-3.5" />
             </button>
@@ -154,15 +156,15 @@ export const TemplatePreviewModal: React.FC<TemplatePreviewModalProps> = ({
               type="button"
               className="template-modal-zoom-btn"
               onClick={() => setScale(0.78)}
-              title="Réinitialiser (78%)"
+              title={t('templates.zoomReset', 'Réinitialiser (78%)')}
             >
               <RotateCcw className="w-3 h-3" />
             </button>
           </div>
         </div>
 
-        {/* Zone de défilement centrée pour le document A4 */}
-        <div className="modal-cv-container">
+        {/* Zone de défilement centrée pour le document A4 - strictly LTR */}
+        <div className="modal-cv-container" dir="ltr">
           <div
             className="modal-cv-outer-wrapper overflow-hidden rounded-sm shadow-2xl bg-white"
             style={{
@@ -188,7 +190,7 @@ export const TemplatePreviewModal: React.FC<TemplatePreviewModalProps> = ({
         {/* Pied fixe avec action de sélection */}
         <div className="template-modal-footer">
           <div className="template-modal-footer-hint">
-            Format A4 Standard (210 × 297 mm) • Score ATS {template.atsScore}%
+            {t('templates.formatA4', 'Format A4 Standard (210 × 297 mm)')} • {t('templates.atsScore', 'Score ATS')} {template.atsScore}%
           </div>
 
           <div className="template-modal-footer-actions">
@@ -197,14 +199,14 @@ export const TemplatePreviewModal: React.FC<TemplatePreviewModalProps> = ({
               className="template-modal-cancel-btn"
               onClick={onClose}
             >
-              Explorer les autres
+              {t('templates.exploreOthers', 'Explorer les autres')}
             </button>
             <button
               type="button"
               className="template-modal-select-btn"
               onClick={handleSelect}
             >
-              <span>Utiliser ce modèle ({template.name})</span>
+              <span>{t('templates.useThisTemplate', 'Utiliser ce modèle')} ({template.name})</span>
               <ArrowRight className="w-4 h-4" />
             </button>
           </div>

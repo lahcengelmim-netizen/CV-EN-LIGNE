@@ -228,8 +228,8 @@ const serverTemplates: ServerTemplateRecord[] = [
 
 let serverSettings = {
   platformName: 'VITAREY',
-  contactEmail: 'contact@vitarey.com',
-  supportNotificationEmail: (process.env.ADMIN_EMAIL || 'admin@example.com').toLowerCase().trim(),
+  contactEmail: process.env.SUPPORT_EMAIL || 'vitareysupport@gmail.com',
+  supportNotificationEmail: (process.env.SUPPORT_EMAIL || 'vitareysupport@gmail.com').toLowerCase().trim(),
   cvPrice: 2.00,
   currency: 'USD',
   maintenanceMode: false,
@@ -1155,7 +1155,7 @@ app.post('/api/user/consume-download', (req: Request, res: Response) => {
   }
 });
 
-// 6. Contact Form Notification Endpoint -> lahcengelmim@gmail.com & Saved to Admin Inbox
+// 6. Contact Form Notification Endpoint -> vitareysupport@gmail.com & Saved to Admin Inbox
 app.post('/api/contact', (req: Request, res: Response) => {
   try {
     const { name, email, subject, message } = req.body;
@@ -1176,13 +1176,14 @@ app.post('/api/contact', (req: Request, res: Response) => {
 
     serverMessages.unshift(newMessage);
 
-    console.log(`[CONTACT NOTIFICATION] New message for lahcengelmim@gmail.com from ${name} (${email}) - Subject: ${subject}`);
+    const supportRecipient = serverSettings.supportNotificationEmail || process.env.SUPPORT_EMAIL || 'vitareysupport@gmail.com';
+    console.log(`[CONTACT NOTIFICATION] New message for ${supportRecipient} from ${name} (${email}) - Subject: ${subject}`);
     console.log(`[MESSAGE BODY]: ${message}`);
 
     res.json({
       success: true,
       messageId: newMessage.id,
-      message: 'Votre message a été transmis avec succès à l\'équipe support (lahcengelmim@gmail.com).'
+      message: `Votre message a été transmis avec succès à l'équipe support (${supportRecipient}).`
     });
   } catch (error: any) {
     res.status(500).json({ error: 'Erreur lors de l\'envoi du message.' });

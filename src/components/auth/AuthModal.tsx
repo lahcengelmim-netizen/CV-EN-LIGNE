@@ -1,24 +1,22 @@
 import React, { useState } from 'react';
 import { supabase } from '../../lib/supabase';
-import { X, Mail, Lock, User, Sparkles, Loader2, CheckCircle2, ShieldCheck } from 'lucide-react';
-import { LanguageCode } from '../../types';
-import { translations } from '../../lib/translations';
+import { X, Mail, Lock, User, Loader2, CheckCircle2 } from 'lucide-react';
+import { useLanguage } from '../../context/LanguageContext';
 import { activityTracker } from '../../lib/activityTracker';
 
 interface AuthModalProps {
   isOpen: boolean;
   onClose: () => void;
   onSuccess: (user: any) => void;
-  lang?: LanguageCode;
+  lang?: string;
 }
 
 export const AuthModal: React.FC<AuthModalProps> = ({
   isOpen,
   onClose,
-  onSuccess,
-  lang = 'fr'
+  onSuccess
 }) => {
-  const t = translations[lang] || translations.fr;
+  const { t } = useLanguage();
   const [isSignUp, setIsSignUp] = useState(false);
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
@@ -57,7 +55,7 @@ export const AuthModal: React.FC<AuthModalProps> = ({
             onSuccess(data.user);
             onClose();
           } else {
-            setSuccessMsg('Compte créé ! Vérifiez vos emails si nécessaire.');
+            setSuccessMsg(t('auth.accountCreated', 'Compte créé ! Vérifiez vos emails si nécessaire.'));
           }
         } else {
           const { data, error: signInError } = await supabase.auth.signInWithPassword({
@@ -100,7 +98,7 @@ export const AuthModal: React.FC<AuthModalProps> = ({
         onClose();
       }
     } catch (err: any) {
-      setError(err.message || 'Une erreur est survenue lors de l\'authentification.');
+      setError(err.message || t('auth.authError', 'Une erreur est survenue lors de l\'authentification.'));
     } finally {
       setLoading(false);
     }
@@ -113,7 +111,7 @@ export const AuthModal: React.FC<AuthModalProps> = ({
         <div className="bg-gradient-to-r from-blue-600 to-indigo-600 p-6 text-white relative">
           <button
             onClick={onClose}
-            className="absolute top-4 right-4 p-1.5 rounded-full bg-white/10 hover:bg-white/20 text-white transition-colors"
+            className="absolute top-4 right-4 p-1.5 rounded-full bg-white/10 hover:bg-white/20 text-white transition-colors cursor-pointer"
           >
             <X className="w-4 h-4" />
           </button>
@@ -127,16 +125,16 @@ export const AuthModal: React.FC<AuthModalProps> = ({
               />
             </div>
             <span className="px-2.5 py-0.5 bg-white/20 text-white text-[10px] font-bold uppercase rounded-full">
-              {isSignUp ? 'Nouveau compte' : 'Espace Utilisateur'}
+              {isSignUp ? t('auth.newAccountBadge', 'Nouveau compte') : t('auth.userSpaceBadge', 'Espace Utilisateur')}
             </span>
           </div>
           <h3 className="text-xl font-black tracking-tight">
-            {isSignUp ? 'Créer mon compte VITAREY' : 'Connexion à VITAREY'}
+            {isSignUp ? t('auth.signUpTitle', 'Créer mon compte VITAREY') : t('auth.loginTitle', 'Connexion à VITAREY')}
           </h3>
           <p className="text-xs text-blue-100 mt-1">
             {isSignUp
-              ? 'Sauvegardez vos CVs et accédez-y depuis tous vos appareils'
-              : 'Retrouvez vos CVs en cours et vos téléchargements'}
+              ? t('auth.signUpSubtitle', 'Sauvegardez vos CVs et accédez-y depuis tous vos appareils')
+              : t('auth.loginSubtitle', 'Retrouvez vos CVs en cours et vos téléchargements')}
           </p>
         </div>
 
@@ -146,7 +144,7 @@ export const AuthModal: React.FC<AuthModalProps> = ({
             {isSignUp && (
               <div>
                 <label className="block text-xs font-bold text-slate-700 uppercase tracking-wider mb-1">
-                  Nom & Prénom
+                  {t('auth.fullName', 'Nom & Prénom')}
                 </label>
                 <div className="relative">
                   <User className="w-4 h-4 text-slate-400 absolute left-3 top-3" />
@@ -155,7 +153,7 @@ export const AuthModal: React.FC<AuthModalProps> = ({
                     required
                     value={fullName}
                     onChange={(e) => setFullName(e.target.value)}
-                    placeholder="Alexandre Dubois"
+                    placeholder={t('auth.fullNamePlaceholder', 'Alexandre Dubois')}
                     className="w-full pl-9 p-2.5 bg-white border border-slate-300 rounded-xl text-sm focus:ring-2 focus:ring-blue-500 focus:outline-hidden"
                   />
                 </div>
@@ -164,7 +162,7 @@ export const AuthModal: React.FC<AuthModalProps> = ({
 
             <div>
               <label className="block text-xs font-bold text-slate-700 uppercase tracking-wider mb-1">
-                Adresse email
+                {t('auth.email', 'Adresse email')}
               </label>
               <div className="relative">
                 <Mail className="w-4 h-4 text-slate-400 absolute left-3 top-3" />
@@ -173,7 +171,7 @@ export const AuthModal: React.FC<AuthModalProps> = ({
                   required
                   value={email}
                   onChange={(e) => setEmail(e.target.value)}
-                  placeholder="votre.email@exemple.com"
+                  placeholder={t('auth.emailPlaceholder', 'votre.email@exemple.com')}
                   className="w-full pl-9 p-2.5 bg-white border border-slate-300 rounded-xl text-sm focus:ring-2 focus:ring-blue-500 focus:outline-hidden"
                 />
               </div>
@@ -181,7 +179,7 @@ export const AuthModal: React.FC<AuthModalProps> = ({
 
             <div>
               <label className="block text-xs font-bold text-slate-700 uppercase tracking-wider mb-1">
-                Mot de passe
+                {t('auth.password', 'Mot de passe')}
               </label>
               <div className="relative">
                 <Lock className="w-4 h-4 text-slate-400 absolute left-3 top-3" />
@@ -191,7 +189,7 @@ export const AuthModal: React.FC<AuthModalProps> = ({
                   minLength={6}
                   value={password}
                   onChange={(e) => setPassword(e.target.value)}
-                  placeholder="••••••••"
+                  placeholder={t('auth.passwordPlaceholder', '••••••••')}
                   className="w-full pl-9 p-2.5 bg-white border border-slate-300 rounded-xl text-sm focus:ring-2 focus:ring-blue-500 focus:outline-hidden"
                 />
               </div>
@@ -213,10 +211,10 @@ export const AuthModal: React.FC<AuthModalProps> = ({
             <button
               type="submit"
               disabled={loading}
-              className="w-full py-3 bg-blue-600 hover:bg-blue-700 text-white rounded-xl font-bold text-xs shadow-md transition-all flex items-center justify-center gap-2"
+              className="w-full py-3 bg-blue-600 hover:bg-blue-700 text-white rounded-xl font-bold text-xs shadow-md transition-all flex items-center justify-center gap-2 cursor-pointer"
             >
               {loading && <Loader2 className="w-4 h-4 animate-spin" />}
-              <span>{isSignUp ? 'Créer mon compte' : 'Me connecter'}</span>
+              <span>{isSignUp ? t('auth.signUpBtn', 'Créer mon compte') : t('auth.loginBtn', 'Me connecter')}</span>
             </button>
           </form>
 
@@ -224,24 +222,24 @@ export const AuthModal: React.FC<AuthModalProps> = ({
           <div className="text-center pt-2 border-t border-slate-200 text-xs text-slate-500">
             {isSignUp ? (
               <span>
-                Vous avez déjà un compte ?{' '}
+                {t('auth.haveAccount', 'Vous avez déjà un compte ?')}{' '}
                 <button
                   type="button"
                   onClick={() => setIsSignUp(false)}
-                  className="text-blue-600 hover:underline font-bold"
+                  className="text-blue-600 hover:underline font-bold cursor-pointer"
                 >
-                  Se connecter
+                  {t('auth.signInLink', 'Se connecter')}
                 </button>
               </span>
             ) : (
               <span>
-                Pas encore de compte ?{' '}
+                {t('auth.noAccount', 'Pas encore de compte ?')}{' '}
                 <button
                   type="button"
                   onClick={() => setIsSignUp(true)}
-                  className="text-blue-600 hover:underline font-bold"
+                  className="text-blue-600 hover:underline font-bold cursor-pointer"
                 >
-                  Créer un compte
+                  {t('auth.signUpLink', 'Créer un compte')}
                 </button>
               </span>
             )}
@@ -251,3 +249,5 @@ export const AuthModal: React.FC<AuthModalProps> = ({
     </div>
   );
 };
+
+export default AuthModal;

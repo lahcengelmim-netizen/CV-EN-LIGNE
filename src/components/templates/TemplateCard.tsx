@@ -2,6 +2,7 @@ import React, { useState } from 'react';
 import { TemplateDefinition } from '../../lib/templatesData';
 import { TemplateId, LanguageCode } from '../../types';
 import { CVRenderer } from './CVRenderer';
+import { useLanguage } from '../../context/LanguageContext';
 import {
   Eye,
   ArrowRight,
@@ -23,6 +24,7 @@ export const TemplateCard: React.FC<TemplateCardProps> = ({
   onInspectTemplate,
   lang = 'fr'
 }) => {
+  const { t } = useLanguage();
   const [isHovered, setIsHovered] = useState(false);
   const sample = template.sampleCV;
 
@@ -46,7 +48,7 @@ export const TemplateCard: React.FC<TemplateCardProps> = ({
             </span>
             <div className="flex items-center gap-1 text-[10px] font-bold text-emerald-700 bg-emerald-50 px-2 py-0.5 rounded-md border border-emerald-200/60">
               <ShieldCheck className="w-3 h-3" />
-              <span>ATS {template.atsScore}%</span>
+              <span>{t('templates.atsScore', 'ATS')} {template.atsScore}%</span>
             </div>
           </div>
 
@@ -58,8 +60,11 @@ export const TemplateCard: React.FC<TemplateCardProps> = ({
               aspectRatio: '1 / 1.414',
             }}
           >
-            {/* Live Scaled A4 Document with exact proportional transform */}
-            <div className="w-full h-full relative overflow-hidden bg-slate-100 flex justify-center items-start">
+            {/* Live Scaled A4 Document with exact proportional transform - strictly LTR */}
+            <div 
+              className="w-full h-full relative overflow-hidden bg-slate-100 flex justify-center items-start"
+              dir="ltr"
+            >
               <div
                 className="bg-white shadow-xs origin-top pointer-events-none shrink-0"
                 style={{
@@ -90,7 +95,7 @@ export const TemplateCard: React.FC<TemplateCardProps> = ({
                 className="w-full max-w-[170px] py-2 bg-white hover:bg-slate-50 text-slate-900 font-bold text-xs rounded-xl shadow-lg flex items-center justify-center gap-1.5 transition-colors cursor-pointer"
               >
                 <Maximize2 className="w-3.5 h-3.5 text-blue-600" />
-                <span>Aperçu Plein Écran</span>
+                <span>{t('templates.fullPreview', 'Aperçu Plein Écran')}</span>
               </button>
 
               <button
@@ -102,7 +107,7 @@ export const TemplateCard: React.FC<TemplateCardProps> = ({
                 className="w-full max-w-[170px] py-2 bg-blue-600 hover:bg-blue-700 text-white font-bold text-xs rounded-xl shadow-lg flex items-center justify-center gap-1.5 transition-colors cursor-pointer"
               >
                 <Check className="w-3.5 h-3.5 text-white" />
-                <span>Choisir ce modèle</span>
+                <span>{t('templates.chooseTemplate', 'Choisir ce modèle')}</span>
               </button>
             </div>
           </div>
@@ -122,7 +127,7 @@ export const TemplateCard: React.FC<TemplateCardProps> = ({
         {/* Recommended Roles Tags */}
         <div className="pt-2 border-t border-slate-100">
           <div className="text-[9px] font-bold text-slate-400 uppercase tracking-wider mb-1">
-            Idéal pour :
+            {t('templates.idealFor', 'Idéal pour :')}
           </div>
           <div className="flex flex-wrap gap-1">
             {template.recommendedRoles.slice(0, 2).map((role, i) => (
@@ -143,19 +148,19 @@ export const TemplateCard: React.FC<TemplateCardProps> = ({
           type="button"
           onClick={() => onInspectTemplate(template.id)}
           className="flex-1 py-2 bg-white hover:bg-slate-100 text-slate-700 rounded-xl text-[11px] font-bold border border-slate-200 shadow-2xs transition-colors flex items-center justify-center gap-1 cursor-pointer"
-          title="Voir le modèle en grand"
+          title={t('templates.viewFull', 'Voir le modèle')}
         >
           <Eye className="w-3 h-3 text-slate-500" />
-          <span>Voir le modèle</span>
+          <span>{t('templates.viewFull', 'Voir le modèle')}</span>
         </button>
 
         <button
           type="button"
           onClick={() => onSelectTemplate(template.id, template.defaultColor)}
           className="flex-1 py-2 bg-blue-600 hover:bg-blue-700 text-white rounded-xl text-[11px] font-bold shadow-xs transition-all flex items-center justify-center gap-1 group/btn cursor-pointer"
-          title="Choisir et utiliser ce modèle"
+          title={t('templates.chooseTemplate', 'Choisir ce modèle')}
         >
-          <span>Choisir ce modèle</span>
+          <span>{t('templates.chooseTemplate', 'Choisir ce modèle')}</span>
           <ArrowRight className="w-3 h-3 group-hover:translate-x-0.5 transition-transform" />
         </button>
       </div>

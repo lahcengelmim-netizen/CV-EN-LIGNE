@@ -290,6 +290,7 @@ export const IsolatedIframe: React.FC<IsolatedIframeProps> = ({
           width: 210mm;
           min-height: 297mm;
           background: #ffffff;
+          direction: ltr !important;
           -webkit-print-color-adjust: exact;
           print-color-adjust: exact;
           font-family: system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
@@ -302,6 +303,7 @@ export const IsolatedIframe: React.FC<IsolatedIframeProps> = ({
           width: 210mm;
           min-height: 297mm;
           background: #ffffff;
+          direction: ltr !important;
           overflow: visible;
           -webkit-font-smoothing: antialiased;
           -moz-osx-font-smoothing: grayscale;
@@ -349,8 +351,11 @@ export const IsolatedIframe: React.FC<IsolatedIframeProps> = ({
         // Assure une structure HTML valide
         if (!doc.head || !doc.body) {
           doc.open();
-          doc.write('<!DOCTYPE html><html><head></head><body></body></html>');
+          doc.write('<!DOCTYPE html><html dir="ltr"><head></head><body dir="ltr"></body></html>');
           doc.close();
+        }
+        if (doc.documentElement) {
+          doc.documentElement.dir = 'ltr';
         }
 
         copyStylesToIframe(doc);

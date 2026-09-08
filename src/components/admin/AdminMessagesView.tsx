@@ -104,7 +104,7 @@ export const AdminMessagesView: React.FC = () => {
             Support Client & Messages
           </h2>
           <p className="text-xs text-slate-400">
-            Boîte de réception des demandes de contact destinées à <strong>{adminService.getStoredAdminEmail() || 'admin@example.com'}</strong>
+            Boîte de réception des demandes de contact destinées à <strong>{adminService.getStoredAdminEmail() || 'vitareysupport@gmail.com'}</strong>
           </p>
         </div>
 

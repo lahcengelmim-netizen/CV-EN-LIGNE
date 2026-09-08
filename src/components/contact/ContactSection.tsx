@@ -67,8 +67,8 @@ export const ContactSection: React.FC<Props> = ({ lang = 'fr' }) => {
                 </div>
                 <div>
                   <div className="text-xs text-slate-400 font-semibold uppercase">Email direct</div>
-                  <a href="mailto:contact@vitarey.com" className="text-sm font-bold text-slate-900 hover:text-blue-600">
-                    contact@vitarey.com
+                  <a href={`mailto:${import.meta.env.VITE_SUPPORT_EMAIL || 'vitareysupport@gmail.com'}`} className="text-sm font-bold text-slate-900 hover:text-blue-600">
+                    {import.meta.env.VITE_SUPPORT_EMAIL || 'vitareysupport@gmail.com'}
                   </a>
                 </div>
               </div>
@@ -85,7 +85,7 @@ export const ContactSection: React.FC<Props> = ({ lang = 'fr' }) => {
                   <CheckCircle2 className="w-10 h-10 text-emerald-600 mx-auto" />
                   <div className="font-bold text-base text-emerald-900">Message envoyé avec succès !</div>
                   <p className="text-xs text-emerald-700">
-                    Votre demande a été transmise à notre support (contact@vitarey.com). Nous reviendrons vers vous très rapidement.
+                    Votre demande a été transmise à notre support ({import.meta.env.VITE_SUPPORT_EMAIL || 'vitareysupport@gmail.com'}). Nous reviendrons vers vous très rapidement.
                   </p>
                   <button
                     onClick={() => setSuccess(false)}

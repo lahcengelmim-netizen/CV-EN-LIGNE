@@ -3,6 +3,7 @@ import { TemplateId, LanguageCode } from '../../types';
 import { TEMPLATES_CATALOG, getTemplateById } from '../../lib/templatesData';
 import { CVRenderer } from '../templates/CVRenderer';
 import { ENABLE_PAYMENTS } from '../../config/features';
+import { useLanguage } from '../../context/LanguageContext';
 import {
   Sparkles,
   ArrowRight,
@@ -23,6 +24,7 @@ interface HeroSectionProps {
 }
 
 export const HeroSection: React.FC<HeroSectionProps> = ({ onStartCV, lang = 'fr' }) => {
+  const { t } = useLanguage();
   const [heroTemplateId, setHeroTemplateId] = useState<TemplateId>('stockholm-modern');
   const activeTemplate = getTemplateById(heroTemplateId);
   const sample = activeTemplate.sampleCV;
@@ -36,20 +38,20 @@ export const HeroSection: React.FC<HeroSectionProps> = ({ onStartCV, lang = 'fr'
             {/* Top Pill */}
             <div className="inline-flex items-center gap-2 px-4 py-1.5 rounded-full bg-blue-100/90 text-blue-800 text-xs font-bold border border-blue-200/80 shadow-2xs">
               <Sparkles className="w-4 h-4 text-blue-600 animate-pulse" />
-              <span>Générateur de CV certifié ATS & Assistant IA</span>
+              <span>{t('hero.badge', 'Générateur de CV certifié ATS & Assistant IA')}</span>
             </div>
 
             {/* Main Headline */}
             <h1 className="text-4xl sm:text-5xl xl:text-6xl font-black text-slate-900 tracking-tight leading-[1.1]">
-              Le CV parfait pour <br />
+              {t('hero.titleLine1', 'Le CV parfait pour')} <br />
               <span className="text-transparent bg-clip-text bg-gradient-to-r from-blue-600 via-indigo-600 to-blue-700">
-                décrocher votre prochain job.
+                {t('hero.titleLine2', 'décrocher votre prochain job.')}
               </span>
             </h1>
 
             {/* Subtitle */}
             <p className="text-base sm:text-lg text-slate-600 max-w-xl mx-auto lg:mx-0 leading-relaxed font-normal">
-              Créez un CV professionnel, percutant et 100% conforme aux filtres ATS en moins de 10 minutes. Optimisé par l'IA pour valoriser vos réelles réussites professionnelles.
+              {t('hero.subtitle', "Créez un CV professionnel, percutant et 100% conforme aux filtres ATS en moins de 10 minutes. Optimisé par l'IA pour valoriser vos réelles réussites professionnelles.")}
             </p>
 
             {/* Action Buttons */}
@@ -59,7 +61,7 @@ export const HeroSection: React.FC<HeroSectionProps> = ({ onStartCV, lang = 'fr'
                 className="w-full sm:w-auto px-8 py-4 bg-gradient-to-r from-blue-600 to-indigo-600 hover:from-blue-700 hover:to-indigo-700 text-white rounded-2xl font-bold text-sm shadow-lg hover:shadow-xl transition-all flex items-center justify-center gap-2 group cursor-pointer"
               >
                 <Sparkles className="w-4 h-4 text-yellow-300 group-hover:rotate-12 transition-transform" />
-                <span>Créer mon CV maintenant</span>
+                <span>{t('hero.ctaPrimary', 'Créer mon CV maintenant')}</span>
                 <ArrowRight className="w-4 h-4 group-hover:translate-x-1 transition-transform" />
               </button>
 
@@ -68,7 +70,7 @@ export const HeroSection: React.FC<HeroSectionProps> = ({ onStartCV, lang = 'fr'
                 className="w-full sm:w-auto px-6 py-4 bg-white hover:bg-slate-50 text-slate-800 rounded-2xl font-bold text-sm border border-slate-200 shadow-2xs transition-colors flex items-center justify-center gap-2 cursor-pointer"
               >
                 <Layout className="w-4 h-4 text-slate-500" />
-                <span>Explorer les 10 modèles</span>
+                <span>{t('hero.ctaSecondary', 'Explorer les 10 modèles')}</span>
               </a>
             </div>
 
@@ -76,18 +78,18 @@ export const HeroSection: React.FC<HeroSectionProps> = ({ onStartCV, lang = 'fr'
             <div className="pt-4 flex flex-wrap items-center justify-center lg:justify-start gap-x-6 gap-y-2.5 text-xs text-slate-600 font-medium">
               <div className="flex items-center gap-1.5 bg-white/80 px-3 py-1 rounded-xl border border-slate-200/60 shadow-2xs">
                 <ShieldCheck className="w-4 h-4 text-emerald-600" />
-                <span>Conforme filtres ATS RH</span>
+                <span>{t('hero.badgeAts', 'Conforme filtres ATS RH')}</span>
               </div>
               <div className="flex items-center gap-1.5 bg-white/80 px-3 py-1 rounded-xl border border-slate-200/60 shadow-2xs">
                 <CheckCircle2 className="w-4 h-4 text-emerald-600" />
-                <span>Format A4 PDF Haute Résolution</span>
+                <span>{t('hero.badgeA4', 'Format A4 PDF Haute Résolution')}</span>
               </div>
               <div className="flex items-center gap-1.5 bg-white/80 px-3 py-1 rounded-xl border border-slate-200/60 shadow-2xs">
                 <Star className="w-4 h-4 fill-amber-400 text-amber-400" />
                 <span>
                   {ENABLE_PAYMENTS
-                    ? 'Dès $1.99 (Pass Flash) & Formules Illimitées'
-                    : 'Accès 100% Gratuit (Période Test)'}
+                    ? t('hero.guaranteePrice', 'Dès $1.99 (Pass Flash) & Formules Illimitées')
+                    : t('hero.freeAccess', 'Accès 100% Gratuit (Période Test)')}
                 </span>
               </div>
             </div>
@@ -104,19 +106,19 @@ export const HeroSection: React.FC<HeroSectionProps> = ({ onStartCV, lang = 'fr'
                 'silicon-tech',
                 'modern'
               ] as TemplateId[]).map((id) => {
-                const t = getTemplateById(id);
-                const isSelected = heroTemplateId === t.id;
+                const tpl = getTemplateById(id);
+                const isSelected = heroTemplateId === tpl.id;
                 return (
                   <button
-                    key={t.id}
-                    onClick={() => setHeroTemplateId(t.id)}
+                    key={tpl.id}
+                    onClick={() => setHeroTemplateId(tpl.id)}
                     className={`py-1.5 px-3 rounded-xl text-[11px] font-bold transition-all whitespace-nowrap ${
                       isSelected
                         ? 'bg-slate-900 text-white shadow-xs'
                         : 'text-slate-600 hover:bg-slate-100'
                     }`}
                   >
-                    {t.title}
+                    {tpl.title}
                   </button>
                 );
               })}
@@ -130,8 +132,11 @@ export const HeroSection: React.FC<HeroSectionProps> = ({ onStartCV, lang = 'fr'
 
               {/* Main Active Realistic CV Document Card */}
               <div className="relative bg-white rounded-3xl overflow-hidden shadow-2xl border border-slate-200/90 text-slate-800 font-sans z-10 transition-all duration-300 h-[580px] sm:h-[620px] flex flex-col justify-between">
-                {/* Real Live Scaled Document */}
-                <div className="w-full flex-1 overflow-hidden relative bg-slate-100/50 flex justify-center items-start pt-2">
+                {/* Real Live Scaled Document - strictly LTR independent from page UI language */}
+                <div 
+                  className="w-full flex-1 overflow-hidden relative bg-slate-100/50 flex justify-center items-start pt-2"
+                  dir="ltr"
+                >
                   <div
                     className="bg-white origin-top pointer-events-none shrink-0 shadow-md"
                     style={{
@@ -153,14 +158,14 @@ export const HeroSection: React.FC<HeroSectionProps> = ({ onStartCV, lang = 'fr'
                     </div>
                     <div className="text-[11px] text-emerald-700 font-bold flex items-center gap-1">
                       <Sparkles className="w-3 h-3 text-emerald-600 shrink-0" />
-                      <span>Score ATS : {activeTemplate.atsScore}%</span>
+                      <span>{t('templates.atsScore', 'Score ATS')} : {activeTemplate.atsScore}%</span>
                     </div>
                   </div>
                   <button
                     onClick={() => onStartCV(heroTemplateId)}
                     className="px-4 py-2.5 bg-blue-600 hover:bg-blue-700 text-white rounded-xl text-xs font-bold flex items-center gap-1.5 transition-all cursor-pointer shadow-md hover:shadow-blue-500/25 shrink-0"
                   >
-                    <span>Créer ce CV</span>
+                    <span>{t('templates.useTemplate', 'Créer ce CV')}</span>
                     <ArrowRight className="w-3.5 h-3.5" />
                   </button>
                 </div>
@@ -172,15 +177,15 @@ export const HeroSection: React.FC<HeroSectionProps> = ({ onStartCV, lang = 'fr'
                   ★ 4.9
                 </div>
                 <div>
-                  <div className="text-xs font-bold text-slate-900">12 400+ CVs créés</div>
-                  <div className="text-[10px] text-slate-500 font-medium">94% d'entretiens décrochés</div>
+                  <div className="text-xs font-bold text-slate-900">{t('hero.reviewsCount', '12 400+ CVs créés')}</div>
+                  <div className="text-[10px] text-slate-500 font-medium">{t('hero.interviewsWon', "94% d'entretiens décrochés")}</div>
                 </div>
               </div>
 
               {/* Floating format badge top right */}
               <div className="hidden sm:flex absolute -top-4 -right-6 bg-white px-3 py-1.5 rounded-full shadow-lg border border-slate-200/80 items-center gap-1.5 text-xs font-bold text-slate-800 z-30">
                 <FileCheck className="w-3.5 h-3.5 text-blue-600" />
-                <span>Format A4 Universel</span>
+                <span>{t('hero.formatUniversal', 'Format A4 Universel')}</span>
               </div>
             </div>
           </div>

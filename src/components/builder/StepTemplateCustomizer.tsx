@@ -1,6 +1,7 @@
 import React from 'react';
 import { CVTheme, TemplateId, LanguageCode } from '../../types';
-import { Layout, Palette, Image as ImageIcon, Sparkles, Check } from 'lucide-react';
+import { useLanguage } from '../../context/LanguageContext';
+import { Layout, Palette, Image as ImageIcon, Check } from 'lucide-react';
 
 interface Props {
   templateId: TemplateId;
@@ -10,134 +11,6 @@ interface Props {
   lang?: LanguageCode;
 }
 
-const TEMPLATES: Array<{
-  id: TemplateId;
-  name: string;
-  badge: string;
-  description: string;
-  previewBg: string;
-}> = [
-  {
-    id: 'modern',
-    name: 'Moderne (2 Colonnes)',
-    badge: 'Le plus populaire',
-    description: 'Structure latérale contrastée, idéale pour mettre en valeur les compétences et l\'expérience.',
-    previewBg: 'from-blue-600 to-indigo-700'
-  },
-  {
-    id: 'bold',
-    name: 'Bold Impact (Énergique)',
-    badge: 'Tendance 2026',
-    description: 'Bandeau percutant et typographie moderne pour profils dynamiques et marketing.',
-    previewBg: 'from-indigo-600 to-violet-800'
-  },
-  {
-    id: 'compact',
-    name: 'Studio Pro (Photo & Colonne)',
-    badge: 'Double Colonne',
-    description: 'Colonne latérale douce avec photo studio et jauges précises de compétences.',
-    previewBg: 'from-teal-600 to-emerald-800'
-  },
-  {
-    id: 'timeline',
-    name: 'Chrono Timeline',
-    badge: 'Storytelling Tech',
-    description: 'Ligne temporelle continue avec jalons de carrière et progression claire.',
-    previewBg: 'from-blue-700 to-sky-800'
-  },
-  {
-    id: 'nordic',
-    name: 'Nordic Éditorial',
-    badge: 'Haute Couture B&W',
-    description: 'Monochrome épuré scandinave et typographie raffinée pour cadres et direction.',
-    previewBg: 'from-zinc-800 to-neutral-950'
-  },
-  {
-    id: 'infographic',
-    name: 'Graphique & Projets',
-    badge: 'Créatif Vibrant',
-    description: 'Sidebar dynamique colorée et présentation visuelle de vos réalisations.',
-    previewBg: 'from-violet-600 to-fuchsia-800'
-  },
-  {
-    id: 'classic',
-    name: 'Classique & Élégant',
-    badge: 'ATS Optimisé',
-    description: 'Mise en page épurée et intemporelle, recommandée pour finance, droit et administration.',
-    previewBg: 'from-slate-800 to-slate-900'
-  },
-  {
-    id: 'minimal',
-    name: 'Minimaliste Scandinave',
-    badge: 'Ultra Lisible',
-    description: 'Typographie aérée, accents monospacés, clarté absolue pour profils tech et freelances.',
-    previewBg: 'from-zinc-700 to-zinc-900'
-  },
-  {
-    id: 'professional',
-    name: 'Corporate Exécutif',
-    badge: 'Cadre & Manager',
-    description: 'Bandeau supérieur impactant, mise en page équilibrée pour profils confirmés.',
-    previewBg: 'from-teal-700 to-emerald-900'
-  },
-  {
-    id: 'creative',
-    name: 'Créatif & Dynamique',
-    badge: 'Design & Com',
-    description: 'Cartes adoucies, touches de couleur moderne et badges pour métiers créatifs.',
-    previewBg: 'from-purple-600 to-pink-600'
-  },
-  {
-    id: 'executive',
-    name: 'Exécutif & Conseil',
-    badge: 'Direction',
-    description: 'Structure haut de gamme pour postes de direction et comités de direction.',
-    previewBg: 'from-stone-800 to-stone-950'
-  },
-  {
-    id: 'ats',
-    name: 'ATS Scanner Friendly',
-    badge: '100% ATS',
-    description: 'Format texte direct optimisé pour traverser tous les robots de recrutement.',
-    previewBg: 'from-slate-700 to-slate-800'
-  },
-  {
-    id: 'stockholm-modern',
-    name: 'Stockholm Modern (2 Colonnes)',
-    badge: 'Design Scandinave',
-    description: 'Barre latérale teintée à 8% avec photo ronde, badges de compétences et colonne principale 8 col.',
-    previewBg: 'from-teal-700 to-emerald-900'
-  },
-  {
-    id: 'casablanca-bilingual',
-    name: 'Casablanca Bilingue (RTL/LTR)',
-    badge: 'Bilingue & RTL',
-    description: 'Structure 2 colonnes avec support bilingue et orientation droite-à-gauche intégrée.',
-    previewBg: 'from-emerald-700 to-teal-900'
-  },
-  {
-    id: 'zurich-executive',
-    name: 'Zurich Exécutif (Centré)',
-    badge: 'Haute Direction',
-    description: 'En-tête centré statutaire avec ligne d’accentuation et puces typographiques d’alignement.',
-    previewBg: 'from-slate-800 to-emerald-950'
-  },
-  {
-    id: 'dubai-luxury-rtl',
-    name: 'Dubai Luxury (RTL Arabe)',
-    badge: 'Arabe & RTL',
-    description: 'Conception exécutive haut de gamme optimisée pour les marchés du Golfe et l’écriture arabe.',
-    previewBg: 'from-teal-800 to-slate-900'
-  },
-  {
-    id: 'silicon-tech',
-    name: 'Silicon Tech (1-Page ATS)',
-    badge: '1-Page ATS',
-    description: 'En-tête asymétrique épuré et lecture linéaire 100% compatible avec les scanners ATS.',
-    previewBg: 'from-cyan-800 to-slate-900'
-  }
-];
-
 const PRESET_COLORS = [
   { name: 'Bleu Roi', hex: '#2563eb' },
   { name: 'Bleu Marine', hex: '#1e3a8a' },
@@ -146,7 +19,7 @@ const PRESET_COLORS = [
   { name: 'Bordeaux Profond', hex: '#881337' },
   { name: 'Violet Créatif', hex: '#7c3aed' },
   { name: 'Bronze Élégant', hex: '#854d0e' },
-  { name: 'Vert Forêt', hex: '#166534' }
+  { name: 'Vert Forêt', hex: '#166534' },
 ];
 
 export const StepTemplateCustomizer: React.FC<Props> = ({
@@ -154,14 +27,110 @@ export const StepTemplateCustomizer: React.FC<Props> = ({
   theme,
   onTemplateChange,
   onThemeChange,
-  lang = 'fr'
 }) => {
+  const { t } = useLanguage();
+
+  const TEMPLATES: Array<{
+    id: TemplateId;
+    name: string;
+    badge: string;
+    description: string;
+    previewBg: string;
+  }> = [
+    {
+      id: 'modern',
+      name: t('templates.modern', 'Moderne (2 Colonnes)'),
+      badge: t('templates.mostPopular', 'Le plus populaire'),
+      description: t('templates.modernDesc', 'Structure latérale contrastée, idéale pour mettre en valeur les compétences et l\'expérience.'),
+      previewBg: 'from-blue-600 to-indigo-700',
+    },
+    {
+      id: 'bold',
+      name: t('templates.bold', 'Bold Impact (Énergique)'),
+      badge: t('templates.trend', 'Tendance 2026'),
+      description: t('templates.boldDesc', 'Bandeau percutant et typographie moderne pour profils dynamiques et marketing.'),
+      previewBg: 'from-indigo-600 to-violet-800',
+    },
+    {
+      id: 'compact',
+      name: t('templates.compact', 'Studio Pro (Photo & Colonne)'),
+      badge: t('templates.doubleCol', 'Double Colonne'),
+      description: t('templates.compactDesc', 'Colonne latérale douce avec photo studio et jauges précises de compétences.'),
+      previewBg: 'from-teal-600 to-emerald-800',
+    },
+    {
+      id: 'timeline',
+      name: t('templates.timeline', 'Chrono Timeline'),
+      badge: t('templates.techStory', 'Storytelling Tech'),
+      description: t('templates.timelineDesc', 'Ligne temporelle continue avec jalons de carrière et progression claire.'),
+      previewBg: 'from-blue-700 to-sky-800',
+    },
+    {
+      id: 'nordic',
+      name: t('templates.nordic', 'Nordic Éditorial'),
+      badge: t('templates.highFashion', 'Haute Couture B&W'),
+      description: t('templates.nordicDesc', 'Monochrome épuré scandinave et typographie raffinée pour cadres et direction.'),
+      previewBg: 'from-zinc-800 to-neutral-950',
+    },
+    {
+      id: 'infographic',
+      name: t('templates.infographic', 'Graphique & Projets'),
+      badge: t('templates.vibrant', 'Créatif Vibrant'),
+      description: t('templates.infographicDesc', 'Sidebar dynamique colorée et présentation visuelle de vos réalisations.'),
+      previewBg: 'from-violet-600 to-fuchsia-800',
+    },
+    {
+      id: 'classic',
+      name: t('templates.classic', 'Classique & Élégant'),
+      badge: t('templates.atsOptimized', 'ATS Optimisé'),
+      description: t('templates.classicDesc', 'Mise en page épurée et intemporelle, recommandée pour finance, droit et administration.'),
+      previewBg: 'from-slate-800 to-slate-900',
+    },
+    {
+      id: 'minimal',
+      name: t('templates.minimal', 'Minimaliste Scandinave'),
+      badge: t('templates.ultraLegible', 'Ultra Lisible'),
+      description: t('templates.minimalDesc', 'Typographie aérée, accents monospacés, clarté absolue pour profils tech et freelances.'),
+      previewBg: 'from-zinc-700 to-zinc-900',
+    },
+    {
+      id: 'professional',
+      name: t('templates.professional', 'Corporate Exécutif'),
+      badge: t('templates.manager', 'Cadre & Manager'),
+      description: t('templates.professionalDesc', 'Bandeau supérieur impactant, mise en page équilibrée pour profils confirmés.'),
+      previewBg: 'from-teal-700 to-emerald-900',
+    },
+    {
+      id: 'creative',
+      name: t('templates.creative', 'Créatif & Dynamique'),
+      badge: t('templates.creativeBadge', 'Design & Com'),
+      description: t('templates.creativeDesc', 'Cartes adoucies, touches de couleur moderne et badges pour métiers créatifs.'),
+      previewBg: 'from-purple-600 to-pink-600',
+    },
+    {
+      id: 'executive',
+      name: t('templates.executive', 'Exécutif & Conseil'),
+      badge: t('templates.direction', 'Direction'),
+      description: t('templates.executiveDesc', 'Structure haut de gamme pour postes de direction et comités de direction.'),
+      previewBg: 'from-stone-800 to-stone-950',
+    },
+    {
+      id: 'ats',
+      name: t('templates.atsFriendly', 'ATS Scanner Friendly'),
+      badge: t('templates.atsBadge', '100% ATS'),
+      description: t('templates.atsFriendlyDesc', 'Format texte direct optimisé pour traverser tous les robots de recrutement.'),
+      previewBg: 'from-slate-700 to-slate-800',
+    },
+  ];
+
   return (
     <div className="space-y-8 animate-in fade-in duration-200">
       <div>
-        <h2 className="text-xl font-bold text-slate-900 tracking-tight">8. Modèle & Personnalisation Graphique</h2>
+        <h2 className="text-xl font-bold text-slate-900 tracking-tight">
+          {t('form.customizer.title', '8. Style & Personnalisation du Modèle')}
+        </h2>
         <p className="text-xs sm:text-sm text-slate-500 mt-1">
-          Choisissez l'apparence visuelle de votre CV. Tous nos modèles sont conçus pour passer les filtres ATS des recruteurs.
+          {t('form.customizer.subtitle', 'Choisissez le design et ajustez la typographie ainsi que les couleurs.')}
         </p>
       </div>
 
@@ -169,7 +138,7 @@ export const StepTemplateCustomizer: React.FC<Props> = ({
       <div className="space-y-3">
         <label className="block text-xs font-bold text-slate-700 uppercase tracking-wider flex items-center gap-1.5">
           <Layout className="w-4 h-4 text-blue-600" />
-          <span>Choisissez votre modèle de CV (5 designs pros)</span>
+          <span>{t('templates.chooseDesign', 'Choisissez votre modèle de CV')}</span>
         </label>
 
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
@@ -197,7 +166,6 @@ export const StepTemplateCustomizer: React.FC<Props> = ({
                     )}
                   </div>
 
-                  {/* Visual card thumbnail preview */}
                   <div className={`h-24 rounded-xl bg-gradient-to-br ${tmpl.previewBg} p-3 text-white flex flex-col justify-between shadow-xs`}>
                     <div className="flex items-center gap-2">
                       <div className="w-4 h-4 rounded-full bg-white/40"></div>
@@ -222,7 +190,7 @@ export const StepTemplateCustomizer: React.FC<Props> = ({
       <div className="space-y-3 border-t border-slate-200 pt-6">
         <label className="block text-xs font-bold text-slate-700 uppercase tracking-wider flex items-center gap-1.5">
           <Palette className="w-4 h-4 text-blue-600" />
-          <span>Couleur dominante du CV</span>
+          <span>{t('form.customizer.primaryColor', 'Couleur dominante du CV')}</span>
         </label>
 
         <div className="flex flex-wrap items-center gap-3">
@@ -233,7 +201,7 @@ export const StepTemplateCustomizer: React.FC<Props> = ({
                 key={c.hex}
                 type="button"
                 onClick={() => onThemeChange({ ...theme, primaryColor: c.hex })}
-                className={`w-9 h-9 rounded-full flex items-center justify-center transition-all ${
+                className={`w-9 h-9 rounded-full flex items-center justify-center transition-all cursor-pointer ${
                   isSelected ? 'ring-4 ring-blue-500/20 scale-110 shadow-md' : 'hover:scale-105'
                 }`}
                 style={{ backgroundColor: c.hex }}
@@ -244,9 +212,8 @@ export const StepTemplateCustomizer: React.FC<Props> = ({
             );
           })}
 
-          {/* Custom color picker */}
           <div className="flex items-center gap-2 ml-2 pl-3 border-l border-slate-200">
-            <span className="text-xs text-slate-500 font-medium">Personnalisée :</span>
+            <span className="text-xs text-slate-500 font-medium">{t('form.customizer.customColor', 'Personnalisée :')}</span>
             <input
               type="color"
               value={theme.primaryColor}
@@ -261,14 +228,14 @@ export const StepTemplateCustomizer: React.FC<Props> = ({
       <div className="space-y-4 border-t border-slate-200 pt-6">
         <label className="block text-xs font-bold text-slate-700 uppercase tracking-wider flex items-center gap-1.5">
           <ImageIcon className="w-4 h-4 text-blue-600" />
-          <span>Options d'affichage</span>
+          <span>{t('form.customizer.displayOptions', 'Options d\'affichage')}</span>
         </label>
 
         <div className="p-4 bg-slate-50 rounded-2xl border border-slate-200 flex items-center justify-between">
           <div>
-            <div className="font-bold text-xs text-slate-800">Afficher la photo sur le CV</div>
+            <div className="font-bold text-xs text-slate-800">{t('form.customizer.showPhoto', 'Afficher la photo sur le CV')}</div>
             <p className="text-xs text-slate-500">
-              Désactivez cette option pour un CV standardisé sans photo (recommandé pour les candidatures anglo-saxonnes).
+              {t('form.customizer.photoNotice', 'Désactivez cette option pour un CV standardisé sans photo.')}
             </p>
           </div>
           <button

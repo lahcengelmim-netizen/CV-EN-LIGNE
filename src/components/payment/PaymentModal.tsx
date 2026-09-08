@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { CVData, LanguageCode, PlanType } from '../../types';
-import { translations } from '../../lib/translations';
+import { useLanguage } from '../../context/LanguageContext';
 import { PRICING_PLANS, getPlanDetails } from '../../lib/pricingConfig';
 import { passService } from '../../lib/passService';
 import { ENABLE_PAYMENTS } from '../../config/features';
@@ -29,7 +29,7 @@ export const PaymentModal: React.FC<PaymentModalProps> = ({
     return null;
   }
 
-  const t = translations[lang] || translations.fr;
+  const { t } = useLanguage();
   const [selectedPlan, setSelectedPlan] = useState<string>(initialPlan);
   const [loading, setLoading] = useState(false);
   const [step, setStep] = useState<'checkout' | 'processing' | 'success'>('checkout');

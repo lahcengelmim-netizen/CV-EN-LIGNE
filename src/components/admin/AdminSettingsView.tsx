@@ -129,7 +129,7 @@ export const AdminSettingsView: React.FC = () => {
               <label className="block text-slate-400 mb-1 font-semibold">Email de Notification Support (Admin Principal)</label>
               <input
                 type="email"
-                value={settings.supportNotificationEmail || 'admin@example.com'}
+                value={settings.supportNotificationEmail || 'vitareysupport@gmail.com'}
                 onChange={(e) => setSettings({ ...settings, supportNotificationEmail: e.target.value })}
                 className="w-full p-3 bg-slate-950 border border-slate-800 rounded-xl text-white font-bold focus:border-blue-500 focus:outline-hidden"
               />
