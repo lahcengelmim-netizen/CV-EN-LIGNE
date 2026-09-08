@@ -574,5 +574,13 @@
       "minimalist": "Minimaliste",
       "executive": "Exécutif"
     }
+  },
+  "preview": {
+    "liveTitle": "Aperçu en direct (A4)",
+    "customColor": "Couleur personnalisée"
+  },
+  "buttons": {
+    "downloadPdf": "Télécharger PDF",
+    "exporting": "Export en cours..."
   }
 }

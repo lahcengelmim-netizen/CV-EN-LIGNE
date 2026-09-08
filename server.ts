@@ -238,7 +238,7 @@ let serverSettings = {
 };
 
 // Secure Admin Credentials & Active Session Store
-const ADMIN_EMAIL = (process.env.ADMIN_EMAIL || 'admin@example.com').toLowerCase().trim();
+const ADMIN_EMAIL = (process.env.ADMIN_EMAIL || 'vitareysupport@gmail.com').toLowerCase().trim();
 
 // Strict security: No default/hardcoded password fallback
 const ADMIN_PASSWORD = process.env.ADMIN_PASSWORD ? process.env.ADMIN_PASSWORD.trim() : '';

@@ -52,7 +52,7 @@ export const AdminLayout: React.FC<AdminLayoutProps> = ({
 }) => {
   const [sidebarOpen, setSidebarOpen] = useState(false);
   const [showProfileMenu, setShowProfileMenu] = useState(false);
-  const adminEmail = adminService.getStoredAdminEmail() || 'admin@example.com';
+  const adminEmail = adminService.getStoredAdminEmail() || 'vitareysupport@gmail.com';
 
   const navItems: Array<{ id: AdminTab; label: string; icon: React.ReactNode; badge?: number | string }> = [
     { id: 'dashboard', label: 'Tableau de bord', icon: <LayoutDashboard className="w-4 h-4" /> },
