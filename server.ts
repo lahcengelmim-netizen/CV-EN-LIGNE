@@ -303,6 +303,39 @@ app.get('/api/health', (req: Request, res: Response) => {
   res.json({ status: 'ok', service: 'VITAREY API' });
 });
 
+// Safe proxy for remote images (Unsplash, Supabase, external URLs) ensuring CORS headers for PDF canvas export
+app.get('/api/proxy-image', async (req: Request, res: Response) => {
+  const imageUrl = req.query.url as string;
+  if (!imageUrl || (!imageUrl.startsWith('http://') && !imageUrl.startsWith('https://'))) {
+    return res.status(400).json({ error: 'URL d\'image invalide' });
+  }
+
+  try {
+    const response = await fetch(imageUrl, {
+      headers: {
+        'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36',
+        'Accept': 'image/avif,image/webp,image/apng,image/svg+xml,image/*,*/*;q=0.8'
+      }
+    });
+
+    if (!response.ok) {
+      return res.status(response.status).json({ error: `Impossible de récupérer l'image distante: ${response.statusText}` });
+    }
+
+    const contentType = response.headers.get('content-type') || 'image/jpeg';
+    const arrayBuffer = await response.arrayBuffer();
+    const buffer = Buffer.from(arrayBuffer);
+
+    res.setHeader('Content-Type', contentType);
+    res.setHeader('Access-Control-Allow-Origin', '*');
+    res.setHeader('Cache-Control', 'public, max-age=86400');
+    return res.send(buffer);
+  } catch (err: any) {
+    console.error('Erreur proxy-image:', err);
+    return res.status(500).json({ error: 'Erreur lors du téléchargement de l\'image', details: err?.message });
+  }
+});
+
 // 1. AI: Enhance Experience
 // Strictly improves user's real input without inventing fake companies, titles, dates, or results
 app.post('/api/ai/enhance-experience', async (req: Request, res: Response) => {

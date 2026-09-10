@@ -48,11 +48,10 @@ export const CVBuilder = ({
       });
 
       if (!success) {
-        window.print();
+        console.warn('[CVBuilder.jsx] Échec de la génération du PDF.');
       }
     } catch (error) {
-      console.error('Erreur lors du téléchargement du PDF:', error);
-      window.print();
+      console.error('[CVBuilder.jsx] Erreur lors du téléchargement du PDF:', error);
     } finally {
       setIsDownloading(false);
     }

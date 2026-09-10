@@ -190,11 +190,10 @@ export const CoverLetterBuilder = ({
       });
 
       if (!success) {
-        window.print();
+        console.warn('[CoverLetterBuilder] Échec de la génération du PDF.');
       }
     } catch (e) {
-      console.error('Erreur export PDF:', e);
-      window.print();
+      console.error('[CoverLetterBuilder] Erreur export PDF:', e);
     } finally {
       setIsDownloading(false);
     }

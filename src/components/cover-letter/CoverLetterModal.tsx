@@ -253,11 +253,10 @@ export const CoverLetterModal: React.FC<CoverLetterModalProps> = ({
       });
 
       if (!success) {
-        window.print();
+        console.warn('[CoverLetterModal] Échec de la génération du PDF.');
       }
     } catch (err) {
-      console.error('Erreur export PDF:', err);
-      window.print();
+      console.error('[CoverLetterModal] Erreur export PDF:', err);
     } finally {
       setIsDownloading(false);
       setDownloadProgressText('');

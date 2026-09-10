@@ -658,8 +658,7 @@ export const CVPreview: React.FC<CVPreviewProps> = ({
         onProgress: (status) => setExportProgressText(status)
       });
     } catch (err) {
-      console.error('Erreur export PDF:', err);
-      triggerNativePrint();
+      console.error('[CVPreview] Erreur export PDF:', err);
     } finally {
       setIsExporting(false);
       setExportProgressText('');

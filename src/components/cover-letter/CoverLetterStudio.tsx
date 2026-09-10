@@ -307,11 +307,10 @@ export const CoverLetterStudio: React.FC<CoverLetterStudioProps> = ({
       });
 
       if (!success) {
-        window.print();
+        console.warn('[CoverLetterStudio] Échec de la génération du PDF.');
       }
     } catch (err) {
-      console.error('Erreur export PDF:', err);
-      window.print();
+      console.error('[CoverLetterStudio] Erreur export PDF:', err);
     } finally {
       setIsDownloading(false);
       setDownloadProgressText('');
