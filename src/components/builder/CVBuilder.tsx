@@ -2,7 +2,7 @@ import React, { useState, useEffect, useRef, useCallback } from 'react';
 import { CVData, LanguageCode, TemplateId, CVTheme, UserPassState } from '../../types';
 import { useLanguage } from '../../context/LanguageContext';
 import { storageService } from '../../lib/supabase';
-import { exportCVToPDF, triggerNativePrint } from '../../lib/pdf';
+import { exportCVToPDF, exportATSTemplateToPDF, triggerNativePrint } from '../../lib/pdf';
 import { passService } from '../../lib/passService';
 import { CVRenderer } from '../templates/CVRenderer';
 import { IsolatedIframe } from '../CVPreview';
@@ -274,6 +274,7 @@ export const CVBuilder: React.FC<CVBuilderProps> = ({
   const [showTemplateSwitcherModal, setShowTemplateSwitcherModal] = useState(false);
   const [isExportingPDF, setIsExportingPDF] = useState(false);
   const [exportProgressText, setExportProgressText] = useState('');
+  const [downloadError, setDownloadError] = useState<string | null>(null);
   const [passState, setPassState] = useState<UserPassState>(() => passService.getLocalPass());
 
   const totalSteps = 8;
@@ -333,11 +334,22 @@ export const CVBuilder: React.FC<CVBuilderProps> = ({
 
       const safeName = `${cv.personalInfo.firstName || ''}_${cv.personalInfo.lastName || ''}`.trim().replace(/\s+/g, '_') || 'Candidat';
       const fileName = `VITAREY_CV_${safeName}.pdf`;
-      const exportSuccess = await exportCVToPDF({
-        fileName,
-        elementId: 'cv-printable-document',
-        onProgress: (status) => setExportProgressText(status)
-      });
+
+      let exportSuccess = false;
+      if (cv.templateId === 'ats') {
+        setExportProgressText('Génération du PDF ATS vectoriel (texte réel)...');
+        exportSuccess = await exportATSTemplateToPDF(cv, {
+          fileName,
+          onProgress: (status) => setExportProgressText(status)
+        });
+      } else {
+        exportSuccess = await exportCVToPDF({
+          fileName,
+          elementId: 'cv-printable-document',
+          cv,
+          onProgress: (status) => setExportProgressText(status)
+        });
+      }
 
       if (exportSuccess) {
         // 2. Consume download credit on backend & update pass state
@@ -356,8 +368,9 @@ export const CVBuilder: React.FC<CVBuilderProps> = ({
           }
         }
       }
-    } catch (err) {
+    } catch (err: any) {
       console.error('Erreur lors du téléchargement du CV:', err);
+      setDownloadError(err?.message || 'Une erreur est survenue lors du téléchargement du CV. Veuillez réessayer.');
     } finally {
       setIsExportingPDF(false);
       setExportProgressText('');
@@ -498,6 +511,20 @@ export const CVBuilder: React.FC<CVBuilderProps> = ({
           </button>
         </div>
       </header>
+
+      {downloadError && (
+        <div className="max-w-[1400px] mx-auto w-full px-4 sm:px-6 pt-4">
+          <div className="p-4 bg-red-50 border border-red-200 rounded-2xl flex items-center justify-between gap-3 text-xs sm:text-sm text-red-700 font-medium animate-in fade-in">
+            <span>{downloadError}</span>
+            <button
+              onClick={() => setDownloadError(null)}
+              className="text-red-500 hover:text-red-800 font-bold px-2 py-1 cursor-pointer"
+            >
+              ✕
+            </button>
+          </div>
+        </div>
+      )}
 
       {/* Main Workspace Layout - 2 Colonnes équilibrées */}
       <div className="flex-1 w-full max-w-[1400px] mx-auto p-4 sm:p-6 editor-layout items-start">

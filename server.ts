@@ -338,7 +338,7 @@ app.get('/api/proxy-image', async (req: Request, res: Response) => {
 
 // 1. AI: Enhance Experience
 // Strictly improves user's real input without inventing fake companies, titles, dates, or results
-app.post('/api/ai/enhance-experience', async (req: Request, res: Response) => {
+const handleEnhanceExperience = async (req: Request, res: Response) => {
   try {
     const { position, company, rawDescription, tasks, lang = 'fr', userId = 'guest', userEmail } = req.body;
 
@@ -432,7 +432,10 @@ Fournis une réponse STRICTEMENT au format JSON valide avec la structure suivant
       details: error?.message || String(error)
     });
   }
-});
+};
+
+app.post('/api/ai/enhance-experience', handleEnhanceExperience);
+app.post('/api/ai/format-duties', handleEnhanceExperience);
 
 // 2. AI: Enhance Professional Summary / Hook
 app.post('/api/ai/enhance-summary', async (req: Request, res: Response) => {
@@ -1094,32 +1097,32 @@ app.post('/api/user/consume-download', (req: Request, res: Response) => {
 
     let userRecord = serverUsers.find(u => (userId && userId !== 'guest' && u.id === userId) || (userEmail && u.email.toLowerCase() === userEmail.toLowerCase()));
 
-    // If no user record on server, use currentPassType if requested
-    if (!userRecord && currentPassType) {
-      if (currentPassType === 'flash' || currentPassType === 'single_cv') {
+    // If no user record on server, verify against verified serverPayments
+    if (!userRecord) {
+      const verifiedPayment = serverPayments.find(p =>
+        p.status === 'succeeded' && (
+          (userId && userId !== 'guest' && p.userId === userId) ||
+          (userEmail && p.userEmail.toLowerCase() === userEmail.toLowerCase())
+        )
+      );
+
+      if (verifiedPayment) {
+        const plan = verifiedPayment.planType;
+        const isUnlimited = ['pro', 'monthly', 'yearly', 'annual'].includes(plan);
         return res.json({
           success: true,
-          remainingCredits: 0,
-          activePass: 'none',
-          canEdit: false,
-          message: 'Crédit Pass Flash consommé (1/1 PDF).'
-        });
-      } else if (['pro', 'monthly', 'yearly', 'annual'].includes(currentPassType)) {
-        return res.json({
-          success: true,
-          remainingCredits: 999999,
-          activePass: currentPassType,
-          isUnlimited: true,
-          canEdit: true
+          remainingCredits: isUnlimited ? 999999 : 0,
+          activePass: isUnlimited ? plan : 'none',
+          isUnlimited,
+          canEdit: isUnlimited,
+          message: 'Paiement vérifié sur le serveur.'
         });
       }
-    }
 
-    if (!userRecord) {
       return res.status(403).json({
         success: false,
         requirePass: true,
-        error: 'Aucun pass actif trouvé. Veuillez choisir une formule pour télécharger.'
+        error: 'Aucun pass actif ou paiement vérifié trouvé sur le serveur. Veuillez choisir une formule pour télécharger.'
       });
     }
 

@@ -2,11 +2,14 @@ import html2pdf from 'html2pdf.js';
 import jsPDF from 'jspdf';
 import html2canvas from 'html2canvas-pro';
 import { DEFAULT_AVATAR_PLACEHOLDER } from './defaultAvatar';
+import { CVData } from '../types';
+import { getEffectiveCVData } from './cvDataUtils';
 
 export interface PDFExportOptions {
   fileName?: string;
   elementId?: string;
   targetElement?: HTMLElement | null;
+  cv?: CVData;
   onProgress?: (status: string) => void;
   onError?: (error: Error, userMessage: string) => void;
   showErrorToast?: boolean;
@@ -423,10 +426,18 @@ export const exportCVToPDF = async ({
   fileName = 'VITAREY_Document.pdf',
   elementId = 'cv-printable-document',
   targetElement = null,
+  cv,
   onProgress,
   onError,
   showErrorToast = true
 }: PDFExportOptions): Promise<boolean> => {
+  // CRITIQUE : Si le template choisi est le template ATS, basculer immédiatement
+  // vers le générateur PDF vectoriel à texte 100% réel et extractible (Phase 1 ATS)
+  if (cv && cv.templateId === 'ats') {
+    console.log('[PDF Export] Template ATS détecté : basculement vers le moteur natif vectoriel ATS (texte 100% extractible).');
+    return exportATSTemplateToPDF(cv, { fileName, onProgress, onError, showErrorToast });
+  }
+
   let stagingContainer: HTMLElement | null = null;
   const startTime = Date.now();
 
@@ -719,3 +730,470 @@ export const triggerNativePrint = () => {
   }
   window.print();
 };
+
+/**
+ * ============================================================================
+ * PHASE 1 ATS : Générateur PDF Natif Vectoriel avec Texte 100% Extractible
+ * ============================================================================
+ * Contrairement aux autres templates qui utilisent html2canvas (capture bitmap),
+ * ce moteur génère directement les flux de texte vectoriel via jsPDF.
+ * Le résultat est un document ultra-léger (~15-30 Ko), sans pixels, où chaque
+ * mot, titre, date et puce est sélectionnable, copiable et lisible à 100% par
+ * les systèmes ATS (Workday, Taleo, Greenhouse, Lever, etc.).
+ */
+export const exportATSTemplateToPDF = async (
+  cv: CVData,
+  options?: {
+    fileName?: string;
+    onProgress?: (status: string) => void;
+    onError?: (error: Error, userMessage: string) => void;
+    showErrorToast?: boolean;
+  }
+): Promise<boolean> => {
+  const startTime = Date.now();
+  const onProgress = options?.onProgress;
+  const onError = options?.onError;
+  const showErrorToast = options?.showErrorToast !== false;
+
+  console.group('[ATS PDF Export] Démarrage de la génération vectorielle texte réel (ATS-Compliant)...');
+
+  try {
+    onProgress?.('Initialisation du moteur de texte ATS...');
+
+    // Normalisation des données CV pour garantir des champs complets
+    const activeCV = getEffectiveCVData(cv);
+    const lang = activeCV.language || 'fr';
+
+    onProgress?.('Composition du document vectoriel A4...');
+
+    // Initialisation du document PDF A4 en millimètres
+    const doc = new jsPDF({
+      unit: 'mm',
+      format: 'a4',
+      orientation: 'portrait',
+      compress: true
+    });
+
+    const pageWidth = 210;
+    const pageHeight = 297;
+    const leftMargin = 18;
+    const rightMargin = 18;
+    const topMargin = 16;
+    const bottomMargin = 16;
+    const contentWidth = pageWidth - leftMargin - rightMargin; // 174 mm
+    let y = topMargin;
+
+    // Helper pour garantir l'espace vertical sans coupure orpheline
+    const ensureSpace = (neededHeight: number) => {
+      if (y + neededHeight > pageHeight - bottomMargin) {
+        doc.addPage();
+        y = topMargin;
+        return true;
+      }
+      return false;
+    };
+
+    // Nettoyeur de texte Unicode pour compatibilité maximale avec les parseurs ATS
+    const clean = (val: string | undefined | null): string => {
+      if (!val) return '';
+      return String(val)
+        .replace(/[\u2018\u2019]/g, "'")
+        .replace(/[\u201C\u201D]/g, '"')
+        .replace(/[\u2013\u2014]/g, '-')
+        .replace(/\u00A0/g, ' ')
+        .replace(/[\u200B-\u200D\uFEFF]/g, '')
+        .trim();
+    };
+
+    // -------------------------------------------------------------
+    // 1. EN-TÊTE DU CANDIDAT (Identité, Titre, Coordonnées)
+    // -------------------------------------------------------------
+    const firstName = clean(activeCV.personalInfo?.firstName);
+    const lastName = clean(activeCV.personalInfo?.lastName);
+    const fullName = `${firstName} ${lastName}`.trim().toUpperCase() || 'CV CANDIDAT';
+
+    doc.setFont('helvetica', 'bold');
+    doc.setFontSize(20);
+    doc.setTextColor(0, 0, 0);
+    doc.text(fullName, pageWidth / 2, y, { align: 'center' });
+    y += 6.2;
+
+    const title = clean(activeCV.personalInfo?.title);
+    if (title) {
+      doc.setFont('helvetica', 'bold');
+      doc.setFontSize(10.5);
+      doc.setTextColor(30, 30, 30);
+      doc.text(title.toUpperCase(), pageWidth / 2, y, { align: 'center' });
+      y += 4.5;
+    }
+
+    // Ligne des coordonnées
+    const contacts: string[] = [];
+    if (activeCV.personalInfo?.email) contacts.push(clean(activeCV.personalInfo.email));
+    if (activeCV.personalInfo?.phone) contacts.push(clean(activeCV.personalInfo.phone));
+    const location = [clean(activeCV.personalInfo?.city), clean(activeCV.personalInfo?.country)].filter(Boolean).join(', ');
+    if (location) contacts.push(location);
+    if (activeCV.personalInfo?.linkedin) contacts.push(clean(activeCV.personalInfo.linkedin));
+    if (activeCV.personalInfo?.website) contacts.push(clean(activeCV.personalInfo.website));
+
+    if (contacts.length > 0) {
+      doc.setFont('helvetica', 'normal');
+      doc.setFontSize(8.5);
+      doc.setTextColor(50, 50, 50);
+      const contactText = contacts.join('  •  ');
+      const contactLines = doc.splitTextToSize(contactText, contentWidth);
+      for (const cl of contactLines) {
+        doc.text(cl, pageWidth / 2, y, { align: 'center' });
+        y += 3.6;
+      }
+    }
+
+    // Ligne séparatrice de l'en-tête
+    y += 1.5;
+    doc.setDrawColor(0, 0, 0);
+    doc.setLineWidth(0.4);
+    doc.line(leftMargin, y, pageWidth - rightMargin, y);
+    y += 5.5;
+
+    // Helper pour générer un titre de section standardisé ATS
+    const renderSectionHeader = (heading: string) => {
+      ensureSpace(16);
+      doc.setFont('helvetica', 'bold');
+      doc.setFontSize(10.5);
+      doc.setTextColor(0, 0, 0);
+      doc.text(heading.toUpperCase(), leftMargin, y);
+      y += 1.3;
+      doc.setDrawColor(0, 0, 0);
+      doc.setLineWidth(0.25);
+      doc.line(leftMargin, y, pageWidth - rightMargin, y);
+      y += 4.2;
+    };
+
+    // -------------------------------------------------------------
+    // 2. RÉSUMÉ PROFESSIONNEL (Summary)
+    // -------------------------------------------------------------
+    const summaryText = clean(activeCV.summary);
+    if (summaryText) {
+      const summaryHeader = lang === 'ar' ? 'الملخص المهني' : lang === 'en' ? 'Professional Summary' : 'Profil Professionnel';
+      renderSectionHeader(summaryHeader);
+
+      doc.setFont('helvetica', 'normal');
+      doc.setFontSize(9.2);
+      doc.setTextColor(25, 25, 25);
+      const sumLines = doc.splitTextToSize(summaryText, contentWidth);
+      for (const sl of sumLines) {
+        ensureSpace(4.1);
+        doc.text(sl, leftMargin, y);
+        y += 4.1;
+      }
+      y += 3.0;
+    }
+
+    // -------------------------------------------------------------
+    // 3. COMPÉTENCES CLÉS (Core Competencies & Skills)
+    // -------------------------------------------------------------
+    const validSkills = (activeCV.skills || []).map(s => clean(s.name)).filter(Boolean);
+    if (validSkills.length > 0) {
+      const skillsHeader = lang === 'ar' ? 'المهارات والخبرات' : lang === 'en' ? 'Core Competencies & Skills' : 'Compétences Clés';
+      renderSectionHeader(skillsHeader);
+
+      doc.setFont('helvetica', 'normal');
+      doc.setFontSize(9.2);
+      doc.setTextColor(25, 25, 25);
+      const skillsStr = validSkills.join('  •  ');
+      const skillLines = doc.splitTextToSize(skillsStr, contentWidth);
+      for (const skl of skillLines) {
+        ensureSpace(4.1);
+        doc.text(skl, leftMargin, y);
+        y += 4.1;
+      }
+      y += 3.0;
+    }
+
+    // -------------------------------------------------------------
+    // 4. EXPÉRIENCE PROFESSIONNELLE (Experiences)
+    // -------------------------------------------------------------
+    const exps = (activeCV.experiences || (activeCV as any).experience || []).filter(
+      (e: any) => e.position || e.jobTitle || e.company
+    );
+    if (exps.length > 0) {
+      const expHeader = lang === 'ar' ? 'الخبرات المهنية' : lang === 'en' ? 'Professional Experience' : 'Expérience Professionnelle';
+      renderSectionHeader(expHeader);
+
+      for (const exp of exps) {
+        ensureSpace(12);
+        const pos = clean(exp.position || exp.jobTitle);
+        const comp = clean(exp.company);
+        const city = clean(exp.city || exp.location);
+        const compCity = [comp, city].filter(Boolean).join(', ');
+        const leftTitle = [pos, compCity].filter(Boolean).join(' — ');
+
+        const start = clean(exp.startDate);
+        const end = exp.current ? (lang === 'en' ? 'Present' : 'Actuel') : clean(exp.endDate);
+        const dateStr = [start, end].filter(Boolean).join(' - ');
+
+        // Mesure de la largeur de la date pour éviter tout chevauchement
+        doc.setFont('helvetica', 'normal');
+        doc.setFontSize(8.8);
+        doc.setTextColor(60, 60, 60);
+        const dateWidth = dateStr ? doc.getTextWidth(dateStr) : 0;
+
+        // Titre du poste & entreprise (à gauche)
+        doc.setFont('helvetica', 'bold');
+        doc.setFontSize(9.8);
+        doc.setTextColor(0, 0, 0);
+
+        const maxLeftWidth = contentWidth - (dateWidth > 0 ? dateWidth + 4 : 0);
+        const titleLines = doc.splitTextToSize(leftTitle, maxLeftWidth);
+
+        doc.text(titleLines[0] || leftTitle, leftMargin, y);
+
+        // Date alignée à droite sur la même ligne
+        if (dateStr) {
+          doc.setFont('helvetica', 'normal');
+          doc.setFontSize(8.8);
+          doc.setTextColor(60, 60, 60);
+          doc.text(dateStr, pageWidth - rightMargin, y, { align: 'right' });
+        }
+        y += 4.2;
+
+        // Lignes supplémentaires de titre si très long
+        if (titleLines.length > 1) {
+          doc.setFont('helvetica', 'bold');
+          doc.setFontSize(9.8);
+          doc.setTextColor(0, 0, 0);
+          for (let i = 1; i < titleLines.length; i++) {
+            ensureSpace(4.0);
+            doc.text(titleLines[i], leftMargin, y);
+            y += 4.0;
+          }
+        }
+
+        // Description globale de l'expérience
+        const desc = clean(exp.description);
+        if (desc) {
+          doc.setFont('helvetica', 'normal');
+          doc.setFontSize(9.0);
+          doc.setTextColor(40, 40, 40);
+          const descLines = doc.splitTextToSize(desc, contentWidth);
+          for (const dl of descLines) {
+            ensureSpace(3.9);
+            doc.text(dl, leftMargin, y);
+            y += 3.9;
+          }
+        }
+
+        // Liste de puces / tâches réalisées
+        const tasks = (exp.tasks || exp.bullets || []).map((t: string) => clean(t)).filter(Boolean);
+        if (tasks.length > 0) {
+          doc.setFont('helvetica', 'normal');
+          doc.setFontSize(9.0);
+          doc.setTextColor(30, 30, 30);
+          const bulletIndent = 4.0;
+          const bulletTextWidth = contentWidth - bulletIndent;
+
+          for (const task of tasks) {
+            const taskLines = doc.splitTextToSize(task, bulletTextWidth);
+            ensureSpace(taskLines.length * 3.8 + 1.2);
+            doc.text('•', leftMargin + 1, y);
+            doc.text(taskLines, leftMargin + bulletIndent, y);
+            y += taskLines.length * 3.8 + 1.2;
+          }
+        }
+
+        y += 2.2; // Espacement entre chaque expérience
+      }
+      y += 2.0;
+    }
+
+    // -------------------------------------------------------------
+    // 5. FORMATION & DIPLÔMES (Education)
+    // -------------------------------------------------------------
+    const edus = (activeCV.educations || (activeCV as any).education || []).filter(
+      (e: any) => e.degree || e.institution
+    );
+    if (edus.length > 0) {
+      const eduHeader = lang === 'ar' ? 'التعليم والتكوين' : lang === 'en' ? 'Education' : 'Formation & Diplômes';
+      renderSectionHeader(eduHeader);
+
+      for (const edu of edus) {
+        ensureSpace(10);
+        const deg = clean(edu.degree);
+        const inst = clean(edu.institution);
+        const cty = clean(edu.city || edu.location);
+        const instCity = [inst, cty].filter(Boolean).join(', ');
+        const leftEdu = [deg, instCity].filter(Boolean).join(' | ');
+
+        const start = clean(edu.startDate);
+        const end = edu.current ? (lang === 'en' ? 'In progress' : 'En cours') : clean(edu.endDate);
+        const dateStr = [start, end].filter(Boolean).join(' - ');
+
+        doc.setFont('helvetica', 'normal');
+        doc.setFontSize(8.8);
+        doc.setTextColor(60, 60, 60);
+        const dateWidth = dateStr ? doc.getTextWidth(dateStr) : 0;
+
+        doc.setFont('helvetica', 'bold');
+        doc.setFontSize(9.5);
+        doc.setTextColor(0, 0, 0);
+
+        const maxLeftWidth = contentWidth - (dateWidth > 0 ? dateWidth + 4 : 0);
+        const eduLines = doc.splitTextToSize(leftEdu, maxLeftWidth);
+
+        doc.text(eduLines[0] || leftEdu, leftMargin, y);
+        if (dateStr) {
+          doc.setFont('helvetica', 'normal');
+          doc.setFontSize(8.8);
+          doc.setTextColor(60, 60, 60);
+          doc.text(dateStr, pageWidth - rightMargin, y, { align: 'right' });
+        }
+        y += 4.0;
+
+        if (eduLines.length > 1) {
+          for (let i = 1; i < eduLines.length; i++) {
+            ensureSpace(3.9);
+            doc.text(eduLines[i], leftMargin, y);
+            y += 3.9;
+          }
+        }
+
+        const eduDesc = clean(edu.description);
+        if (eduDesc) {
+          doc.setFont('helvetica', 'normal');
+          doc.setFontSize(8.8);
+          doc.setTextColor(50, 50, 50);
+          const eduDescLines = doc.splitTextToSize(eduDesc, contentWidth);
+          for (const dl of eduDescLines) {
+            ensureSpace(3.8);
+            doc.text(dl, leftMargin, y);
+            y += 3.8;
+          }
+        }
+
+        y += 2.0;
+      }
+      y += 2.0;
+    }
+
+    // -------------------------------------------------------------
+    // 6. PROJETS SIGNIFICATIFS (Projects)
+    // -------------------------------------------------------------
+    const projs = (activeCV.projects || []).filter((p: any) => p.title || p.name);
+    if (projs.length > 0) {
+      const projHeader = lang === 'ar' ? 'المشاريع' : lang === 'en' ? 'Key Projects' : 'Projets Significatifs';
+      renderSectionHeader(projHeader);
+
+      for (const proj of projs) {
+        ensureSpace(10);
+        const pTitle = clean(proj.title || proj.name);
+        const role = proj.role ? `(${clean(proj.role)})` : '';
+        const fullTitle = [pTitle, role].filter(Boolean).join(' ');
+
+        doc.setFont('helvetica', 'bold');
+        doc.setFontSize(9.5);
+        doc.setTextColor(0, 0, 0);
+        doc.text(fullTitle, leftMargin, y);
+        y += 3.9;
+
+        const pDesc = clean(proj.description);
+        if (pDesc) {
+          doc.setFont('helvetica', 'normal');
+          doc.setFontSize(9.0);
+          doc.setTextColor(40, 40, 40);
+          const pLines = doc.splitTextToSize(pDesc, contentWidth);
+          for (const pl of pLines) {
+            ensureSpace(3.8);
+            doc.text(pl, leftMargin, y);
+            y += 3.8;
+          }
+        }
+        y += 2.0;
+      }
+      y += 2.0;
+    }
+
+    // -------------------------------------------------------------
+    // 7. LANGUES (Languages)
+    // -------------------------------------------------------------
+    const langs = (activeCV.languages || []).filter((l: any) => l.language || l.name);
+    if (langs.length > 0) {
+      const langHeader = lang === 'ar' ? 'اللغات' : lang === 'en' ? 'Languages' : 'Langues';
+      renderSectionHeader(langHeader);
+
+      doc.setFont('helvetica', 'normal');
+      doc.setFontSize(9.2);
+      doc.setTextColor(30, 30, 30);
+      const langStr = langs.map((l: any) => `${clean(l.language || l.name)} (${clean(l.level)})`).join('  •  ');
+      const langLines = doc.splitTextToSize(langStr, contentWidth);
+      for (const ll of langLines) {
+        ensureSpace(4.0);
+        doc.text(ll, leftMargin, y);
+        y += 4.0;
+      }
+      y += 3.0;
+    }
+
+    // -------------------------------------------------------------
+    // 8. CERTIFICATIONS
+    // -------------------------------------------------------------
+    const certs = (activeCV.certifications || []).filter((c: any) => c.title || c.name);
+    if (certs.length > 0) {
+      const certHeader = lang === 'ar' ? 'الشهادات' : 'Certifications';
+      renderSectionHeader(certHeader);
+
+      doc.setFont('helvetica', 'normal');
+      doc.setFontSize(9.2);
+      doc.setTextColor(30, 30, 30);
+      const certStr = certs.map((c: any) => {
+        const t = clean(c.title || c.name);
+        const org = clean(c.organization || c.issuer);
+        const d = clean(c.date);
+        return [t, org ? `- ${org}` : '', d ? `(${d})` : ''].filter(Boolean).join(' ');
+      }).join('  •  ');
+      const certLines = doc.splitTextToSize(certStr, contentWidth);
+      for (const cl of certLines) {
+        ensureSpace(4.0);
+        doc.text(cl, leftMargin, y);
+        y += 4.0;
+      }
+      y += 3.0;
+    }
+
+    // -------------------------------------------------------------
+    // 9. GÉNÉRATION DU FICHIER ET TÉLÉCHARGEMENT DIRECT
+    // -------------------------------------------------------------
+    onProgress?.('Téléchargement du PDF ATS...');
+    const safeCandidateName = `${firstName || ''}_${lastName || ''}`.trim().replace(/\s+/g, '_') || 'Candidat';
+    const finalFileName = options?.fileName || `VITAREY_CV_ATS_${safeCandidateName}.pdf`;
+
+    const blob = doc.output('blob');
+    downloadBlob(blob, finalFileName);
+
+    const duration = ((Date.now() - startTime) / 1000).toFixed(2);
+    console.log(`[ATS PDF Export] Succès en ${duration}s. Fichier généré: "${finalFileName}" (${blob.size} octets, texte 100% extractible).`);
+    console.groupEnd();
+    return true;
+
+  } catch (error: any) {
+    const duration = ((Date.now() - startTime) / 1000).toFixed(2);
+    console.error(`[ATS PDF Export] Échec après ${duration}s :`, error);
+    console.groupEnd();
+
+    const errMessage = error?.message || 'Erreur inconnue lors de la création du PDF vectoriel ATS.';
+    if (showErrorToast) {
+      showPDFExportErrorNotification({
+        title: 'Échec de la génération du PDF ATS',
+        message: 'Impossible de générer le fichier PDF ATS à texte extractible.',
+        technicalDetails: errMessage,
+        onRetry: () => exportATSTemplateToPDF(cv, options)
+      });
+    }
+
+    if (onError) {
+      onError(error, errMessage);
+    }
+
+    return false;
+  }
+};
+

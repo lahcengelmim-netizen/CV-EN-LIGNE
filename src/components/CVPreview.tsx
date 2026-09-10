@@ -2,9 +2,7 @@ import React, { useState, useEffect, useRef, useMemo, useCallback } from 'react'
 import { createPortal } from 'react-dom';
 import { CVData, LanguageCode, TemplateId } from '../types';
 import { CVRenderer } from './templates/CVRenderer';
-import { CVTemplateModern } from './CVTemplateModern';
-import { A4FitWrapper } from './A4FitWrapper';
-import { exportCVToPDF, triggerNativePrint } from '../lib/pdf';
+import { exportCVToPDF, exportATSTemplateToPDF, triggerNativePrint } from '../lib/pdf';
 import {
   ZoomIn,
   ZoomOut,
@@ -471,6 +469,7 @@ export const CVPreview: React.FC<CVPreviewProps> = ({
   const [docHeight, setDocHeight] = useState<number>(A4_HEIGHT_PX);
   const [isExporting, setIsExporting] = useState<boolean>(false);
   const [exportProgressText, setExportProgressText] = useState<string>('');
+  const [exportError, setExportError] = useState<string | null>(null);
 
   // 1. Calcul du scaling responsive A4 adaptatif (Auto-Fit)
   useEffect(() => {
@@ -648,18 +647,29 @@ export const CVPreview: React.FC<CVPreviewProps> = ({
     }
 
     try {
+      setExportError(null);
       setIsExporting(true);
       setExportProgressText('Génération PDF...');
       const candidateName = `${activeCvData.personalInfo.firstName || ''}_${activeCvData.personalInfo.lastName || ''}`.trim().replace(/\s+/g, '_') || 'Candidat';
       const fileName = `VITAREY_CV_${candidateName}.pdf`;
 
-      await exportCVToPDF({
-        fileName,
-        elementId: 'cv-printable-document',
-        onProgress: (status) => setExportProgressText(status)
-      });
-    } catch (err) {
+      if (activeCvData.templateId === 'ats') {
+        setExportProgressText('Génération PDF ATS (texte réel)...');
+        await exportATSTemplateToPDF(activeCvData, {
+          fileName,
+          onProgress: (status) => setExportProgressText(status)
+        });
+      } else {
+        await exportCVToPDF({
+          fileName,
+          elementId: 'cv-printable-document',
+          cv: activeCvData,
+          onProgress: (status) => setExportProgressText(status)
+        });
+      }
+    } catch (err: any) {
       console.error('[CVPreview] Erreur export PDF:', err);
+      setExportError(err?.message || 'Une erreur est survenue lors de la génération du fichier PDF. Veuillez réessayer.');
     } finally {
       setIsExporting(false);
       setExportProgressText('');
@@ -801,6 +811,18 @@ export const CVPreview: React.FC<CVPreviewProps> = ({
         </div>
       )}
 
+      {exportError && (
+        <div className="bg-red-50 border border-red-200 text-red-700 px-4 py-3 rounded-xl flex items-center justify-between text-xs sm:text-sm font-medium">
+          <span>{exportError}</span>
+          <button
+            onClick={() => setExportError(null)}
+            className="text-red-500 hover:text-red-800 font-bold ml-2 cursor-pointer"
+          >
+            ✕
+          </button>
+        </div>
+      )}
+
       {/* 2. CADRE GRIS D'APERÇU AVEC SCALING STRICT A4 (210mm x 297mm) */}
       <div ref={containerRef} className="cv-preview-gray-canvas">
         {/* Conteneur dimensionné au ratio A4 exact à l'échelle pour éviter tout overflow */}
@@ -821,33 +843,6 @@ export const CVPreview: React.FC<CVPreviewProps> = ({
           >
             {children ? (
               children
-            ) : formData && !data && !cv ? (
-              <A4FitWrapper id="cv-printable-document" dataDependency={{ formData, themeColor }}>
-                <CVTemplateModern
-                  data={{
-                    fullName:
-                      formData.fullName ||
-                      `${activeCvData.personalInfo.firstName} ${activeCvData.personalInfo.lastName}`,
-                    jobTitle: formData.jobTitle || activeCvData.personalInfo.title,
-                    email: formData.email || activeCvData.personalInfo.email,
-                    phone: formData.phone || activeCvData.personalInfo.phone,
-                    city: formData.city || activeCvData.personalInfo.city,
-                    linkedin: formData.linkedin || activeCvData.personalInfo.linkedin,
-                    summary: formData.summary || activeCvData.summary,
-                    experiences: formData.experiences || activeCvData.experiences,
-                    education: formData.education || activeCvData.education,
-                    skills: (formData.skills || []).map((s: any) =>
-                      typeof s === 'string' ? s : s.name
-                    ),
-                    languages: (formData.languages || []).map((l: any) =>
-                      typeof l === 'string'
-                        ? { language: l, level: 'Courant' }
-                        : { language: l.name || l.language, level: l.level || 'Courant' }
-                    ),
-                  }}
-                  themeColor={themeColor}
-                />
-              </A4FitWrapper>
             ) : (
               <CVRenderer
                 data={activeCvData}

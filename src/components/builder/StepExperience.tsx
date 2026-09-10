@@ -111,22 +111,24 @@ export const StepExperience: React.FC<Props> = ({ experiences, onChange }) => {
       console.warn('⚠️ [StepExperience] Fallback backend...');
 
       try {
-        const res = await fetch('/api/ai/format-duties', {
+        const res = await fetch('/api/ai/enhance-experience', {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
           body: JSON.stringify({
             position: exp.position,
             company: exp.company,
-            rawTasks: exp.tasks,
+            tasks: exp.tasks,
             rawDescription: exp.description,
             lang: language,
           }),
         });
         const data = await res.json();
-        if (res.ok && data.success && data.data?.formattedTasks) {
-          handleUpdate(exp.id, { tasks: data.data.formattedTasks });
-          if (data.data.interviewAdvice) {
-            setAdviceMap((prev) => ({ ...prev, [exp.id]: data.data.interviewAdvice }));
+        const improvedTasks = data?.data?.improvedTasks || data?.data?.formattedTasks;
+        if (res.ok && data.success && Array.isArray(improvedTasks)) {
+          handleUpdate(exp.id, { tasks: improvedTasks });
+          const advice = data.data.advice || data.data.interviewAdvice;
+          if (advice) {
+            setAdviceMap((prev) => ({ ...prev, [exp.id]: advice }));
           }
           setSuccessMap((prev) => ({ ...prev, [exp.id]: true }));
           return;

@@ -32,8 +32,16 @@ export const AdminPortal: React.FC<AdminPortalProps> = ({ onBackToSite, currentU
       const storedToken = adminService.getStoredToken();
 
       if (storedToken) {
-        setIsAuthenticated(true);
-        loadStats();
+        const testStats = await adminService.getStats();
+        if (testStats) {
+          setIsAuthenticated(true);
+          setStats(testStats);
+        } else {
+          // Token invalid or expired
+          adminService.clearAdminSession();
+          setIsAuthenticated(false);
+          setShowLoginModal(true);
+        }
       } else {
         setIsAuthenticated(false);
         setShowLoginModal(true);

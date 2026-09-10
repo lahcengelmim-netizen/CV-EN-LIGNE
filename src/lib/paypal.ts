@@ -94,75 +94,57 @@ export async function renderPayPalSandboxButtons({
           })
         });
 
-        if (serverResponse.ok) {
-          const serverData = await serverResponse.json();
-          if (serverData.orderId) {
-            return serverData.orderId;
-          }
+      // Server-side order creation strictly enforces server prices & plans
+      const serverResponse = await fetch('/api/payment/create-order', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          cvId,
+          cvTitle: planName,
+          planType,
+          userId,
+          userEmail
+        })
+      });
+
+      if (serverResponse.ok) {
+        const serverData = await serverResponse.json();
+        if (serverData.orderId) {
+          return serverData.orderId;
         }
-      } catch (err) {
-        console.warn('[PayPal] Backend order creation unavailable, falling back to client-side actions:', err);
       }
 
-      // Standard PayPal SDK actions.order.create fallback
-      return actions.order.create({
-        intent: 'CAPTURE',
-        purchase_units: [
-          {
-            description: `${planName} (${planType})`,
-            custom_id: JSON.stringify({ cvId, planType, userId }),
-            amount: {
-              currency_code: currency,
-              value: amount.toFixed(2)
-            }
-          }
-        ]
-      });
+      const errData = await serverResponse.json().catch(() => ({}));
+      throw new Error(errData.error || 'Impossible d\'initialiser la commande PayPal côté serveur.');
     },
 
-    // 2. Order Approval & Capture Handler
+    // 2. Order Approval & Capture Handler (Strictly validated by backend)
     onApprove: async (data, actions) => {
       try {
-        let captureData: PayPalCaptureDetails;
+        const serverCapture = await fetch('/api/payment/capture-order', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({
+            orderId: data.orderID,
+            cvId,
+            planType,
+            userId,
+            userEmail
+          })
+        });
 
-        // Try server-side capture first
-        try {
-          const serverCapture = await fetch('/api/payment/capture-order', {
-            method: 'POST',
-            headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({
-              orderId: data.orderID,
-              cvId,
-              planType,
-              userId,
-              userEmail
-            })
-          });
+        const serverResult = await serverCapture.json().catch(() => ({}));
 
-          if (serverCapture.ok) {
-            const serverResult = await serverCapture.json();
-            if (serverResult.verified && serverResult.status === 'COMPLETED') {
-              captureData = {
-                id: serverResult.reference || data.orderID,
-                status: 'COMPLETED'
-              };
-              onSuccess(captureData, planType);
-              return;
-            }
-          }
-        } catch (serverErr) {
-          console.warn('[PayPal] Server capture unavailable, falling back to actions.order.capture:', serverErr);
-        }
-
-        // Direct SDK actions capture
-        captureData = await actions.order.capture();
-
-        if (captureData.status === 'COMPLETED') {
+        if (serverCapture.ok && serverResult.verified && serverResult.status === 'COMPLETED') {
+          const captureData: PayPalCaptureDetails = {
+            id: serverResult.reference || data.orderID,
+            status: 'COMPLETED'
+          };
           onSuccess(captureData, planType);
         } else {
-          throw new Error(`Statut de paiement PayPal non finalisé : ${captureData.status}`);
+          throw new Error(serverResult.error || 'La confirmation du paiement a échoué côté serveur. Aucun crédit accordé.');
         }
-      } catch (err) {
+      } catch (err: any) {
         console.error('[PayPal] Capture error:', err);
         if (onError) onError(err);
       }
