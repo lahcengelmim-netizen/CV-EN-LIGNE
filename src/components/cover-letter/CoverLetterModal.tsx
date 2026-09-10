@@ -6,6 +6,7 @@ import { passService } from '../../lib/passService';
 import { ENABLE_PAYMENTS } from '../../config/features';
 import { PaymentModal } from '../payment/PaymentModal';
 import { generateCoverLetter } from '../../lib/gemini';
+import { A4FitWrapper } from '../A4FitWrapper';
 import {
   FileText,
   Copy,
@@ -604,7 +605,12 @@ export const CoverLetterModal: React.FC<CoverLetterModalProps> = ({
                   transformOrigin: 'top left'
                 }}
               >
-                <div id="cover-letter-modal-doc" className="cover-letter-a4-document">
+                <A4FitWrapper
+                  id="cover-letter-modal-doc"
+                  className="cover-letter-a4-document"
+                  dataDependency={{ variables, editableSubject, editableBody }}
+                  warningMessage="Lettre de motivation volumineuse — pensez à raccourcir le texte"
+                >
                   {/* Bandeau d'en-tête décoratif */}
                   <div className="cl-doc-topbar" />
 
@@ -648,7 +654,7 @@ export const CoverLetterModal: React.FC<CoverLetterModalProps> = ({
                       <p>{variables.Nom}</p>
                     </div>
                   </div>
-                </div>
+                </A4FitWrapper>
               </div>
             </div>
           </div>

@@ -480,16 +480,27 @@ export const exportCVToPDF = async ({
     cloned.style.transformOrigin = 'top left';
     cloned.style.margin = '0 auto';
     cloned.style.width = '794px';
+    cloned.style.height = '1123px';
+    cloned.style.minHeight = '1123px';
+    cloned.style.maxHeight = '1123px';
+    cloned.style.overflow = 'hidden';
     cloned.style.boxSizing = 'border-box';
     cloned.style.display = 'block';
 
-    // Supprimer les transformations de zoom résiduelles
+    // Supprimer les transformations de zoom résiduelles (ex: zoom preview), tout en préservant l'auto-fit A4 interne
     const scaledChildren = cloned.querySelectorAll<HTMLElement>('[style*="scale"]');
     scaledChildren.forEach((child) => {
+      if (child.hasAttribute('data-a4-fit-inner') || child.classList.contains('a4-fit-inner')) {
+        return; // Conserver le scale d'ajustement A4 interne calculé par A4FitWrapper !
+      }
       if (child.style.transform && child.style.transform.includes('scale')) {
         child.style.transform = 'none';
       }
     });
+
+    // Supprimer tout élément d'alerte ou tag non imprimable
+    const ignoredElements = cloned.querySelectorAll<HTMLElement>('[data-html2canvas-ignore="true"], .no-print');
+    ignoredElements.forEach((el) => el.remove());
 
     stagingContainer.appendChild(cloned);
     document.body.appendChild(stagingContainer);
@@ -526,7 +537,7 @@ export const exportCVToPDF = async ({
         logging: true,
         backgroundColor: '#ffffff',
         width: 794,
-        height: cloned.offsetHeight || 1123,
+        height: 1123,
         scrollX: 0,
         scrollY: 0
       },
@@ -578,7 +589,7 @@ export const exportCVToPDF = async ({
         logging: true,
         backgroundColor: '#ffffff',
         width: 794,
-        height: cloned.offsetHeight || 1123,
+        height: 1123,
         scrollX: 0,
         scrollY: 0
       });

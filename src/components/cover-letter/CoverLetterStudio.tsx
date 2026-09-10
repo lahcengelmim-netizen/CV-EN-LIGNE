@@ -7,6 +7,7 @@ import { ENABLE_PAYMENTS } from '../../config/features';
 import { PaymentModal } from '../payment/PaymentModal';
 import { generateCoverLetter } from '../../lib/gemini';
 import { storageService } from '../../lib/supabase';
+import { A4FitWrapper } from '../A4FitWrapper';
 import {
   FileText,
   Copy,
@@ -718,67 +719,73 @@ export const CoverLetterStudio: React.FC<CoverLetterStudioProps> = ({
               }}
               className="shrink-0"
             >
-              {/* The Actual Rendered Letter Sheet */}
-              <div
+              {/* The Actual Rendered Letter Sheet with Guaranteed A4 Single-Page Scaling */}
+              <A4FitWrapper
                 id="cover-letter-doc"
-                className="bg-white shadow-2xl p-14 text-slate-800 flex flex-col justify-between font-sans leading-relaxed text-sm"
-                style={{
-                  width: '794px',
-                  minHeight: '1123px',
-                  boxSizing: 'border-box',
-                }}
+                className="shadow-2xl font-sans"
+                dataDependency={{ variables, editableSubject, editableBody }}
+                warningMessage="Lettre de motivation volumineuse — pensez à raccourcir le texte"
               >
-                <div>
-                  {/* Top Header: Candidate details (Left) & Date (Right) */}
-                  <div className="flex justify-between items-start border-b border-slate-200 pb-6 mb-8">
-                    <div>
-                      <h2 className="text-xl font-black text-slate-900 tracking-tight uppercase">
-                        {variables.Nom}
-                      </h2>
-                      <p className="text-xs font-bold text-blue-600 mt-0.5">{variables.Poste}</p>
-                      <div className="text-xs text-slate-500 mt-2 space-y-0.5">
-                        <p>{variables.Email} • {variables.Téléphone}</p>
-                        <p>{variables.Ville}</p>
+                <div
+                  className="bg-white p-14 text-slate-800 flex flex-col justify-between leading-relaxed text-sm min-h-[1123px] box-border"
+                  style={{
+                    width: '100%',
+                    minHeight: '1123px',
+                    boxSizing: 'border-box',
+                  }}
+                >
+                  <div>
+                    {/* Top Header: Candidate details (Left) & Date (Right) */}
+                    <div className="flex justify-between items-start border-b border-slate-200 pb-6 mb-8">
+                      <div>
+                        <h2 className="text-xl font-black text-slate-900 tracking-tight uppercase">
+                          {variables.Nom}
+                        </h2>
+                        <p className="text-xs font-bold text-blue-600 mt-0.5">{variables.Poste}</p>
+                        <div className="text-xs text-slate-500 mt-2 space-y-0.5">
+                          <p>{variables.Email} • {variables.Téléphone}</p>
+                          <p>{variables.Ville}</p>
+                        </div>
+                      </div>
+
+                      <div className="text-right">
+                        <p className="text-xs text-slate-400">Fait à {variables.Ville.split(',')[0] || 'Paris'}, le</p>
+                        <p className="text-xs font-bold text-slate-700">{variables.Date}</p>
                       </div>
                     </div>
 
-                    <div className="text-right">
-                      <p className="text-xs text-slate-400">Fait à {variables.Ville.split(',')[0] || 'Paris'}, le</p>
-                      <p className="text-xs font-bold text-slate-700">{variables.Date}</p>
+                    {/* Recipient Box */}
+                    <div className="mb-10 pl-6 border-l-2 border-blue-600">
+                      <p className="text-xs font-semibold text-slate-400 uppercase tracking-wider">À l'attention de</p>
+                      <p className="font-bold text-sm text-slate-900 mt-0.5">{variables.Destinataire}</p>
+                      <p className="font-bold text-base text-blue-900">{variables.Entreprise}</p>
+                      <p className="text-xs text-slate-500">{variables.Ville}</p>
+                    </div>
+
+                    {/* Object Line */}
+                    <div className="mb-8 bg-slate-50 p-3.5 rounded-xl border border-slate-200">
+                      <span className="font-bold text-slate-900 text-xs">Objet : </span>
+                      <span className="font-semibold text-slate-700 text-xs">{editableSubject}</span>
+                    </div>
+
+                    {/* Letter Body Paragraphs */}
+                    <div className="text-slate-800 text-[13.5px] leading-relaxed whitespace-pre-line space-y-4 font-normal">
+                      {editableBody}
                     </div>
                   </div>
 
-                  {/* Recipient Box */}
-                  <div className="mb-10 pl-6 border-l-2 border-blue-600">
-                    <p className="text-xs font-semibold text-slate-400 uppercase tracking-wider">À l'attention de</p>
-                    <p className="font-bold text-sm text-slate-900 mt-0.5">{variables.Destinataire}</p>
-                    <p className="font-bold text-base text-blue-900">{variables.Entreprise}</p>
-                    <p className="text-xs text-slate-500">{variables.Ville}</p>
-                  </div>
-
-                  {/* Object Line */}
-                  <div className="mb-8 bg-slate-50 p-3.5 rounded-xl border border-slate-200">
-                    <span className="font-bold text-slate-900 text-xs">Objet : </span>
-                    <span className="font-semibold text-slate-700 text-xs">{editableSubject}</span>
-                  </div>
-
-                  {/* Letter Body Paragraphs */}
-                  <div className="text-slate-800 text-[13.5px] leading-relaxed whitespace-pre-line space-y-4 font-normal">
-                    {editableBody}
+                  {/* Footer Signature */}
+                  <div className="mt-12 pt-6 border-t border-slate-100 flex justify-between items-end">
+                    <div className="text-[11px] text-slate-400">
+                      Document officiel de candidature • Certifié VITAREY conforme aux normes de recrutement
+                    </div>
+                    <div className="text-right">
+                      <p className="text-xs font-bold text-slate-900">{variables.Nom}</p>
+                      <div className="w-24 h-0.5 bg-blue-600 mt-1 ml-auto" />
+                    </div>
                   </div>
                 </div>
-
-                {/* Footer Signature */}
-                <div className="mt-12 pt-6 border-t border-slate-100 flex justify-between items-end">
-                  <div className="text-[11px] text-slate-400">
-                    Document officiel de candidature • Certifié VITAREY conforme aux normes de recrutement
-                  </div>
-                  <div className="text-right">
-                    <p className="text-xs font-bold text-slate-900">{variables.Nom}</p>
-                    <div className="w-24 h-0.5 bg-blue-600 mt-1 ml-auto" />
-                  </div>
-                </div>
-              </div>
+              </A4FitWrapper>
             </div>
           </div>
         </div>

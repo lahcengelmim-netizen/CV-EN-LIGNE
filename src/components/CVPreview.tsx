@@ -3,6 +3,7 @@ import { createPortal } from 'react-dom';
 import { CVData, LanguageCode, TemplateId } from '../types';
 import { CVRenderer } from './templates/CVRenderer';
 import { CVTemplateModern } from './CVTemplateModern';
+import { A4FitWrapper } from './A4FitWrapper';
 import { exportCVToPDF, triggerNativePrint } from '../lib/pdf';
 import {
   ZoomIn,
@@ -821,31 +822,32 @@ export const CVPreview: React.FC<CVPreviewProps> = ({
             {children ? (
               children
             ) : formData && !data && !cv ? (
-              <CVTemplateModern
-                data={{
-                  fullName:
-                    formData.fullName ||
-                    `${activeCvData.personalInfo.firstName} ${activeCvData.personalInfo.lastName}`,
-                  jobTitle: formData.jobTitle || activeCvData.personalInfo.title,
-                  email: formData.email || activeCvData.personalInfo.email,
-                  phone: formData.phone || activeCvData.personalInfo.phone,
-                  city: formData.city || activeCvData.personalInfo.city,
-                  linkedin: formData.linkedin || activeCvData.personalInfo.linkedin,
-                  summary: formData.summary || activeCvData.summary,
-                  experiences: formData.experiences || activeCvData.experiences,
-                  education: formData.education || activeCvData.education,
-                  skills: (formData.skills || []).map((s: any) =>
-                    typeof s === 'string' ? s : s.name
-                  ),
-                  languages: (formData.languages || []).map((l: any) =>
-                    typeof l === 'string'
-                      ? { language: l, level: 'Courant' }
-                      : { language: l.name || l.language, level: l.level || 'Courant' }
-                  ),
-                }}
-                themeColor={themeColor}
-                id="cv-printable-document"
-              />
+              <A4FitWrapper id="cv-printable-document" dataDependency={{ formData, themeColor }}>
+                <CVTemplateModern
+                  data={{
+                    fullName:
+                      formData.fullName ||
+                      `${activeCvData.personalInfo.firstName} ${activeCvData.personalInfo.lastName}`,
+                    jobTitle: formData.jobTitle || activeCvData.personalInfo.title,
+                    email: formData.email || activeCvData.personalInfo.email,
+                    phone: formData.phone || activeCvData.personalInfo.phone,
+                    city: formData.city || activeCvData.personalInfo.city,
+                    linkedin: formData.linkedin || activeCvData.personalInfo.linkedin,
+                    summary: formData.summary || activeCvData.summary,
+                    experiences: formData.experiences || activeCvData.experiences,
+                    education: formData.education || activeCvData.education,
+                    skills: (formData.skills || []).map((s: any) =>
+                      typeof s === 'string' ? s : s.name
+                    ),
+                    languages: (formData.languages || []).map((l: any) =>
+                      typeof l === 'string'
+                        ? { language: l, level: 'Courant' }
+                        : { language: l.name || l.language, level: l.level || 'Courant' }
+                    ),
+                  }}
+                  themeColor={themeColor}
+                />
+              </A4FitWrapper>
             ) : (
               <CVRenderer
                 data={activeCvData}

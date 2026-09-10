@@ -21,6 +21,7 @@ import { StockholmTemplate } from './StockholmTemplate';
 import { ZurichTemplate } from './ZurichTemplate';
 import { SiliconTemplate } from './SiliconTemplate';
 import { getEffectiveCVData } from '../../lib/cvDataUtils';
+import { A4FitWrapper } from '../A4FitWrapper';
 
 export interface CVRendererProps {
   data?: CVData;
@@ -31,6 +32,7 @@ export interface CVRendererProps {
   id?: string;
   className?: string;
   disableAutoFallback?: boolean;
+  minScale?: number;
 }
 
 export const CVRenderer: React.FC<CVRendererProps> = ({
@@ -41,7 +43,8 @@ export const CVRenderer: React.FC<CVRendererProps> = ({
   zoom,
   id = 'cv-printable-document',
   className = '',
-  disableAutoFallback = false
+  disableAutoFallback = false,
+  minScale,
 }) => {
   const rawData = data || cv;
   const effectiveScale = zoom !== undefined ? zoom : scale;
@@ -82,16 +85,13 @@ export const CVRenderer: React.FC<CVRendererProps> = ({
   const isWatermarked = ENABLE_PAYMENTS && showWatermark && !activeData.isPaid;
 
   return (
-    <div 
-      id={id} 
-      className={`cv-print-container relative bg-white transition-all select-text ${className}`}
-      style={{
-        width: '100%',
-        maxWidth: '210mm',
-        minHeight: '297mm',
-        transformOrigin: 'top center',
-        ...(effectiveScale !== 1 ? { transform: `scale(${effectiveScale})` } : {})
-      }}
+    <A4FitWrapper
+      id={id}
+      className={`cv-print-container ${className}`}
+      dataDependency={activeData}
+      disableFit={disableAutoFallback}
+      minScale={minScale}
+      outerScale={effectiveScale !== 1 ? effectiveScale : undefined}
     >
       {/* Draft watermark if previewing without payment */}
       {isWatermarked && (
@@ -104,6 +104,6 @@ export const CVRenderer: React.FC<CVRendererProps> = ({
 
       {/* Render Template Pure RAW */}
       <SelectedTemplate data={activeData} />
-    </div>
+    </A4FitWrapper>
   );
 };
