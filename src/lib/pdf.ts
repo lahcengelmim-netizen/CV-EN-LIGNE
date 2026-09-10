@@ -1,6 +1,6 @@
 import html2pdf from 'html2pdf.js';
 import jsPDF from 'jspdf';
-import html2canvas from 'html2canvas';
+import html2canvas from 'html2canvas-pro';
 import { DEFAULT_AVATAR_PLACEHOLDER } from './defaultAvatar';
 
 export interface PDFExportOptions {
