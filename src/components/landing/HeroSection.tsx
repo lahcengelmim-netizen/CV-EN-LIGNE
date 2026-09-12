@@ -20,10 +20,11 @@ import {
 
 interface HeroSectionProps {
   onStartCV: (templateId?: TemplateId) => void;
+  onImportCV?: () => void;
   lang?: LanguageCode;
 }
 
-export const HeroSection: React.FC<HeroSectionProps> = ({ onStartCV, lang = 'fr' }) => {
+export const HeroSection: React.FC<HeroSectionProps> = ({ onStartCV, onImportCV, lang = 'fr' }) => {
   const { t } = useLanguage();
   const [heroTemplateId, setHeroTemplateId] = useState<TemplateId>('stockholm-modern');
   const activeTemplate = getTemplateById(heroTemplateId);
@@ -72,6 +73,17 @@ export const HeroSection: React.FC<HeroSectionProps> = ({ onStartCV, lang = 'fr'
                 <Layout className="w-4 h-4 text-slate-500" />
                 <span>{t('hero.ctaSecondary', 'Explorer les 10 modèles')}</span>
               </a>
+
+              {onImportCV && (
+                <button
+                  type="button"
+                  onClick={onImportCV}
+                  className="w-full sm:w-auto px-6 py-4 bg-blue-50/80 hover:bg-blue-100 text-blue-700 rounded-2xl font-bold text-sm border border-blue-200/80 shadow-2xs transition-colors flex items-center justify-center gap-2 cursor-pointer"
+                >
+                  <FileCheck className="w-4 h-4 text-blue-600" />
+                  <span>Importer un PDF</span>
+                </button>
+              )}
             </div>
 
             {/* Trust Badges */}

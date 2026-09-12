@@ -2223,7 +2223,8 @@ export const TEMPLATES_CATALOG: TemplateDefinition[] = [
 ];
 
 export function getTemplateById(id: TemplateId = 'modern'): TemplateDefinition {
-  const found = TEMPLATES_CATALOG.find((t) => t.id === id);
+  const normalizedId = id === 'modern-sidebar' ? 'modern' : id === 'ats-classic' ? 'ats' : id;
+  const found = TEMPLATES_CATALOG.find((t) => t.id === normalizedId);
   return found || TEMPLATES_CATALOG[0];
 }
 

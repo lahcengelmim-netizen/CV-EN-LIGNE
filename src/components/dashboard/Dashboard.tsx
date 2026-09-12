@@ -3,12 +3,13 @@ import { CVData, LanguageCode } from '../../types';
 import { useLanguage } from '../../context/LanguageContext';
 import { ENABLE_PAYMENTS } from '../../config/features';
 import { CoverLetterStudio } from '../cover-letter/CoverLetterStudio';
-import { Plus, Edit, Copy, Trash2, CheckCircle2, Clock, FileText, Sparkles } from 'lucide-react';
+import { Plus, Edit, Copy, Trash2, CheckCircle2, Clock, FileText, Sparkles, UploadCloud } from 'lucide-react';
 
 interface DashboardProps {
   cvList: CVData[];
   onSelectCV: (cv: CVData) => void;
   onNewCV: () => void;
+  onImportCV?: () => void;
   onDuplicateCV: (cv: CVData) => void;
   onDeleteCV: (id: string) => void;
   lang?: LanguageCode;
@@ -21,6 +22,7 @@ export const Dashboard: React.FC<DashboardProps> = ({
   cvList,
   onSelectCV,
   onNewCV,
+  onImportCV,
   onDuplicateCV,
   onDeleteCV,
   user,
@@ -106,13 +108,24 @@ export const Dashboard: React.FC<DashboardProps> = ({
               </p>
             </div>
 
-            <button
-              onClick={onNewCV}
-              className="relative z-10 px-6 py-3.5 bg-gradient-to-r from-blue-600 to-indigo-600 hover:from-blue-500 hover:to-indigo-500 text-white rounded-2xl font-bold text-xs shadow-lg hover:shadow-xl transition-all flex items-center gap-2 shrink-0 cursor-pointer"
-            >
-              <Plus className="w-4 h-4" />
-              <span>{t('nav.newCv', 'Nouveau CV')}</span>
-            </button>
+            <div className="flex flex-wrap items-center gap-2 relative z-10">
+              {onImportCV && (
+                <button
+                  onClick={onImportCV}
+                  className="px-5 py-3.5 bg-white/10 hover:bg-white/20 text-white rounded-2xl font-bold text-xs border border-white/20 shadow-xs transition-all flex items-center gap-2 shrink-0 cursor-pointer"
+                >
+                  <UploadCloud className="w-4 h-4 text-blue-300" />
+                  <span>Importer un CV (PDF)</span>
+                </button>
+              )}
+              <button
+                onClick={onNewCV}
+                className="px-6 py-3.5 bg-gradient-to-r from-blue-600 to-indigo-600 hover:from-blue-500 hover:to-indigo-500 text-white rounded-2xl font-bold text-xs shadow-lg hover:shadow-xl transition-all flex items-center gap-2 shrink-0 cursor-pointer"
+              >
+                <Plus className="w-4 h-4" />
+                <span>{t('nav.newCv', 'Nouveau CV')}</span>
+              </button>
+            </div>
           </div>
 
           {/* Stats row */}

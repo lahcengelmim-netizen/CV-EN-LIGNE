@@ -29,10 +29,11 @@ import {
 
 interface LandingPageProps {
   onStartCV: (templateId?: TemplateId) => void;
+  onImportCV?: () => void;
   lang?: LanguageCode;
 }
 
-export const LandingPage: React.FC<LandingPageProps> = ({ onStartCV, lang = 'fr' }) => {
+export const LandingPage: React.FC<LandingPageProps> = ({ onStartCV, onImportCV, lang = 'fr' }) => {
   const { t } = useLanguage();
   const [activeFaq, setActiveFaq] = useState<number | null>(null);
 
@@ -62,7 +63,7 @@ export const LandingPage: React.FC<LandingPageProps> = ({ onStartCV, lang = 'fr'
   return (
     <div className="space-y-20 sm:space-y-28">
       {/* 1. HERO SECTION WITH REALISTIC CV SHOWCASE */}
-      <HeroSection onStartCV={onStartCV} lang={lang} />
+      <HeroSection onStartCV={onStartCV} onImportCV={onImportCV} lang={lang} />
 
       {/* 2. 4-STEP WORKFLOW */}
       <section id="workflow-section" className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">

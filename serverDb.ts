@@ -42,7 +42,7 @@ export interface ServerPaymentRecord {
 
 export interface ServerAILogRecord {
   id: string;
-  endpoint: 'enhance-experience' | 'enhance-summary' | 'suggest-skills' | 'generate-cover-letter';
+  endpoint: 'enhance-experience' | 'enhance-summary' | 'suggest-skills' | 'generate-cover-letter' | 'parse-cv' | '/api/parse-cv';
   userId: string;
   userEmail?: string;
   timestamp: string;

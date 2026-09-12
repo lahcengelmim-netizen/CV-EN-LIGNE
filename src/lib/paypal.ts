@@ -81,7 +81,7 @@ export async function renderPayPalSandboxButtons({
     // 1. Order Creation Handler
     createOrder: async (data, actions) => {
       try {
-        // Attempt backend creation first if server is available
+        // Server-side order creation strictly enforces server prices & plans
         const serverResponse = await fetch('/api/payment/create-order', {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
@@ -94,28 +94,19 @@ export async function renderPayPalSandboxButtons({
           })
         });
 
-      // Server-side order creation strictly enforces server prices & plans
-      const serverResponse = await fetch('/api/payment/create-order', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({
-          cvId,
-          cvTitle: planName,
-          planType,
-          userId,
-          userEmail
-        })
-      });
-
-      if (serverResponse.ok) {
-        const serverData = await serverResponse.json();
-        if (serverData.orderId) {
-          return serverData.orderId;
+        if (serverResponse.ok) {
+          const serverData = await serverResponse.json();
+          if (serverData.orderId) {
+            return serverData.orderId;
+          }
         }
-      }
 
-      const errData = await serverResponse.json().catch(() => ({}));
-      throw new Error(errData.error || 'Impossible d\'initialiser la commande PayPal côté serveur.');
+        const errData = await serverResponse.json().catch(() => ({}));
+        throw new Error(errData.error || 'Impossible d\'initialiser la commande PayPal côté serveur.');
+      } catch (err) {
+        console.error('[PayPal] CreateOrder error:', err);
+        throw err;
+      }
     },
 
     // 2. Order Approval & Capture Handler (Strictly validated by backend)

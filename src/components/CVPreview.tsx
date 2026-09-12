@@ -184,6 +184,8 @@ export interface CVPreviewProps {
   data?: CVData;
   cv?: CVData;
   formData?: any;
+  templateId?: TemplateId | string;
+  onTemplateChange?: (templateId: TemplateId) => void;
   themeColor?: string;
   onColorChange?: (color: string) => void;
   onDownloadPdf?: () => void;
@@ -446,6 +448,8 @@ export const CVPreview: React.FC<CVPreviewProps> = ({
   data,
   cv,
   formData,
+  templateId,
+  onTemplateChange,
   themeColor = '#1e3a8a',
   onColorChange,
   onDownloadPdf,
@@ -542,9 +546,15 @@ export const CVPreview: React.FC<CVPreviewProps> = ({
     if (input) {
       return {
         ...input,
+        templateId: (templateId as TemplateId) || input.templateId || 'modern',
         theme: {
           ...input.theme,
           primaryColor: themeColor || input.theme?.primaryColor || '#1e3a8a',
+          photoShape: input.theme?.photoShape || input.personalInfo?.photoShape || 'rounded',
+        },
+        personalInfo: {
+          ...input.personalInfo,
+          photoShape: input.personalInfo?.photoShape || input.theme?.photoShape || 'rounded',
         },
       };
     }
@@ -561,6 +571,12 @@ export const CVPreview: React.FC<CVPreviewProps> = ({
 
       return {
         ...DEFAULT_CV_PREVIEW,
+        templateId: (templateId as TemplateId) || formData.templateId || DEFAULT_CV_PREVIEW.templateId || 'modern',
+        theme: {
+          ...DEFAULT_CV_PREVIEW.theme,
+          primaryColor: themeColor || DEFAULT_CV_PREVIEW.theme.primaryColor,
+          photoShape: formData.photoShape || formData.personalInfo?.photoShape || DEFAULT_CV_PREVIEW.theme.photoShape || 'rounded',
+        },
         personalInfo: {
           ...DEFAULT_CV_PREVIEW.personalInfo,
           firstName: first || DEFAULT_CV_PREVIEW.personalInfo.firstName,
@@ -570,7 +586,8 @@ export const CVPreview: React.FC<CVPreviewProps> = ({
           phone: formData.phone || DEFAULT_CV_PREVIEW.personalInfo.phone,
           city: formData.city || DEFAULT_CV_PREVIEW.personalInfo.city,
           linkedin: formData.linkedin || DEFAULT_CV_PREVIEW.personalInfo.linkedin,
-          photoUrl: formData.photoUrl || DEFAULT_CV_PREVIEW.personalInfo.photoUrl,
+          photoUrl: formData.photoUrl !== undefined ? formData.photoUrl : DEFAULT_CV_PREVIEW.personalInfo.photoUrl,
+          photoShape: formData.photoShape || formData.personalInfo?.photoShape || 'rounded',
         },
         summary: formData.summary || DEFAULT_CV_PREVIEW.summary,
         experiences:
@@ -629,15 +646,11 @@ export const CVPreview: React.FC<CVPreviewProps> = ({
                   : { id: l.id || `lang-${i}`, language: l.language || l.name || 'Langue', name: l.name || l.language || 'Langue', level: l.level || 'Courant' }
               )
             : DEFAULT_CV_PREVIEW.languages,
-        theme: {
-          ...DEFAULT_CV_PREVIEW.theme,
-          primaryColor: themeColor,
-        },
       };
     }
 
     return DEFAULT_CV_PREVIEW;
-  }, [data, cv, formData, themeColor]);
+  }, [data, cv, formData, themeColor, templateId]);
 
   // Action Téléchargement PDF
   const handleDownload = async () => {

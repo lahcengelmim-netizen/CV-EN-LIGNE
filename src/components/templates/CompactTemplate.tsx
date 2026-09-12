@@ -19,7 +19,10 @@ export const CompactTemplate: React.FC<TemplateProps> = ({ data, lang = 'fr' }) 
           {/* Photo Frame */}
           {theme?.showPhoto && personalInfo.photoUrl ? (
             <div className="flex justify-center">
-              <div className="w-32 h-32 rounded-2xl overflow-hidden border-3 shadow-md relative group" style={{ borderColor: primaryColor }}>
+              <div 
+                className={`w-36 h-36 sm:w-40 sm:h-40 md:w-44 md:h-44 ${(personalInfo.photoShape || theme?.photoShape) === 'circle' ? 'rounded-full' : 'rounded-2xl'} overflow-hidden border-3 shadow-md relative group shrink-0`} 
+                style={{ borderColor: primaryColor }}
+              >
                 <img
                   src={personalInfo.photoUrl}
                   alt={`${personalInfo.firstName} ${personalInfo.lastName}`}

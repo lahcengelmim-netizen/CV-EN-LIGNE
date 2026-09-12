@@ -152,7 +152,7 @@ export const StockholmTemplate: React.FC<TemplateProps> = ({ data }) => {
                 src={getProfilePhoto(personalInfo.photoUrl)}
                 alt={`${personalInfo.firstName || 'Profil'} ${personalInfo.lastName || ''}`}
                 referrerPolicy="no-referrer"
-                className="w-24 h-24 rounded-full object-cover border-2 shadow-sm"
+                className={`w-36 h-36 sm:w-40 sm:h-40 md:w-44 md:h-44 ${(personalInfo.photoShape || theme?.photoShape) === 'rounded' ? 'rounded-2xl' : 'rounded-full'} object-cover border-2 shadow-sm shrink-0`}
                 style={{ borderColor: primaryColor }}
               />
             </div>

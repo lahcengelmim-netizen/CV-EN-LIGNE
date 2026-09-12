@@ -11,13 +11,18 @@ import { CVBuilder } from './components/builder/CVBuilder';
 import { AuthModal } from './components/auth/AuthModal';
 import { AdminPortal } from './components/admin/AdminPortal';
 import { CareerBackground } from './components/layout/CareerBackground';
+import { ResumeImport } from './components/import/ResumeImport';
+import { EditorPage } from './components/editor/EditorPage';
+import { convertParsedToCVData } from './lib/resumeConverter';
+import type { ParsedResumeData } from './types/resumeParser';
 import { adminService } from './lib/adminService';
 import { getTemplateById } from './lib/templatesData';
 import { activityTracker } from './lib/activityTracker';
 
 export const App: React.FC = () => {
   const { i18n: i18nInstance } = useTranslation();
-  const [currentView, setCurrentView] = useState<'landing' | 'dashboard' | 'builder' | 'admin'>('landing');
+  const [currentView, setCurrentView] = useState<'landing' | 'dashboard' | 'builder' | 'admin' | 'import' | 'editor'>('landing');
+  const [parsedResumeData, setParsedResumeData] = useState<ParsedResumeData | null>(null);
   const [dashboardTab, setDashboardTab] = useState<'cvs' | 'cover-letters'>('cvs');
   const [lang, setLang] = useState<LanguageCode>(() => {
     const validLangs: LanguageCode[] = ['en', 'fr', 'ar', 'es', 'de', 'it', 'pt', 'zh'];
@@ -49,12 +54,16 @@ export const App: React.FC = () => {
   const [cvList, setCvList] = useState<CVData[]>([]);
   const [activeCv, setActiveCv] = useState<CVData | null>(null);
 
-  // Check URL pathname or hash for /admin on load
+  // Check URL pathname or hash on load
   useEffect(() => {
     const path = window.location.pathname;
     const hash = window.location.hash;
     if (path.includes('/admin') || hash === '#admin') {
       setCurrentView('admin');
+    } else if (path.includes('/import') || hash === '#import') {
+      setCurrentView('import');
+    } else if (path.includes('/editor') || hash === '#editor') {
+      setCurrentView('editor');
     }
   }, []);
 
@@ -168,6 +177,44 @@ export const App: React.FC = () => {
     setCurrentView('builder');
   };
 
+  // Open parsed CV in advanced studio
+  const handleOpenAdvancedStudioFromParsed = (parsed: ParsedResumeData) => {
+    const partial = convertParsedToCVData(parsed);
+    const tmplDef = getTemplateById('stockholm-modern');
+    const newCV: CVData = {
+      ...tmplDef.sampleCV,
+      ...partial,
+      id: 'cv_' + Math.random().toString(36).substring(2, 9),
+      userId: user?.id,
+      title: partial.title || 'Mon CV (Importé)',
+      templateId: 'stockholm-modern',
+      isPaid: false,
+      language: lang,
+      personalInfo: {
+        ...tmplDef.sampleCV.personalInfo,
+        ...partial.personalInfo,
+      },
+      experiences: partial.experiences || [],
+      experience: partial.experiences || [],
+      educations: partial.educations || [],
+      education: partial.educations || [],
+      skills: partial.skills || [],
+      languages: partial.languages || [],
+      theme: {
+        primaryColor: tmplDef.defaultColor || '#0f766e',
+        fontFamily: 'sans',
+        spacing: 'normal',
+        showPhoto: true,
+      },
+      createdAt: new Date().toISOString(),
+      updatedAt: new Date().toISOString(),
+    };
+
+    activityTracker.logAction('cv_create', 'Import CV Gemini', `CV importé ouvert dans le studio : ${newCV.title}`);
+    setActiveCv(newCV);
+    setCurrentView('builder');
+  };
+
   // Duplicate CV
   const handleDuplicateCV = async (cv: CVData) => {
     const duplicated: CVData = {
@@ -216,7 +263,7 @@ export const App: React.FC = () => {
       <CareerBackground />
 
       {/* Top Navbar */}
-      {currentView !== 'builder' && currentView !== 'admin' && (
+      {currentView !== 'builder' && currentView !== 'admin' && currentView !== 'editor' && (
         <Navbar
           currentView={currentView}
           onNavigate={(view) => setCurrentView(view)}
@@ -238,6 +285,7 @@ export const App: React.FC = () => {
         {currentView === 'landing' && (
           <LandingPage
             onStartCV={(tmpl) => handleCreateNewCV(tmpl || 'stockholm-modern')}
+            onImportCV={() => setCurrentView('import')}
             lang={lang}
           />
         )}
@@ -247,12 +295,33 @@ export const App: React.FC = () => {
             cvList={cvList}
             onSelectCV={handleSelectCV}
             onNewCV={() => handleCreateNewCV('stockholm-modern')}
+            onImportCV={() => setCurrentView('import')}
             onDuplicateCV={handleDuplicateCV}
             onDeleteCV={handleDeleteCV}
             lang={lang}
             user={user}
             initialTab={dashboardTab}
             onTabChange={(tab) => setDashboardTab(tab)}
+          />
+        )}
+
+        {currentView === 'import' && (
+          <div className="py-8">
+            <ResumeImport
+              onSuccess={(data) => {
+                setParsedResumeData(data);
+                setCurrentView('editor');
+              }}
+              onNavigate={(view) => setCurrentView(view as any)}
+            />
+          </div>
+        )}
+
+        {currentView === 'editor' && (
+          <EditorPage
+            initialData={parsedResumeData}
+            onNavigate={(view) => setCurrentView(view as any)}
+            onOpenAdvancedStudio={handleOpenAdvancedStudioFromParsed}
           />
         )}
 
@@ -277,7 +346,7 @@ export const App: React.FC = () => {
       </main>
 
       {/* Footer */}
-      {currentView !== 'builder' && currentView !== 'admin' && (
+      {currentView !== 'builder' && currentView !== 'admin' && currentView !== 'editor' && (
         <Footer lang={lang} onNavigate={(view) => setCurrentView(view)} />
       )}
 

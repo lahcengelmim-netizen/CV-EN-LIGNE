@@ -37,7 +37,7 @@ export const ProfessionalTemplate: React.FC<TemplateProps> = ({ data, lang = 'fr
           </div>
 
           {theme?.showPhoto && personalInfo.photoUrl && (
-            <div className="w-24 h-24 sm:w-28 sm:h-28 rounded-full overflow-hidden border-4 border-white shadow-lg shrink-0">
+            <div className={`w-36 h-36 sm:w-40 sm:h-40 md:w-44 md:h-44 ${(personalInfo.photoShape || theme?.photoShape) === 'rounded' ? 'rounded-2xl' : 'rounded-full'} overflow-hidden border-4 border-white shadow-lg shrink-0`}>
               <img src={personalInfo.photoUrl} alt="Photo" className="w-full h-full object-cover" />
             </div>
           )}

@@ -20,6 +20,8 @@ import { InfographicTemplate } from './InfographicTemplate';
 import { StockholmTemplate } from './StockholmTemplate';
 import { ZurichTemplate } from './ZurichTemplate';
 import { SiliconTemplate } from './SiliconTemplate';
+import { ModernSidebarTemplate } from './ModernSidebarTemplate';
+import { ATSClassicTemplate } from './ATSClassicTemplate';
 import { getEffectiveCVData } from '../../lib/cvDataUtils';
 import { A4FitWrapper } from '../A4FitWrapper';
 
@@ -56,14 +58,16 @@ export const CVRenderer: React.FC<CVRendererProps> = ({
   const activeData = disableAutoFallback ? rawData : getEffectiveCVData(rawData);
 
   const templateMap: Record<TemplateId, React.FC<{ data: CVData }>> = {
-    modern: ModernTemplate,
+    modern: ModernSidebarTemplate,
+    'modern-sidebar': ModernSidebarTemplate,
     minimal: MinimalTemplate,
     professional: ProfessionalTemplate,
     executive: ExecutiveTemplate,
     creative: CreativeTemplate,
     tech: TechTemplate,
     student: StudentTemplate,
-    ats: ATSTemplate,
+    ats: ATSClassicTemplate,
+    'ats-classic': ATSClassicTemplate,
     elegant: ElegantTemplate,
     corporate: CorporateTemplate,
     classic: ClassicTemplate,

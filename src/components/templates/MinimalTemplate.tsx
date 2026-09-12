@@ -38,7 +38,7 @@ export const MinimalTemplate: React.FC<TemplateProps> = ({ data, lang = 'fr' }) 
           </div>
 
           {theme?.showPhoto && personalInfo.photoUrl && (
-            <div className="w-20 h-20 sm:w-24 sm:h-24 rounded-lg overflow-hidden grayscale contrast-125 border border-slate-200 shrink-0">
+            <div className={`w-36 h-36 sm:w-40 sm:h-40 md:w-44 md:h-44 ${(personalInfo.photoShape || theme?.photoShape) === 'circle' ? 'rounded-full' : 'rounded-2xl'} overflow-hidden grayscale contrast-125 border border-slate-200 shrink-0`}>
               <img src={personalInfo.photoUrl} alt="Photo" className="w-full h-full object-cover" />
             </div>
           )}

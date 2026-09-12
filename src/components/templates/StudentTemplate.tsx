@@ -64,7 +64,7 @@ export const StudentTemplate: React.FC<TemplateProps> = ({ data, lang = 'fr' }) 
           {/* Photo */}
           {theme?.showPhoto && personalInfo.photoUrl && (
             <div className="shrink-0">
-              <div className="w-24 h-24 sm:w-28 sm:h-28 rounded-2xl overflow-hidden border-3 border-white shadow-lg ring-2 ring-indigo-200">
+              <div className={`w-36 h-36 sm:w-40 sm:h-40 md:w-44 md:h-44 ${(personalInfo.photoShape || theme?.photoShape) === 'circle' ? 'rounded-full' : 'rounded-2xl'} overflow-hidden border-3 border-white shadow-lg ring-2 ring-indigo-200`}>
                 <img
                   src={personalInfo.photoUrl}
                   alt={`${personalInfo.firstName} ${personalInfo.lastName}`}

@@ -1,13 +1,13 @@
 import React from 'react';
 import { useLanguage } from '../../context/LanguageContext';
-import { Sparkles, LogOut, Plus, LayoutDashboard, Shield } from 'lucide-react';
+import { Sparkles, LogOut, Plus, LayoutDashboard, Shield, UploadCloud } from 'lucide-react';
 import { adminService } from '../../lib/adminService';
 import { LanguageSelector } from '../common/LanguageSelector';
 import { ENABLE_PAYMENTS } from '../../config/features';
 
 interface NavbarProps {
-  currentView: 'landing' | 'dashboard' | 'builder' | 'admin';
-  onNavigate: (view: 'landing' | 'dashboard' | 'builder' | 'admin') => void;
+  currentView: 'landing' | 'dashboard' | 'builder' | 'admin' | 'import' | 'editor';
+  onNavigate: (view: 'landing' | 'dashboard' | 'builder' | 'admin' | 'import' | 'editor') => void;
   onNavigateToTab?: (tab: 'cvs' | 'cover-letters') => void;
   lang?: string;
   onLanguageChange?: (lang: any) => void;
@@ -67,6 +67,15 @@ export const Navbar: React.FC<NavbarProps> = ({
             className="hover:text-blue-600 transition-colors"
           >
             {t('nav.templates', 'Modèles')}
+          </button>
+          <button
+            onClick={() => onNavigate('import')}
+            className={`hover:text-blue-600 transition-colors flex items-center gap-1.5 cursor-pointer font-bold ${
+              currentView === 'import' ? 'text-blue-600 font-extrabold' : 'text-slate-700'
+            }`}
+          >
+            <UploadCloud className="w-3.5 h-3.5 text-blue-600" />
+            <span>{t('nav.importPdf', 'Importer un CV')}</span>
           </button>
           <button
             onClick={() => {

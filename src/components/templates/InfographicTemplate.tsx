@@ -24,7 +24,7 @@ export const InfographicTemplate: React.FC<TemplateProps> = ({ data, lang = 'fr'
           {/* Photo with double border & glow */}
           {theme?.showPhoto && personalInfo.photoUrl ? (
             <div className="flex justify-center pt-2">
-              <div className="w-32 h-32 rounded-3xl overflow-hidden border-4 border-white/40 shadow-2xl bg-white/10">
+              <div className={`w-36 h-36 sm:w-40 sm:h-40 md:w-44 md:h-44 ${(personalInfo.photoShape || theme?.photoShape) === 'circle' ? 'rounded-full' : 'rounded-3xl'} overflow-hidden border-4 border-white/40 shadow-2xl bg-white/10 shrink-0`}>
                 <img
                   src={personalInfo.photoUrl}
                   alt={`${personalInfo.firstName} ${personalInfo.lastName}`}

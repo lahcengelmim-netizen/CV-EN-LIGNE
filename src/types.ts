@@ -1,5 +1,6 @@
 export type TemplateId =
   | 'modern'
+  | 'modern-sidebar'
   | 'minimal'
   | 'professional'
   | 'executive'
@@ -7,6 +8,7 @@ export type TemplateId =
   | 'tech'
   | 'student'
   | 'ats'
+  | 'ats-classic'
   | 'elegant'
   | 'corporate'
   | 'classic'
@@ -133,6 +135,7 @@ export interface PersonalInfo {
   country: string;
   address?: string;
   photoUrl?: string;
+  photoShape?: 'rounded' | 'circle';
   linkedin?: string;
   website?: string;
   github?: string;
@@ -148,6 +151,8 @@ export interface CVTheme {
   isRtl?: boolean;
   sectionOrder?: SectionKey[];
   showPhoto: boolean;
+  photoShape?: 'rounded' | 'circle';
+  photoSize?: 'normal' | 'large';
 }
 
 export interface CVSectionTitles {

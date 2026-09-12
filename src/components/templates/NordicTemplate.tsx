@@ -30,7 +30,7 @@ export const NordicTemplate: React.FC<TemplateProps> = ({ data, lang = 'fr' }) =
         {/* Minimal Photo or Monogram */}
         {theme?.showPhoto && personalInfo.photoUrl && (
           <div className="shrink-0">
-            <div className="w-20 h-20 sm:w-24 sm:h-24 rounded-full overflow-hidden border border-zinc-300 shadow-2xs grayscale contrast-110">
+            <div className={`w-36 h-36 sm:w-40 sm:h-40 md:w-44 md:h-44 ${(personalInfo.photoShape || theme?.photoShape) === 'rounded' ? 'rounded-2xl' : 'rounded-full'} overflow-hidden border border-zinc-300 shadow-2xs grayscale contrast-110`}>
               <img
                 src={personalInfo.photoUrl}
                 alt={`${personalInfo.firstName} ${personalInfo.lastName}`}

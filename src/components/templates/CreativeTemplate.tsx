@@ -20,10 +20,14 @@ export const CreativeTemplate: React.FC<TemplateProps> = ({ data, lang = 'fr' })
           <div className="flex flex-col sm:flex-row items-center gap-6 text-center sm:text-left">
             {theme?.showPhoto && (
               <div 
-                className="w-24 h-24 sm:w-28 sm:h-28 rounded-3xl overflow-hidden p-1 shadow-md shrink-0"
+                className={`w-36 h-36 sm:w-40 sm:h-40 md:w-44 md:h-44 ${(personalInfo.photoShape || theme?.photoShape) === 'circle' ? 'rounded-full' : 'rounded-3xl'} overflow-hidden p-1 shadow-md shrink-0`}
                 style={{ backgroundColor: primaryColor }}
               >
-                <img src={getProfilePhoto(personalInfo.photoUrl)} alt="Photo" className="w-full h-full object-cover rounded-2xl" />
+                <img 
+                  src={getProfilePhoto(personalInfo.photoUrl)} 
+                  alt="Photo" 
+                  className={`w-full h-full object-cover ${(personalInfo.photoShape || theme?.photoShape) === 'circle' ? 'rounded-full' : 'rounded-2xl'}`} 
+                />
               </div>
             )}
             <div>

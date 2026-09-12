@@ -37,7 +37,10 @@ export const TimelineTemplate: React.FC<TemplateProps> = ({ data, lang = 'fr' })
           {/* Optional Photo */}
           {theme?.showPhoto && personalInfo.photoUrl && (
             <div className="shrink-0">
-              <div className="w-24 h-24 sm:w-28 sm:h-28 rounded-2xl overflow-hidden border-2 shadow-md" style={{ borderColor: primaryColor }}>
+              <div 
+                className={`w-36 h-36 sm:w-40 sm:h-40 md:w-44 md:h-44 ${(personalInfo.photoShape || theme?.photoShape) === 'circle' ? 'rounded-full' : 'rounded-2xl'} overflow-hidden border-2 shadow-md`} 
+                style={{ borderColor: primaryColor }}
+              >
                 <img
                   src={personalInfo.photoUrl}
                   alt={`${personalInfo.firstName} ${personalInfo.lastName}`}

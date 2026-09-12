@@ -43,7 +43,7 @@ export const BoldTemplate: React.FC<TemplateProps> = ({ data, lang = 'fr' }) => 
           {/* Photo */}
           {theme?.showPhoto && personalInfo.photoUrl && (
             <div className="shrink-0">
-              <div className="w-28 h-28 sm:w-32 sm:h-32 rounded-3xl overflow-hidden border-4 border-white/40 shadow-xl bg-white/10">
+              <div className={`w-36 h-36 sm:w-40 sm:h-40 md:w-44 md:h-44 ${(personalInfo.photoShape || theme?.photoShape) === 'circle' ? 'rounded-full' : 'rounded-3xl'} overflow-hidden border-4 border-white/40 shadow-xl bg-white/10`}>
                 <img
                   src={personalInfo.photoUrl}
                   alt={`${personalInfo.firstName} ${personalInfo.lastName}`}

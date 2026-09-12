@@ -252,6 +252,41 @@ export const StepTemplateCustomizer: React.FC<Props> = ({
             />
           </button>
         </div>
+
+        {theme.showPhoto && (
+          <div className="p-4 bg-slate-50 rounded-2xl border border-slate-200 flex items-center justify-between">
+            <div>
+              <div className="font-bold text-xs text-slate-800">Forme de la photo</div>
+              <p className="text-xs text-slate-500">
+                Angles arrondis subtils ou portrait circulaire classique
+              </p>
+            </div>
+            <div className="inline-flex p-1 bg-white border border-slate-200 rounded-xl gap-1">
+              <button
+                type="button"
+                onClick={() => onThemeChange({ ...theme, photoShape: 'rounded' })}
+                className={`px-3 py-1 text-xs font-semibold rounded-lg transition-colors cursor-pointer ${
+                  (theme.photoShape || 'rounded') === 'rounded'
+                    ? 'bg-blue-600 text-white'
+                    : 'text-slate-600 hover:bg-slate-100'
+                }`}
+              >
+                Arrondi
+              </button>
+              <button
+                type="button"
+                onClick={() => onThemeChange({ ...theme, photoShape: 'circle' })}
+                className={`px-3 py-1 text-xs font-semibold rounded-lg transition-colors cursor-pointer ${
+                  theme.photoShape === 'circle'
+                    ? 'bg-blue-600 text-white'
+                    : 'text-slate-600 hover:bg-slate-100'
+                }`}
+              >
+                Cercle
+              </button>
+            </div>
+          </div>
+        )}
       </div>
     </div>
   );

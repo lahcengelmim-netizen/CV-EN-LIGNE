@@ -1,13 +1,142 @@
 import express, { Request, Response } from 'express';
 import path from 'path';
+import fs from 'fs';
 import { fileURLToPath } from 'url';
 import dotenv from 'dotenv';
 import crypto from 'crypto';
-import { GoogleGenAI } from '@google/genai';
+import multer from 'multer';
+import { GoogleGenAI, Type } from '@google/genai';
+import { GoogleGenerativeAI, SchemaType } from '@google/generative-ai';
 import { createServer as createViteServer } from 'vite';
+import { sortExperiencesByDate } from './src/lib/dateSorter';
 
-dotenv.config({ override: true });
-dotenv.config({ path: '.env.local', override: true });
+// ==============================================================================
+// 1. ROBUST ENVIRONMENT VARIABLE LOADING
+// Ensures GEMINI_API_KEY from .env, .env.local, or process.env is properly loaded
+// without letting empty variable declarations overwrite existing valid keys.
+// ==============================================================================
+function initEnvironment(): void {
+  // Capture any pre-existing environment variables (from system/container)
+  const preExisting: Record<string, string> = {};
+  for (const [key, value] of Object.entries(process.env)) {
+    if (value && value.trim() !== '') {
+      preExisting[key] = value.trim();
+    }
+  }
+
+  // 1. Load root .env
+  const rootEnvPath = path.resolve(process.cwd(), '.env');
+  if (fs.existsSync(rootEnvPath)) {
+    try {
+      const parsedEnv = dotenv.parse(fs.readFileSync(rootEnvPath));
+      for (const [k, v] of Object.entries(parsedEnv)) {
+        if (v && v.trim() !== '' && v.trim() !== 'MY_GEMINI_API_KEY') {
+          process.env[k] = v.trim();
+        }
+      }
+    } catch (e) {
+      console.warn('⚠️ [ENV] Erreur lors de la lecture de .env:', e);
+    }
+  }
+
+  // 2. Load root .env.local (higher precedence than .env, but won't overwrite with empty)
+  const rootEnvLocalPath = path.resolve(process.cwd(), '.env.local');
+  if (fs.existsSync(rootEnvLocalPath)) {
+    try {
+      const parsedLocal = dotenv.parse(fs.readFileSync(rootEnvLocalPath));
+      for (const [k, v] of Object.entries(parsedLocal)) {
+        if (v && v.trim() !== '' && v.trim() !== 'MY_GEMINI_API_KEY') {
+          process.env[k] = v.trim();
+        }
+      }
+    } catch (e) {
+      console.warn('⚠️ [ENV] Erreur lors de la lecture de .env.local:', e);
+    }
+  }
+
+  // 3. Re-affirm pre-existing container environment variables if any file set an empty value
+  for (const [key, val] of Object.entries(preExisting)) {
+    if (!process.env[key] || process.env[key]?.trim() === '' || process.env[key] === 'MY_GEMINI_API_KEY') {
+      process.env[key] = val;
+    }
+  }
+}
+
+initEnvironment();
+
+/**
+ * Resolves the Gemini API Key with clear terminal diagnostics and fallback guidance.
+ */
+export function getGeminiApiKey(callerContext: string = 'Gemini API'): string {
+  // Check process.env first
+  let key = process.env.GEMINI_API_KEY?.trim() || process.env.VITE_GEMINI_API_KEY?.trim();
+
+  // If missing or dummy placeholder, try direct on-the-fly re-read of .env.local
+  if (!key || key === 'MY_GEMINI_API_KEY') {
+    const envLocalPath = path.resolve(process.cwd(), '.env.local');
+    if (fs.existsSync(envLocalPath)) {
+      try {
+        const parsed = dotenv.parse(fs.readFileSync(envLocalPath));
+        const found = parsed.GEMINI_API_KEY?.trim() || parsed.VITE_GEMINI_API_KEY?.trim();
+        if (found && found !== 'MY_GEMINI_API_KEY') {
+          process.env.GEMINI_API_KEY = found;
+          key = found;
+        }
+      } catch {
+        // Silent catch for secondary lookup
+      }
+    }
+  }
+
+  // If still missing, check .env
+  if (!key || key === 'MY_GEMINI_API_KEY') {
+    const envPath = path.resolve(process.cwd(), '.env');
+    if (fs.existsSync(envPath)) {
+      try {
+        const parsed = dotenv.parse(fs.readFileSync(envPath));
+        const found = parsed.GEMINI_API_KEY?.trim() || parsed.VITE_GEMINI_API_KEY?.trim();
+        if (found && found !== 'MY_GEMINI_API_KEY') {
+          process.env.GEMINI_API_KEY = found;
+          key = found;
+        }
+      } catch {
+        // Silent catch
+      }
+    }
+  }
+
+  // Terminal logging & diagnostic when key is missing
+  if (!key || key === 'MY_GEMINI_API_KEY') {
+    const envLocalExists = fs.existsSync(path.resolve(process.cwd(), '.env.local'));
+    const envExists = fs.existsSync(path.resolve(process.cwd(), '.env'));
+
+    console.error('================================================================');
+    console.error(`❌ [BACKEND CONFIG ERROR] Clé API Gemini manquante lors de l'appel : "${callerContext}"`);
+    console.error(`   - process.env.GEMINI_API_KEY : ${process.env.GEMINI_API_KEY ? `"${process.env.GEMINI_API_KEY.slice(0, 4)}..."` : 'undefined ou vide'}`);
+    console.error(`   - Fichier .env.local : ${envLocalExists ? 'présent' : 'introuvable'}`);
+    console.error(`   - Fichier .env : ${envExists ? 'présent' : 'introuvable'}`);
+    console.error('   -------------------------------------------------------------');
+    console.error('   💡 COMMENT RÉSOUDRE CE PROBLÈME :');
+    console.error('   1. Ouvrez votre fichier .env.local à la racine du projet.');
+    console.error('   2. Ajoutez votre clé API valide :');
+    console.error('      GEMINI_API_KEY=votre_cle_api_ici');
+    console.error('   3. Vérifiez qu\'il n\'y a pas d\'espaces ou de guillemets erronés.');
+    console.error('   4. Redémarrez le serveur avec "npm run dev".');
+    console.error('================================================================');
+
+    throw new Error('Clé API Gemini introuvable ou non configurée. Veuillez définir GEMINI_API_KEY dans votre fichier .env.local.');
+  }
+
+  return key;
+}
+
+// Initial server startup verification of the Gemini API Key
+const startupKey = process.env.GEMINI_API_KEY || process.env.VITE_GEMINI_API_KEY;
+if (startupKey && startupKey !== 'MY_GEMINI_API_KEY') {
+  console.log(`✅ [GEMINI CONFIG] Clé API Gemini configurée et prête (${startupKey.slice(0, 6)}...${startupKey.slice(-4)})`);
+} else {
+  console.warn('⚠️ [GEMINI CONFIG] Aucune clé API Gemini détectée au démarrage. Assurez-vous que GEMINI_API_KEY est configurée dans .env.local.');
+}
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
@@ -15,15 +144,18 @@ const __dirname = path.dirname(__filename);
 const app = express();
 const PORT = 3000;
 
-app.use(express.json({ limit: '10mb' }));
+app.use(express.json({ limit: '15mb' }));
+app.use(express.urlencoded({ extended: true, limit: '15mb' }));
+
+// Multer in-memory storage for handling PDF uploads
+const upload = multer({
+  storage: multer.memoryStorage(),
+  limits: { fileSize: 15 * 1024 * 1024 } // 15MB max file size
+});
 
 // Initialize Gemini SDK with User-Agent header and dynamic key lookup
 function getAIClient(): GoogleGenAI {
-  const apiKey = process.env.GEMINI_API_KEY || process.env.VITE_GEMINI_API_KEY;
-  if (!apiKey || apiKey.trim() === '' || apiKey === 'MY_GEMINI_API_KEY') {
-    console.error('❌ [GEMINI] Aucune clé API Gemini valide trouvée dans process.env.GEMINI_API_KEY ou process.env.VITE_GEMINI_API_KEY');
-    throw new Error('Clé API Gemini introuvable ou non configurée. Veuillez définir GEMINI_API_KEY ou VITE_GEMINI_API_KEY dans votre fichier .env ou .env.local.');
-  }
+  const apiKey = getGeminiApiKey('AI Client SDK (@google/genai)');
 
   return new GoogleGenAI({
     apiKey,
@@ -333,6 +465,291 @@ app.get('/api/proxy-image', async (req: Request, res: Response) => {
   } catch (err: any) {
     console.error('Erreur proxy-image:', err);
     return res.status(500).json({ error: 'Erreur lors du téléchargement de l\'image', details: err?.message });
+  }
+});
+
+// ==============================================================================
+// 0. AI: Parse Existing PDF Resume (/api/parse-cv)
+// ==============================================================================
+// 10. MULTI-PAGE PDF RESUME PARSER WITH GEMINI 1.5 FLASH (@google/generative-ai)
+// Extracts personalInfo, workExperience, education, skills, and languages
+// using Gemini Multimodal PDF input with strict Structured Output JSON Schema.
+// Automatically ignores/skips empty or blank pages and strips nulls/empty entries.
+// ==============================================================================
+const resumeResponseSchema = {
+  type: Type.OBJECT,
+  description: 'Parsed resume data extracted strictly from pages containing relevant resume content.',
+  properties: {
+    personalInfo: {
+      type: Type.OBJECT,
+      description: 'Candidate personal and contact information',
+      properties: {
+        fullName: { type: Type.STRING, description: 'Full candidate name' },
+        email: { type: Type.STRING, description: 'Email address' },
+        phone: { type: Type.STRING, description: 'Phone number' },
+        address: { type: Type.STRING, description: 'Address, city, or country' },
+        jobTitle: { type: Type.STRING, description: 'Current professional title or targeted job role' },
+        summary: { type: Type.STRING, description: 'Executive summary or professional bio' },
+      },
+      required: ['fullName', 'email', 'phone', 'address', 'jobTitle', 'summary'],
+    },
+    workExperience: {
+      type: Type.ARRAY,
+      description: 'List of professional work experience entries across all relevant pages',
+      items: {
+        type: Type.OBJECT,
+        properties: {
+          jobTitle: { type: Type.STRING, description: 'Job title or role' },
+          company: { type: Type.STRING, description: 'Company or organization name' },
+          startDate: { type: Type.STRING, description: 'Start date (e.g. Month Year or Year)' },
+          endDate: { type: Type.STRING, description: 'End date or Present/Current' },
+          description: { type: Type.STRING, description: 'Detailed duties, achievements, and responsibilities' },
+        },
+        required: ['jobTitle', 'company', 'startDate', 'endDate', 'description'],
+      },
+    },
+    education: {
+      type: Type.ARRAY,
+      description: 'List of degrees, certifications, and educational credentials',
+      items: {
+        type: Type.OBJECT,
+        properties: {
+          degree: { type: Type.STRING, description: 'Degree, diploma, or certification name' },
+          institution: { type: Type.STRING, description: 'School, university, or institution name' },
+          startDate: { type: Type.STRING, description: 'Start date or year' },
+          endDate: { type: Type.STRING, description: 'Graduation date or year' },
+        },
+        required: ['degree', 'institution', 'startDate', 'endDate'],
+      },
+    },
+    skills: {
+      type: Type.ARRAY,
+      description: 'List of hard, soft, and domain-specific skills',
+      items: { type: Type.STRING },
+    },
+    languages: {
+      type: Type.ARRAY,
+      description: 'Languages spoken or written with proficiency levels if indicated',
+      items: { type: Type.STRING },
+    },
+  },
+  required: ['personalInfo', 'workExperience', 'education', 'skills', 'languages'],
+};
+
+app.post('/api/parse-cv', upload.single('file'), async (req: Request, res: Response) => {
+  try {
+    let pdfBuffer: Buffer | null = null;
+    let fileName = 'resume.pdf';
+
+    // Check if uploaded via multer multipart/form-data
+    if (req.file && req.file.buffer) {
+      pdfBuffer = req.file.buffer;
+      fileName = req.file.originalname || fileName;
+    } 
+    // Or if uploaded via JSON body with base64
+    else if (req.body && (req.body.fileBase64 || req.body.pdfBase64)) {
+      const base64Str = (req.body.fileBase64 || req.body.pdfBase64).replace(/^data:application\/pdf;base64,/, '');
+      pdfBuffer = Buffer.from(base64Str, 'base64');
+      if (req.body.fileName) fileName = req.body.fileName;
+    }
+
+    if (!pdfBuffer || pdfBuffer.length === 0) {
+      return res.status(400).json({
+        success: false,
+        error: 'Aucun fichier PDF valide n\'a été reçu. Veuillez sélectionner un fichier PDF.'
+      });
+    }
+
+    // Verify PDF magic header '%PDF'
+    const pdfMagicHeader = pdfBuffer.slice(0, 5).toString('ascii');
+    if (!pdfMagicHeader.includes('%PDF')) {
+      return res.status(400).json({
+        success: false,
+        error: 'Le fichier envoyé n\'est pas un document PDF valide.'
+      });
+    }
+
+    console.log(`[API /api/parse-cv] Parsing multi-page resume "${fileName}" (${(pdfBuffer.length / 1024).toFixed(1)} KB)...`);
+
+    const apiKey = getGeminiApiKey('/api/parse-cv');
+    const ai = new GoogleGenAI({
+      apiKey,
+      httpOptions: {
+        headers: {
+          'User-Agent': 'aistudio-build',
+        },
+      },
+    });
+
+    const pdfBase64 = pdfBuffer.toString('base64');
+
+    const prompt = `You are a world-class HR and recruitment document parser specializing in multi-page resumes and CVs.
+Analyze the attached multi-page PDF resume thoroughly with the following strict instructions:
+
+1. MULTI-PAGE & BLANK PAGE FILTERING:
+- Process all pages of the document, but extract data ONLY from pages containing actual relevant resume content.
+- Completely ignore and skip any blank pages, decorative pages, cover sheets, separator pages, overflow margins, or trailing empty pages with no substantive candidate data.
+- Seamlessly combine and synthesize work history, education, skills, and languages across all legitimate content pages into a single chronological timeline.
+
+2. MANDATORY REVERSE CHRONOLOGICAL ORDER FOR WORK EXPERIENCE:
+- CRITICAL: Automatically sort the extracted "workExperience" array in strict reverse chronological order (most recent job first at index 0, oldest job at the bottom).
+- Any current or ongoing job ("Present", "Current", "En cours", "Actuel", or open end date) MUST always be placed at the very top of the list.
+- Followed by past jobs ordered from newest end date to oldest end date.
+
+3. STRICT CLEAN OUTPUT (NO EMPTY / NULL VALUES):
+- Extract factual details without inventing or hallucinating information.
+- Strip out any empty strings, null values, placeholder markers ("N/A", "None", "Unknown"), or empty entries.
+- If any workExperience item has no jobTitle and no company, omit that item completely.
+- If any education item has no degree and no institution, omit that item completely.
+- Return only non-empty, distinct skills and languages.
+
+4. STRICT RESPONSE SCHEMA:
+- personalInfo: fullName, email, phone, address, jobTitle, summary
+- workExperience: array of { jobTitle, company, startDate, endDate, description } (MUST be ordered from newest to oldest)
+- education: array of { degree, institution, startDate, endDate }
+- skills: array of strings
+- languages: array of strings`;
+
+    let responseText = '{}';
+    try {
+      const response = await ai.models.generateContent({
+        model: 'gemini-3.6-flash',
+        contents: [
+          {
+            inlineData: {
+              data: pdfBase64,
+              mimeType: 'application/pdf',
+            },
+          },
+          prompt,
+        ],
+        config: {
+          responseMimeType: 'application/json',
+          responseSchema: resumeResponseSchema,
+          temperature: 0.1,
+        },
+      });
+      responseText = response.text || '{}';
+    } catch (primaryErr: any) {
+      console.warn('[API /api/parse-cv] Retrying with gemini-3.8-flash fallback...', primaryErr?.message);
+      const fallbackRes = await ai.models.generateContent({
+        model: 'gemini-3.8-flash',
+        contents: [
+          {
+            inlineData: {
+              data: pdfBase64,
+              mimeType: 'application/pdf',
+            },
+          },
+          prompt,
+        ],
+        config: {
+          responseMimeType: 'application/json',
+          responseSchema: resumeResponseSchema,
+          temperature: 0.1,
+        },
+      });
+      responseText = fallbackRes.text || '{}';
+    }
+
+    let parsedData: any;
+    try {
+      parsedData = JSON.parse(responseText);
+    } catch (parseError) {
+      console.warn('[API /api/parse-cv] JSON parse error, cleaning string:', parseError);
+      const cleaned = responseText.replace(/```json/gi, '').replace(/```/g, '').trim();
+      parsedData = JSON.parse(cleaned);
+    }
+
+    // Helper to sanitize strings and strip null/blank/placeholder values
+    const cleanStr = (val: any): string => {
+      if (typeof val !== 'string') return '';
+      const t = val.trim();
+      if (t.toLowerCase() === 'null' || t.toLowerCase() === 'n/a' || t.toLowerCase() === 'none') return '';
+      return t;
+    };
+
+    // Filter out blank pages artifacts, empty arrays, null values, or blank items
+    const sanitizedData = {
+      personalInfo: {
+        fullName: cleanStr(parsedData?.personalInfo?.fullName),
+        email: cleanStr(parsedData?.personalInfo?.email),
+        phone: cleanStr(parsedData?.personalInfo?.phone),
+        address: cleanStr(parsedData?.personalInfo?.address),
+        jobTitle: cleanStr(parsedData?.personalInfo?.jobTitle),
+        summary: cleanStr(parsedData?.personalInfo?.summary),
+      },
+      workExperience: sortExperiencesByDate(
+        Array.isArray(parsedData?.workExperience) 
+          ? parsedData.workExperience
+              .map((exp: any) => ({
+                jobTitle: cleanStr(exp?.jobTitle),
+                company: cleanStr(exp?.company),
+                startDate: cleanStr(exp?.startDate),
+                endDate: cleanStr(exp?.endDate),
+                description: cleanStr(exp?.description),
+              }))
+              .filter((exp: any) => Boolean(exp.jobTitle || exp.company || exp.description))
+          : []
+      ),
+      education: Array.isArray(parsedData?.education)
+        ? parsedData.education
+            .map((edu: any) => ({
+              degree: cleanStr(edu?.degree),
+              institution: cleanStr(edu?.institution),
+              startDate: cleanStr(edu?.startDate),
+              endDate: cleanStr(edu?.endDate),
+            }))
+            .filter((edu: any) => Boolean(edu.degree || edu.institution))
+        : [],
+      skills: Array.isArray(parsedData?.skills) 
+        ? Array.from(new Set(
+            parsedData.skills
+              .map((s: any) => cleanStr(s))
+              .filter((s: string) => s.length > 0)
+          ))
+        : [],
+      languages: Array.isArray(parsedData?.languages)
+        ? Array.from(new Set(
+            parsedData.languages
+              .map((l: any) => cleanStr(l))
+              .filter((l: string) => l.length > 0)
+          ))
+        : [],
+      importedAt: new Date().toISOString(),
+      sourceFileName: fileName
+    };
+
+    console.log(`[API /api/parse-cv] Successfully extracted: ${sanitizedData.personalInfo.fullName || 'Candidate'} (${sanitizedData.workExperience.length} exp, ${sanitizedData.education.length} edu, ${sanitizedData.skills.length} skills)`);
+
+    // Log AI action
+    const userId = req.body?.userId || 'guest';
+    const userEmail = req.body?.userEmail || sanitizedData.personalInfo.email;
+    db.addAILog({
+      id: 'ai_' + Math.random().toString(36).substring(2, 9),
+      endpoint: 'parse-cv',
+      userId,
+      userEmail,
+      timestamp: new Date().toISOString(),
+      success: true
+    });
+
+    return res.json({
+      success: true,
+      data: sanitizedData,
+      metadata: {
+        fileName,
+        sizeBytes: pdfBuffer.length,
+        model: 'gemini-3.6-flash'
+      }
+    });
+  } catch (err: any) {
+    console.error('❌ [API /api/parse-cv] Error:', err);
+    return res.status(500).json({
+      success: false,
+      error: err?.message || 'Erreur lors de l\'extraction du CV par l\'IA.',
+      details: String(err)
+    });
   }
 });
 

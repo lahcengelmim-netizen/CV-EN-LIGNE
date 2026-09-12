@@ -19,7 +19,7 @@ export const ModernTemplate: React.FC<TemplateProps> = ({ data }) => {
           {/* Photo */}
           {theme?.showPhoto && (
             <div className="mb-6 flex justify-center">
-              <div className="w-28 h-28 sm:w-32 sm:h-32 rounded-2xl overflow-hidden border-4 border-white/30 shadow-md">
+              <div className={`w-36 h-36 sm:w-40 sm:h-40 md:w-44 md:h-44 ${(personalInfo.photoShape || theme?.photoShape) === 'circle' ? 'rounded-full' : 'rounded-2xl'} overflow-hidden border-4 border-white/40 shadow-lg shrink-0`}>
                 <img 
                   src={getProfilePhoto(personalInfo.photoUrl)} 
                   alt={`${personalInfo.firstName || 'Profil'} ${personalInfo.lastName || ''}`} 

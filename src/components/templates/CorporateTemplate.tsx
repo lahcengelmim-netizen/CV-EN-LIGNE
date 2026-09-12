@@ -20,7 +20,7 @@ export const CorporateTemplate: React.FC<TemplateProps> = ({ data, lang = 'fr' }
           {/* Photo */}
           {theme?.showPhoto && (
             <div className="flex justify-center">
-              <div className="w-28 h-28 rounded-xl overflow-hidden border-2 border-blue-400 shadow-lg">
+              <div className={`w-36 h-36 sm:w-40 sm:h-40 md:w-44 md:h-44 ${(personalInfo.photoShape || theme?.photoShape) === 'circle' ? 'rounded-full' : 'rounded-2xl'} overflow-hidden border-2 border-blue-400 shadow-lg shrink-0`}>
                 <img
                   src={getProfilePhoto(personalInfo.photoUrl)}
                   alt={`${personalInfo.firstName || 'Profil'} ${personalInfo.lastName || ''}`}
