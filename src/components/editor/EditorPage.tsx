@@ -20,9 +20,11 @@ import {
   Building,
   Award,
   UploadCloud,
-  Check
+  Check,
+  ArrowDownUp
 } from 'lucide-react';
 import type { ParsedResumeData, ParsedWorkExperience, ParsedEducation } from '../../types/resumeParser';
+import { sortExperiencesByDate } from '../../lib/dateSorter';
 
 interface EditorPageProps {
   initialData?: ParsedResumeData | null;
@@ -107,6 +109,16 @@ export const EditorPage: React.FC<EditorPageProps> = ({
   // ----------------------------------------------------
   // GESTION DES EXPÉRIENCES PROFESSIONNELLES
   // ----------------------------------------------------
+  const [sortedNotice, setSortedNotice] = useState(false);
+
+  const handleSortExperiences = () => {
+    setResumeData((prev) => ({
+      ...prev,
+      workExperience: sortExperiencesByDate(prev.workExperience),
+    }));
+    setSortedNotice(true);
+    setTimeout(() => setSortedNotice(false), 2500);
+  };
   const handleExperienceChange = (
     index: number,
     field: keyof ParsedWorkExperience,
@@ -444,14 +456,28 @@ export const EditorPage: React.FC<EditorPageProps> = ({
                   </div>
                 </div>
 
-                <button
-                  type="button"
-                  onClick={handleAddExperience}
-                  className="px-3 py-1.5 rounded-xl bg-indigo-50 hover:bg-indigo-100 text-indigo-700 text-xs font-bold transition-colors flex items-center gap-1.5 cursor-pointer"
-                >
-                  <Plus className="w-3.5 h-3.5" />
-                  <span>Ajouter un poste</span>
-                </button>
+                <div className="flex items-center gap-2 flex-wrap">
+                  {resumeData.workExperience.length > 1 && (
+                    <button
+                      type="button"
+                      onClick={handleSortExperiences}
+                      className="px-3 py-1.5 rounded-xl bg-slate-100 hover:bg-slate-200 text-slate-700 text-xs font-bold transition-colors flex items-center gap-1.5 cursor-pointer border border-slate-200"
+                      title="Trier chronologiquement : postes récents / en cours en haut, plus anciens en bas"
+                    >
+                      <ArrowDownUp className="w-3.5 h-3.5 text-indigo-600" />
+                      <span>{sortedNotice ? 'Trié (récent → ancien) ✓' : 'Trier par date'}</span>
+                    </button>
+                  )}
+
+                  <button
+                    type="button"
+                    onClick={handleAddExperience}
+                    className="px-3 py-1.5 rounded-xl bg-indigo-50 hover:bg-indigo-100 text-indigo-700 text-xs font-bold transition-colors flex items-center gap-1.5 cursor-pointer"
+                  >
+                    <Plus className="w-3.5 h-3.5" />
+                    <span>Ajouter un poste</span>
+                  </button>
+                </div>
               </div>
 
               {resumeData.workExperience.length === 0 ? (
@@ -842,8 +868,8 @@ export const EditorPage: React.FC<EditorPageProps> = ({
                     Expériences ({resumeData.workExperience.length})
                   </h2>
                   <div className="space-y-3">
-                    {resumeData.workExperience.map((exp, i) => (
-                      <div key={i} className="text-xs space-y-1">
+                    {sortExperiencesByDate(resumeData.workExperience).map((exp, i) => (
+                      <div key={exp.id || i} className="text-xs space-y-1">
                         <div className="flex justify-between font-bold text-slate-800">
                           <span>{exp.jobTitle || 'Poste'}</span>
                           <span className="text-slate-400 font-normal">

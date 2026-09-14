@@ -18,7 +18,7 @@ export interface ExperienceLike {
   [key: string]: any;
 }
 
-// Multi-language dictionary for French & English month names & abbreviations
+// Multi-language dictionary for French, English & Arabic month names & abbreviations
 const MONTH_MAP: Record<string, number> = {
   // French
   janvier: 0,
@@ -69,11 +69,49 @@ const MONTH_MAP: Record<string, number> = {
   october: 9,
   november: 10,
   december: 11,
+  // Arabic (Standard & Maghreb / Levant)
+  يناير: 0,
+  جانفي: 0,
+  فبراير: 1,
+  فيفري: 1,
+  مارس: 2,
+  أبريل: 3,
+  ابريل: 3,
+  أفريل: 3,
+  افريل: 3,
+  نيسان: 3,
+  مايو: 4,
+  ماي: 4,
+  أيار: 4,
+  ايار: 4,
+  يونيو: 5,
+  جوان: 5,
+  حزيران: 5,
+  يوليو: 6,
+  جويلية: 6,
+  تموز: 6,
+  أغسطس: 7,
+  اغسطس: 7,
+  أوت: 7,
+  اوت: 7,
+  غشت: 7,
+  آب: 7,
+  اب: 7,
+  سبتمبر: 8,
+  شتنبر: 8,
+  أيلول: 8,
+  ايلول: 8,
+  أكتوبر: 9,
+  اكتوبر: 9,
+  نوفمبر: 10,
+  نونبر: 10,
+  ديسمبر: 11,
+  دجنبر: 11,
 };
 
-// Patterns representing active / ongoing / current positions
+// Patterns representing active / ongoing / current positions (English, French, Arabic)
 const CURRENT_KEYWORDS_REGEX =
-  /\b(présent|present|actuel|actuelle|en cours|current|aujourd'hui|today|now|ongoing)\b/i;
+  /\b(présent|present|actuel|actuelle|en cours|current|aujourd'hui|today|now|ongoing)\b|حاليا|حالي|حتى الآن|الآن|مستمر|لغاية الآن|إلى الآن/i;
 
 /**
  * Checks whether a given string represents a current / ongoing experience.
@@ -104,13 +142,8 @@ export function parseDateToTimestamp(
   const raw = dateStr.trim();
   if (!raw) return -Infinity;
 
-  // Check if string contains or represents "current / present / en cours"
-  if (isCurrentDate(raw)) {
-    return Infinity;
-  }
-
-  // If the date string is a range like "2021 - 2023" or "01/2020 à 06/2022"
-  const rangeSeparators = /\s*(?:-|–|—|to|à|au)\s*/i;
+  // If the date string is a range like "2021 - 2023", "2020 – Présent", "01/2020 à 06/2022"
+  const rangeSeparators = /\s*(?:-|–|—|\bto\b|\bà\b|\bau\b)\s*/i;
   if (rangeSeparators.test(raw)) {
     const parts = raw.split(rangeSeparators).map((s) => s.trim()).filter(Boolean);
     if (parts.length >= 2) {
@@ -119,10 +152,15 @@ export function parseDateToTimestamp(
     }
   }
 
-  const cleaned = raw.toLowerCase().replace(/[.,]/g, '').trim();
+  // Check if string contains or represents "current / present / en cours"
+  if (isCurrentDate(raw)) {
+    return Infinity;
+  }
 
-  // 1. Check for Month Name + Year: e.g. "Janvier 2023", "Jan 2023", "March 2021"
-  const textMonthYearMatch = cleaned.match(/([a-zàâéèêëîïôöùûüç]+)\s+(\d{4})/i);
+  const cleaned = raw.toLowerCase().replace(/[.,]/g, ' ').replace(/\s+/g, ' ').trim();
+
+  // 1. Check for Month Name + Year: e.g. "Janvier 2023", "Jan 2023", "March 2021", "يناير 2023"
+  const textMonthYearMatch = cleaned.match(/([a-zàâéèêëîïôöùûüç\u0600-\u06FF]+)\s+(\d{4})/i);
   if (textMonthYearMatch) {
     const monthWord = textMonthYearMatch[1];
     const yearNum = parseInt(textMonthYearMatch[2], 10);
@@ -132,8 +170,8 @@ export function parseDateToTimestamp(
     }
   }
 
-  // 1b. Inverse: Year + Month Name: e.g. "2023 Janvier", "2021 Mars"
-  const yearTextMonthMatch = cleaned.match(/(\d{4})\s+([a-zàâéèêëîïôöùûüç]+)/i);
+  // 1b. Inverse: Year + Month Name: e.g. "2023 Janvier", "2021 Mars", "2023 يناير"
+  const yearTextMonthMatch = cleaned.match(/(\d{4})\s+([a-zàâéèêëîïôöùûüç\u0600-\u06FF]+)/i);
   if (yearTextMonthMatch) {
     const yearNum = parseInt(yearTextMonthMatch[1], 10);
     const monthWord = yearTextMonthMatch[2];

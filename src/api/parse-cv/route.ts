@@ -7,7 +7,7 @@
  */
 
 import { GoogleGenAI, Type } from '@google/genai';
-import type { ParsedResumeData } from '../../types/resumeParser';
+import type { ParsedResumeData, ParsedWorkExperience } from '../../types/resumeParser';
 import { sortExperiencesByDate } from '../../lib/dateSorter';
 
 // Next.js App Router compatible Web Standard types
@@ -115,17 +115,17 @@ function cleanAndFilterResumeData(raw: any, fileName: string): ParsedResumeData 
 
   // 2. Work Experience - omit entries that have no title and no company, or are entirely blank & sort reverse chronological
   const rawWork = Array.isArray(raw?.workExperience) ? raw.workExperience : [];
-  const workExperience = sortExperiencesByDate(
-    rawWork
-      .map((item: any) => ({
-        jobTitle: cleanStr(item?.jobTitle),
-        company: cleanStr(item?.company),
-        startDate: cleanStr(item?.startDate),
-        endDate: cleanStr(item?.endDate),
-        description: cleanStr(item?.description),
-      }))
-      .filter((item: any) => Boolean(item.jobTitle || item.company || item.description))
-  );
+  const mappedWork: ParsedWorkExperience[] = rawWork
+    .map((item: any) => ({
+      jobTitle: cleanStr(item?.jobTitle),
+      company: cleanStr(item?.company),
+      startDate: cleanStr(item?.startDate),
+      endDate: cleanStr(item?.endDate),
+      description: cleanStr(item?.description),
+    }))
+    .filter((item: any) => Boolean(item.jobTitle || item.company || item.description));
+
+  const workExperience: ParsedWorkExperience[] = sortExperiencesByDate<ParsedWorkExperience>(mappedWork);
 
   // 3. Education - omit entries that have no degree and no institution
   const rawEdu = Array.isArray(raw?.education) ? raw.education : [];

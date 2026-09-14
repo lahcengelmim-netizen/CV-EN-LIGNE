@@ -1,6 +1,7 @@
 import React from 'react';
 import { useLanguage } from '../../context/LanguageContext';
 import { Mail, ShieldCheck, Sparkles, Shield } from 'lucide-react';
+import { Logo } from '../common/Logo';
 import { ENABLE_PAYMENTS } from '../../config/features';
 
 interface FooterProps {
@@ -12,23 +13,21 @@ export const Footer: React.FC<FooterProps> = ({ onNavigate }) => {
   const { t } = useLanguage();
 
   return (
-    <footer className="bg-slate-900 text-slate-400 text-xs border-t border-slate-800">
+    <footer className="bg-[#0A1128] text-slate-400 text-xs border-t border-slate-800/80">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12">
         <div className="grid grid-cols-1 md:grid-cols-4 gap-8 mb-12">
           {/* Brand Col */}
           <div className="space-y-4 md:col-span-1">
             <div className="flex items-center gap-2">
-              <div className="bg-white px-3.5 py-2 rounded-2xl shadow-sm inline-flex items-center">
-                <img
-                  src="/images/logo.jpg"
-                  alt={`${t('brand.name', 'VITAREY')} - ${t('brand.tagline', 'Créateur de CV')}`}
-                  className="h-10 sm:h-12 w-auto max-w-[200px] object-contain"
-                  referrerPolicy="no-referrer"
+              <div className="bg-white/95 px-3.5 py-1.5 rounded-2xl shadow-sm inline-flex items-center">
+                <Logo
+                  size="md"
+                  onClick={() => onNavigate?.('landing')}
                 />
               </div>
             </div>
             <p className="text-xs text-slate-400 leading-relaxed">
-              {t('footer.brandDesc', 'La plateforme intelligente VITAREY pour concevoir un CV professionnel d\'exception et une lettre de motivation sur-mesure prêts pour l\'embauche.')}
+              {t('footer.brandDesc', 'La plateforme intelligente SIRATI-Ai pour concevoir un CV professionnel d\'exception et une lettre de motivation sur-mesure prêts pour l\'embauche.')}
             </p>
             <div className="flex items-center gap-2 text-[11px] text-emerald-400">
               <ShieldCheck className="w-4 h-4 shrink-0" />
@@ -96,35 +95,26 @@ export const Footer: React.FC<FooterProps> = ({ onNavigate }) => {
               {t('footer.supportContact', 'Support & Contact')}
             </h4>
             <p className="text-xs text-slate-400 mb-3">
-              {t('footer.supportPrompt', 'Une question ou besoin d\'assistance ? L\'équipe VITAREY est à votre écoute.')}
+              {t('footer.supportPrompt', 'Une question ou besoin d\'assistance ? L\'équipe SIRATI-Ai est à votre écoute.')}
             </p>
             <a
-              href={`mailto:${import.meta.env.VITE_SUPPORT_EMAIL || 'vitareysupport@gmail.com'}`}
+              href={`mailto:${import.meta.env.VITE_SUPPORT_EMAIL || 'support@sirati-ai.com'}`}
               className="inline-flex items-center gap-2 px-3 py-2 bg-slate-800 hover:bg-slate-700 text-white rounded-xl text-xs font-semibold transition-colors border border-slate-700"
             >
-              <Mail className="w-3.5 h-3.5 text-blue-400 shrink-0" />
-              <span>{import.meta.env.VITE_SUPPORT_EMAIL || 'vitareysupport@gmail.com'}</span>
+              <Mail className="w-3.5 h-3.5 text-purple-400 shrink-0" />
+              <span>{import.meta.env.VITE_SUPPORT_EMAIL || 'support@sirati-ai.com'}</span>
             </a>
           </div>
         </div>
 
         <div className="border-t border-slate-800 pt-8 flex flex-col sm:flex-row items-center justify-between gap-4 text-[11px] text-slate-500">
           <div>
-            © {new Date().getFullYear()} {t('footer.copyright', 'VITAREY - Créateur de CV & Lettre de Motivation. Tous droits réservés.')}
+            © {new Date().getFullYear()} {t('footer.copyright', 'SIRATI-Ai - Professional Resume & Cover Letter Builder. All rights reserved.')}
           </div>
           <div className="flex items-center gap-4 flex-wrap">
             <span className="hover:text-slate-400 cursor-pointer">{t('footer.terms', 'Conditions Générales')}</span>
             <span className="hover:text-slate-400 cursor-pointer">{t('footer.privacy', 'Politique de Confidentialité')}</span>
             <span className="hover:text-slate-400 cursor-pointer">{t('footer.legal', 'Mentions Légales')}</span>
-            {onNavigate && (
-              <button
-                onClick={() => onNavigate('admin')}
-                className="hover:text-blue-400 text-slate-400 flex items-center gap-1 transition-colors font-medium ml-2"
-              >
-                <Shield className="w-3 h-3 text-blue-400 shrink-0" />
-                <span>{t('footer.adminSpace', 'Espace Administrateur')}</span>
-              </button>
-            )}
           </div>
         </div>
       </div>

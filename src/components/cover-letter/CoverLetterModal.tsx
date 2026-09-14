@@ -245,7 +245,7 @@ export const CoverLetterModal: React.FC<CoverLetterModalProps> = ({
       setIsDownloading(true);
       setDownloadProgressText('Génération du PDF...');
       const safeName = (variables.Nom || `${cvData.personalInfo.firstName || ''}_${cvData.personalInfo.lastName || ''}`).trim().replace(/\s+/g, '_') || 'Candidat';
-      const fileName = `VITAREY_Lettre_${safeName}.pdf`;
+      const fileName = `SIRATI_Lettre_${safeName}.pdf`;
 
       const success = await exportCVToPDF({
         fileName,

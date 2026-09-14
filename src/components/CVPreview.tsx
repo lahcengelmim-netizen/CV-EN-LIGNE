@@ -3,6 +3,7 @@ import { createPortal } from 'react-dom';
 import { CVData, LanguageCode, TemplateId } from '../types';
 import { CVRenderer } from './templates/CVRenderer';
 import { exportCVToPDF, exportATSTemplateToPDF, triggerNativePrint } from '../lib/pdf';
+import { sortExperiencesByDate } from '../lib/dateSorter';
 import {
   ZoomIn,
   ZoomOut,
@@ -590,7 +591,7 @@ export const CVPreview: React.FC<CVPreviewProps> = ({
           photoShape: formData.photoShape || formData.personalInfo?.photoShape || 'rounded',
         },
         summary: formData.summary || DEFAULT_CV_PREVIEW.summary,
-        experiences:
+        experiences: sortExperiencesByDate(
           formData.experiences && formData.experiences.length > 0
             ? formData.experiences.map((exp: any, i: number) => ({
                 id: exp.id || `exp-${i}`,
@@ -603,7 +604,8 @@ export const CVPreview: React.FC<CVPreviewProps> = ({
                 description: exp.desc || exp.description || '',
                 tasks: exp.tasks || [],
               }))
-            : DEFAULT_CV_PREVIEW.experiences,
+            : DEFAULT_CV_PREVIEW.experiences
+        ),
         educations:
           formData.education && formData.education.length > 0
             ? formData.education.map((edu: any, i: number) => ({
@@ -664,7 +666,7 @@ export const CVPreview: React.FC<CVPreviewProps> = ({
       setIsExporting(true);
       setExportProgressText('Génération PDF...');
       const candidateName = `${activeCvData.personalInfo.firstName || ''}_${activeCvData.personalInfo.lastName || ''}`.trim().replace(/\s+/g, '_') || 'Candidat';
-      const fileName = `VITAREY_CV_${candidateName}.pdf`;
+      const fileName = `SIRATI_CV_${candidateName}.pdf`;
 
       if (activeCvData.templateId === 'ats') {
         setExportProgressText('Génération PDF ATS (texte réel)...');

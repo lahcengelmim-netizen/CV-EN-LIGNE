@@ -1,5 +1,48 @@
 @import "tailwindcss";
 
+:root {
+  /* SIRATI-Ai Brand Palette */
+  --color-dark-navy: #0A1128;
+  --color-dark-navy-slate: #0F172A;
+  --color-ai-purple: #7C3AED;
+  --color-ai-purple-light: #8B5CF6;
+  --gradient-accent: linear-gradient(135deg, #3B82F6, #7C3AED, #A855F7);
+}
+
+.bg-dark-navy {
+  background-color: #0A1128;
+}
+
+.bg-dark-navy-slate {
+  background-color: #0F172A;
+}
+
+.bg-ai-purple {
+  background-color: #7C3AED;
+}
+
+.text-ai-purple {
+  color: #7C3AED;
+}
+
+.text-ai-purple-light {
+  color: #8B5CF6;
+}
+
+.border-ai-purple {
+  border-color: #7C3AED;
+}
+
+.bg-gradient-sirati {
+  background: linear-gradient(135deg, #3B82F6, #7C3AED, #A855F7);
+}
+
+.text-gradient-sirati {
+  background: linear-gradient(135deg, #3B82F6, #7C3AED, #A855F7);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+}
+
 @layer base {
   html {
     font-family: 'Plus Jakarta Sans', system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;

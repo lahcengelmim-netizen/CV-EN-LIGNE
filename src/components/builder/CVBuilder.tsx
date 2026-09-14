@@ -333,7 +333,7 @@ export const CVBuilder: React.FC<CVBuilderProps> = ({
       setExportProgressText('Génération du PDF HD A4...');
 
       const safeName = `${cv.personalInfo.firstName || ''}_${cv.personalInfo.lastName || ''}`.trim().replace(/\s+/g, '_') || 'Candidat';
-      const fileName = `VITAREY_CV_${safeName}.pdf`;
+      const fileName = `SIRATI_CV_${safeName}.pdf`;
 
       let exportSuccess = false;
       if (cv.templateId === 'ats') {

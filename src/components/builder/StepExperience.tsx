@@ -11,9 +11,11 @@ import {
   CheckCircle2,
   AlertCircle,
   Lightbulb,
+  ArrowDownUp,
 } from 'lucide-react';
 import { AIEnhancerModal } from './AIEnhancerModal';
 import { formatExperienceTasks } from '../../lib/gemini';
+import { sortExperiencesByDate } from '../../lib/dateSorter';
 
 interface Props {
   experiences: Experience[];
@@ -30,6 +32,14 @@ export const StepExperience: React.FC<Props> = ({ experiences, onChange }) => {
   const [adviceMap, setAdviceMap] = useState<Record<string, string>>({});
   const [errorMap, setErrorMap] = useState<Record<string, string>>({});
   const [successMap, setSuccessMap] = useState<Record<string, boolean>>({});
+  const [sortedNotice, setSortedNotice] = useState(false);
+
+  const handleSortExperiences = () => {
+    const sorted = sortExperiencesByDate(experiences);
+    onChange(sorted);
+    setSortedNotice(true);
+    setTimeout(() => setSortedNotice(false), 2500);
+  };
 
   const handleAdd = () => {
     const newExp: Experience = {
@@ -179,14 +189,28 @@ export const StepExperience: React.FC<Props> = ({ experiences, onChange }) => {
           </p>
         </div>
 
-        <button
-          type="button"
-          onClick={handleAdd}
-          className="self-start sm:self-auto inline-flex items-center gap-1.5 px-4 py-2 bg-blue-600 hover:bg-blue-700 text-white rounded-xl text-xs font-bold shadow-xs transition-colors cursor-pointer"
-        >
-          <Plus className="w-4 h-4" />
-          <span>{t('form.experience.add', 'Ajouter une expérience')}</span>
-        </button>
+        <div className="flex items-center gap-2 self-start sm:self-auto flex-wrap">
+          {experiences.length > 1 && (
+            <button
+              type="button"
+              onClick={handleSortExperiences}
+              className="inline-flex items-center gap-1.5 px-3 py-2 bg-slate-100 hover:bg-slate-200 text-slate-700 rounded-xl text-xs font-bold transition-colors cursor-pointer border border-slate-200"
+              title="Trier chronologiquement : postes récents / en cours en haut, plus anciens en bas"
+            >
+              <ArrowDownUp className="w-3.5 h-3.5 text-blue-600" />
+              <span>{sortedNotice ? 'Trié (récent → ancien) ✓' : 'Trier par date'}</span>
+            </button>
+          )}
+
+          <button
+            type="button"
+            onClick={handleAdd}
+            className="inline-flex items-center gap-1.5 px-4 py-2 bg-blue-600 hover:bg-blue-700 text-white rounded-xl text-xs font-bold shadow-xs transition-colors cursor-pointer"
+          >
+            <Plus className="w-4 h-4" />
+            <span>{t('form.experience.add', 'Ajouter une expérience')}</span>
+          </button>
+        </div>
       </div>
 
       {experiences.length === 0 ? (

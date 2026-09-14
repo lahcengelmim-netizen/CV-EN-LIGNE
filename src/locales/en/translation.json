@@ -1,7 +1,7 @@
 {
   "brand": {
-    "name": "VITAREY",
-    "tagline": "Your professional resume created in minutes",
+    "name": "SIRATI-Ai",
+    "tagline": "AI-Powered Career Intelligence",
     "badge": "AI",
     "atsBadge": "ATS-Certified Resume Generator & AI Assistant"
   },
@@ -179,12 +179,12 @@
     "guarantee3Sub": "Watermark-Free Export"
   },
   "comparison": {
-    "title": "Why choose VITAREY?",
+    "title": "Why choose SIRATI-Ai?",
     "subtitle": "Compare our transparent all-in-one builder with expensive subscription platforms and manual templates.",
     "criteria": "Criteria",
     "manualWord": "Word / Manual Template",
     "subscriptions": "Subscription Sites ($29/mo)",
-    "vitarey": "VITAREY",
+    "vitarey": "SIRATI-Ai",
     "recommended": "Recommended",
     "priceTitle": "Transparent Price",
     "priceManual": "Free but time-consuming",
@@ -233,7 +233,7 @@
     "submit": "Send Message",
     "submitting": "Sending...",
     "success": "Your message has been sent successfully to our support team. We will respond promptly.",
-    "directEmail": "vitareysupport@gmail.com",
+    "directEmail": "support@sirati-ai.com",
     "supportHours": "Support active Monday through Sunday",
     "badge": "Support & Direct Contact",
     "formTitle": "Send us a message",
@@ -445,8 +445,8 @@
   "auth": {
     "newAccountBadge": "New Account",
     "userSpaceBadge": "User Space",
-    "loginTitle": "Sign In to VITAREY",
-    "signUpTitle": "Create your VITAREY account",
+    "loginTitle": "Sign In to SIRATI-Ai",
+    "signUpTitle": "Create your SIRATI-Ai account",
     "loginSubtitle": "Access your saved resumes and recent downloads",
     "signUpSubtitle": "Save your resumes and access them across all your devices",
     "fullName": "Full Name",
@@ -482,7 +482,7 @@
     "backToSite": "Back to site"
   },
   "footer": {
-    "brandDesc": "The intelligent VITAREY platform to craft exceptional professional resumes and tailored cover letters ready for hiring managers.",
+    "brandDesc": "The intelligent SIRATI-Ai platform to craft exceptional professional resumes and tailored cover letters ready for hiring managers.",
     "atsCompliance": "ATS Compliant & Data Protected",
     "navigation": "Navigation",
     "templates21": "Our Resume Templates",
@@ -497,8 +497,8 @@
     "exportHd": "High-Definition A4 PDF export",
     "multilingualRtl": "French, English & Arabic RTL support",
     "supportContact": "Support & Contact",
-    "supportPrompt": "Need help or have questions? The VITAREY team is here to assist you.",
-    "copyright": "VITAREY - Professional Resume & Cover Letter Builder. All rights reserved.",
+    "supportPrompt": "Need help or have questions? The SIRATI-Ai team is here to assist you.",
+    "copyright": "SIRATI-Ai - Professional Resume & Cover Letter Builder. All rights reserved.",
     "terms": "Terms of Service",
     "privacy": "Privacy Policy",
     "legal": "Legal Notice",
@@ -532,7 +532,7 @@
   },
   "testimonials": {
     "badge": "Average 4.9/5 rating based on 12,000+ hires",
-    "title": "They landed their dream job with VITAREY",
+    "title": "They landed their dream job with SIRATI-Ai",
     "subtitle": "Discover how our tool empowered students, graduates, and career changers.",
     "sarahRole": "Master's Student in Marketing",
     "sarahReview": "\"I landed my final internship in just two weeks! The AI perfectly crafted my university achievements using impactful action verbs.\"",

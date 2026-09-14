@@ -299,7 +299,7 @@ export const CoverLetterStudio: React.FC<CoverLetterStudioProps> = ({
       setIsDownloading(true);
       setDownloadProgressText('Génération du PDF...');
       const safeName = (variables.Nom || 'Candidat').trim().replace(/\s+/g, '_');
-      const fileName = `VITAREY_Lettre_${safeName}.pdf`;
+      const fileName = `SIRATI_Lettre_${safeName}.pdf`;
 
       const success = await exportCVToPDF({
         fileName,
@@ -777,7 +777,7 @@ export const CoverLetterStudio: React.FC<CoverLetterStudioProps> = ({
                   {/* Footer Signature */}
                   <div className="mt-12 pt-6 border-t border-slate-100 flex justify-between items-end">
                     <div className="text-[11px] text-slate-400">
-                      Document officiel de candidature • Certifié VITAREY conforme aux normes de recrutement
+                      Document officiel de candidature • Certifié SIRATI-Ai conforme aux normes de recrutement
                     </div>
                     <div className="text-right">
                       <p className="text-xs font-bold text-slate-900">{variables.Nom}</p>

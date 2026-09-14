@@ -138,7 +138,7 @@ export async function enhanceProfileSummary(
     const langLabel =
       language === 'ar' ? 'Arabe' : language === 'en' ? 'Anglais' : 'Français';
 
-    const systemInstruction = `[VITAREY AI Assistant] Tu es l'intelligence artificielle experte de VITAREY, spécialiste du recrutement certifié ATS. Rédige des résumés professionnels captivants, concis (3 à 4 phrases d'impact) et optimisés pour les algorithmes de recrutement. Ne fabrique aucune fausse expérience. Réponds toujours en ${langLabel}.`;
+    const systemInstruction = `[SIRATI-Ai AI Assistant] Tu es l'intelligence artificielle experte de SIRATI-Ai, spécialiste du recrutement certifié ATS. Rédige des résumés professionnels captivants, concis (3 à 4 phrases d'impact) et optimisés pour les algorithmes de recrutement. Ne fabrique aucune fausse expérience. Réponds toujours en ${langLabel}.`;
 
     const prompt = `
 Optimise le profil professionnel suivant pour un CV percutant :
@@ -232,7 +232,7 @@ export async function formatExperienceTasks(
 
     const cleanTasks = tasks.filter((t) => t && t.trim().length > 0);
 
-    const systemInstruction = `[VITAREY AI Assistant] Tu es l'assistant de recrutement intelligent de VITAREY, spécialiste des normes ATS (Applicant Tracking Systems). Tu transformes les listes de tâches passives en puces de réalisations percutantes : Verbe d'action à l'infinitif + Contexte/Outil + Impact/Résultat mesurable ou méthode. Langue de rédaction : ${langLabel}.`;
+    const systemInstruction = `[SIRATI-Ai AI Assistant] Tu es l'assistant de recrutement intelligent de SIRATI-Ai, spécialiste des normes ATS (Applicant Tracking Systems). Tu transformes les listes de tâches passives en puces de réalisations percutantes : Verbe d'action à l'infinitif + Contexte/Outil + Impact/Résultat mesurable ou méthode. Langue de rédaction : ${langLabel}.`;
 
     const prompt = `
 Optimise les missions de l'expérience professionnelle suivante pour un CV de haut niveau :
@@ -383,7 +383,7 @@ export async function generateCoverLetter(
         ? 'Ton original, engageant, mettant en avant l innovation.'
         : 'Ton formel, soigné, élégant et très professionnel.';
 
-    const systemInstruction = `[VITAREY AI Assistant] Tu es l'expert en rédaction professionnelle de VITAREY (créateur de CV et lettres de motivation d'exception). Rédige une lettre de motivation captivante, personnalisée et soignée, adaptée aux standards de recrutement actuels. La lettre doit comporter une formule de politesse adaptée, un développement argumenté valorisant les compétences et expériences en rapport avec le poste et l'entreprise, et une formule de conclusion polie. Langue de rédaction : ${langLabel}.`;
+    const systemInstruction = `[SIRATI-Ai AI Assistant] Tu es l'expert en rédaction professionnelle de SIRATI-Ai (créateur de CV et lettres de motivation d'exception). Rédige une lettre de motivation captivante, personnalisée et soignée, adaptée aux standards de recrutement actuels. La lettre doit comporter une formule de politesse adaptée, un développement argumenté valorisant les compétences et expériences en rapport avec le poste et l'entreprise, et une formule de conclusion polie. Langue de rédaction : ${langLabel}.`;
 
     const prompt = `
 Rédige une lettre de motivation sur-mesure pour ce profil :

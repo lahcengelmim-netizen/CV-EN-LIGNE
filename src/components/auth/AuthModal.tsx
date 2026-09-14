@@ -3,6 +3,7 @@ import { supabase } from '../../lib/supabase';
 import { X, Mail, Lock, User, Loader2, CheckCircle2 } from 'lucide-react';
 import { useLanguage } from '../../context/LanguageContext';
 import { activityTracker } from '../../lib/activityTracker';
+import { Logo } from '../common/Logo';
 
 interface AuthModalProps {
   isOpen: boolean;
@@ -116,20 +117,15 @@ export const AuthModal: React.FC<AuthModalProps> = ({
             <X className="w-4 h-4" />
           </button>
           <div className="flex items-center justify-between mb-3">
-            <div className="bg-white px-2.5 py-1 rounded-xl shadow-xs inline-flex items-center">
-              <img
-                src="/images/logo.jpg"
-                alt="VITAREY"
-                className="h-6 w-auto object-contain"
-                referrerPolicy="no-referrer"
-              />
+            <div className="bg-white/90 backdrop-blur-xs px-2 py-1 rounded-xl shadow-xs inline-flex items-center">
+              <Logo size="sm" />
             </div>
             <span className="px-2.5 py-0.5 bg-white/20 text-white text-[10px] font-bold uppercase rounded-full">
               {isSignUp ? t('auth.newAccountBadge', 'Nouveau compte') : t('auth.userSpaceBadge', 'Espace Utilisateur')}
             </span>
           </div>
           <h3 className="text-xl font-black tracking-tight">
-            {isSignUp ? t('auth.signUpTitle', 'Créer mon compte VITAREY') : t('auth.loginTitle', 'Connexion à VITAREY')}
+            {isSignUp ? t('auth.signUpTitle', 'Créer mon compte SIRATI-Ai') : t('auth.loginTitle', 'Connexion à SIRATI-Ai')}
           </h3>
           <p className="text-xs text-blue-100 mt-1">
             {isSignUp

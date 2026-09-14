@@ -282,6 +282,25 @@ const liveSessions = new Map<string, LiveSessionRecord>();
 let liveActivityLogs: LiveActivityRecord[] = [];
 let totalEditsCount = 0;
 
+// Set of active SSE connection streams for authorized admin dashboard instances
+const adminSSEClients = new Set<Response>();
+
+export function broadcastRealtimeEvent(eventType: string, payload: any) {
+  const data = JSON.stringify({
+    type: eventType,
+    timestamp: new Date().toISOString(),
+    payload
+  });
+
+  for (const client of adminSSEClients) {
+    try {
+      client.write(`event: ${eventType}\ndata: ${data}\n\n`);
+    } catch {
+      adminSSEClients.delete(client);
+    }
+  }
+}
+
 export function logLiveActivity(record: Omit<LiveActivityRecord, 'id' | 'timestamp'>) {
   const newLog: LiveActivityRecord = {
     id: 'act_' + Date.now() + '_' + Math.random().toString(36).substring(2, 7),
@@ -292,6 +311,10 @@ export function logLiveActivity(record: Omit<LiveActivityRecord, 'id' | 'timesta
   if (liveActivityLogs.length > 200) {
     liveActivityLogs = liveActivityLogs.slice(0, 200);
   }
+
+  // Push immediate real-time update to all connected admin SSE listeners
+  broadcastRealtimeEvent('activity', newLog);
+
   return newLog;
 }
 
@@ -359,9 +382,9 @@ const serverTemplates: ServerTemplateRecord[] = [
 ];
 
 let serverSettings = {
-  platformName: 'VITAREY',
-  contactEmail: process.env.SUPPORT_EMAIL || 'vitareysupport@gmail.com',
-  supportNotificationEmail: (process.env.SUPPORT_EMAIL || 'vitareysupport@gmail.com').toLowerCase().trim(),
+  platformName: 'SIRATI-Ai',
+  contactEmail: process.env.SUPPORT_EMAIL || 'support@sirati-ai.com',
+  supportNotificationEmail: (process.env.SUPPORT_EMAIL || 'support@sirati-ai.com').toLowerCase().trim(),
   cvPrice: 2.00,
   currency: 'USD',
   maintenanceMode: false,
@@ -370,7 +393,7 @@ let serverSettings = {
 };
 
 // Secure Admin Credentials & Active Session Store
-const ADMIN_EMAIL = (process.env.ADMIN_EMAIL || 'vitareysupport@gmail.com').toLowerCase().trim();
+const ADMIN_EMAIL = (process.env.ADMIN_EMAIL || 'support@sirati-ai.com').toLowerCase().trim();
 
 // Strict security: No default/hardcoded password fallback
 const ADMIN_PASSWORD = process.env.ADMIN_PASSWORD ? process.env.ADMIN_PASSWORD.trim() : '';
@@ -406,12 +429,15 @@ function verifyAdminCredentials(inputEmail?: string, inputPassword?: string): bo
 function verifyAdminRequest(req: Request): boolean {
   const authHeader = req.headers['authorization'];
   const adminTokenHeader = req.headers['x-admin-token'] as string | undefined;
+  const queryToken = req.query?.token as string | undefined;
 
   let token: string | null = null;
   if (authHeader && authHeader.startsWith('Bearer ')) {
     token = authHeader.substring(7).trim();
   } else if (adminTokenHeader) {
     token = adminTokenHeader.trim();
+  } else if (queryToken) {
+    token = queryToken.trim();
   }
 
   if (!token) return false;
@@ -428,11 +454,20 @@ function verifyAdminRequest(req: Request): boolean {
   return true;
 }
 
+// Strict Route Guard Middleware: returns 404 (Not Found) on unauthorized access
+// to avoid revealing the existence of administrative endpoints to unauthorized scanners
+export function requireAdminAuth(req: Request, res: Response, next: express.NextFunction) {
+  if (!verifyAdminRequest(req)) {
+    return res.status(404).json({ error: 'Page non trouvée', status: 404 });
+  }
+  next();
+}
+
 // --- API ROUTES ---
 
 // Health Check
 app.get('/api/health', (req: Request, res: Response) => {
-  res.json({ status: 'ok', service: 'VITAREY API' });
+  res.json({ status: 'ok', service: 'SIRATI-Ai API' });
 });
 
 // Safe proxy for remote images (Unsplash, Supabase, external URLs) ensuring CORS headers for PDF canvas export
@@ -774,7 +809,7 @@ const handleEnhanceExperience = async (req: Request, res: Response) => {
 
     const ai = getAIClient();
     const prompt = `
-[VITAREY AI Assistant] Tu es un expert senior en recrutement et rédaction de CV professionnels pour VITAREY.
+[SIRATI-Ai AI Assistant] Tu es un expert senior en recrutement et rédaction de CV professionnels pour SIRATI-Ai.
 Ta mission est d'améliorer la formulation de l'expérience professionnelle fournie par l'utilisateur pour la rendre percutante, moderne, valorisante et adaptée aux standards des recruteurs et des ATS.
 
 RÈGLE ABSOLUE DE VÉRACITÉ (TRÈS IMPORTANT) :
@@ -870,7 +905,7 @@ app.post('/api/ai/enhance-summary', async (req: Request, res: Response) => {
 
     const ai = getAIClient();
     const prompt = `
-[VITAREY AI Assistant] Tu es un coach en recrutement de haut niveau pour VITAREY.
+[SIRATI-Ai AI Assistant] Tu es un coach en recrutement de haut niveau pour SIRATI-Ai.
 Rédige ou optimise un résumé professionnel (accroche de CV) percutant, concis (3 à 4 phrases maximum) et captivant pour un candidat.
 
 RÈGLE D'OR : Ne crée pas de fausses qualifications. Base-toi uniquement sur le profil fourni.
@@ -1022,7 +1057,7 @@ app.post('/api/ai/generate-cover-letter', async (req: Request, res: Response) =>
 
     const ai = getAIClient();
     const prompt = `
-[VITAREY AI Assistant] Tu es l'expert en recrutement de la plateforme VITAREY. Rédige une lettre de motivation professionnelle, élégante et sur-mesure pour ce candidat, basée STRICTEMENT sur son parcours réel.
+[SIRATI-Ai AI Assistant] Tu es l'expert en recrutement de la plateforme SIRATI-Ai. Rédige une lettre de motivation professionnelle, élégante et sur-mesure pour ce candidat, basée STRICTEMENT sur son parcours réel.
 
 Informations Candidat :
 - Nom : ${candidateName || 'Le Candidat'}
@@ -1608,7 +1643,7 @@ app.post('/api/user/consume-download', (req: Request, res: Response) => {
   }
 });
 
-// 6. Contact Form Notification Endpoint -> vitareysupport@gmail.com & Saved to Admin Inbox
+// 6. Contact Form Notification Endpoint -> support@sirati-ai.com & Saved to Admin Inbox
 app.post('/api/contact', (req: Request, res: Response) => {
   try {
     const { name, email, subject, message } = req.body;
@@ -1629,7 +1664,7 @@ app.post('/api/contact', (req: Request, res: Response) => {
 
     serverMessages.unshift(newMessage);
 
-    const supportRecipient = serverSettings.supportNotificationEmail || process.env.SUPPORT_EMAIL || 'vitareysupport@gmail.com';
+    const supportRecipient = serverSettings.supportNotificationEmail || process.env.SUPPORT_EMAIL || 'support@sirati-ai.com';
     console.log(`[CONTACT NOTIFICATION] New message for ${supportRecipient} from ${name} (${email}) - Subject: ${subject}`);
     console.log(`[MESSAGE BODY]: ${message}`);
 
@@ -1712,6 +1747,96 @@ app.post('/api/admin/verify', (req: Request, res: Response) => {
       role: 'admin'
     }
   });
+});
+
+// Real-Time Server-Sent Events (SSE) Stream for Hidden Admin Dashboard
+app.get('/api/admin/realtime-stream', (req: Request, res: Response) => {
+  if (!verifyAdminRequest(req)) {
+    // Return 404 to obscure endpoint existence
+    return res.status(404).json({ error: 'Page non trouvée', status: 404 });
+  }
+
+  res.writeHead(200, {
+    'Content-Type': 'text/event-stream',
+    'Cache-Control': 'no-cache, no-transform',
+    'Connection': 'keep-alive',
+    'X-Accel-Buffering': 'no'
+  });
+
+  adminSSEClients.add(res);
+
+  // Send initial handshake
+  res.write(`event: connected\ndata: ${JSON.stringify({
+    status: 'connected',
+    timestamp: new Date().toISOString(),
+    onlineUsersCount: liveSessions.size,
+    recentEditsCount: totalEditsCount
+  })}\n\n`);
+
+  // Heartbeat ping interval to keep connection alive
+  const pingInterval = setInterval(() => {
+    try {
+      res.write(': ping\n\n');
+    } catch {
+      clearInterval(pingInterval);
+      adminSSEClients.delete(res);
+    }
+  }, 15000);
+
+  req.on('close', () => {
+    clearInterval(pingInterval);
+    adminSSEClients.delete(res);
+  });
+});
+
+// Simulate Real-time Event for Verification and Live Testing
+app.post('/api/admin/simulate-event', (req: Request, res: Response) => {
+  if (!verifyAdminRequest(req)) {
+    return res.status(404).json({ error: 'Page non trouvée', status: 404 });
+  }
+
+  const { type = 'user_register' } = req.body;
+  const mockCandidates = [
+    { name: 'Sarah Benali', email: 's.benali@outlook.fr', role: 'user' },
+    { name: 'Julien Dupont', email: 'julien.dupont@gmail.com', role: 'user' },
+    { name: 'Amina Mansouri', email: 'amina.m@free.fr', role: 'user' },
+    { name: 'Lucas Moreau', email: 'lucas.m@yahoo.com', role: 'user' }
+  ];
+  const cand = mockCandidates[Math.floor(Math.random() * mockCandidates.length)];
+
+  let title = 'Nouvel utilisateur actif';
+  let details = 'Action candidate détectée en temps réel';
+  let statusType: 'success' | 'info' | 'warning' = 'info';
+
+  if (type === 'user_register') {
+    title = 'Inscription Candidat';
+    details = `Nouveau compte candidat créé par ${cand.name} (${cand.email})`;
+    statusType = 'success';
+  } else if (type === 'cv_create') {
+    title = 'Nouveau CV Initialisé';
+    details = `${cand.name} a commencé un CV avec le modèle "Moderne (2 Colonnes)"`;
+    statusType = 'info';
+  } else if (type === 'pdf_import') {
+    title = 'Extraction PDF Gemini';
+    details = `${cand.name} a importé un CV de 2 pages analysé avec succès`;
+    statusType = 'info';
+  } else if (type === 'payment') {
+    title = 'Paiement Confirmé';
+    details = `Pack Pro souscrit par ${cand.email}`;
+    statusType = 'success';
+  }
+
+  const newLog = logLiveActivity({
+    userId: 'usr_' + Math.random().toString(36).substring(2, 8),
+    userEmail: cand.email,
+    userName: cand.name,
+    action: type,
+    actionLabel: title,
+    details,
+    status: statusType
+  });
+
+  return res.json({ success: true, event: newLog });
 });
 
 // Live Activity Heartbeat
@@ -2327,7 +2452,7 @@ async function start() {
   }
 
   const server = app.listen(PORT, '0.0.0.0', () => {
-    console.log(`🚀 VITAREY Server running on port ${PORT}`);
+    console.log(`🚀 SIRATI-Ai Server running on port ${PORT}`);
   });
 
   server.on('error', (err: any) => {

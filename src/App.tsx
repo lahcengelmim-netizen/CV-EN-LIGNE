@@ -10,6 +10,9 @@ import { Dashboard } from './components/dashboard/Dashboard';
 import { CVBuilder } from './components/builder/CVBuilder';
 import { AuthModal } from './components/auth/AuthModal';
 import { AdminPortal } from './components/admin/AdminPortal';
+import { AdminRouteGuard } from './components/admin/AdminRouteGuard';
+import { NotFoundPage } from './components/common/NotFoundPage';
+import { ADMIN_SECRET_ROUTE } from './config/adminConfig';
 import { CareerBackground } from './components/layout/CareerBackground';
 import { ResumeImport } from './components/import/ResumeImport';
 import { EditorPage } from './components/editor/EditorPage';
@@ -21,7 +24,7 @@ import { activityTracker } from './lib/activityTracker';
 
 export const App: React.FC = () => {
   const { i18n: i18nInstance } = useTranslation();
-  const [currentView, setCurrentView] = useState<'landing' | 'dashboard' | 'builder' | 'admin' | 'import' | 'editor'>('landing');
+  const [currentView, setCurrentView] = useState<'landing' | 'dashboard' | 'builder' | 'admin' | 'import' | 'editor' | '404'>('landing');
   const [parsedResumeData, setParsedResumeData] = useState<ParsedResumeData | null>(null);
   const [dashboardTab, setDashboardTab] = useState<'cvs' | 'cover-letters'>('cvs');
   const [lang, setLang] = useState<LanguageCode>(() => {
@@ -56,15 +59,32 @@ export const App: React.FC = () => {
 
   // Check URL pathname or hash on load
   useEffect(() => {
-    const path = window.location.pathname;
-    const hash = window.location.hash;
-    if (path.includes('/admin') || hash === '#admin') {
-      setCurrentView('admin');
-    } else if (path.includes('/import') || hash === '#import') {
-      setCurrentView('import');
-    } else if (path.includes('/editor') || hash === '#editor') {
-      setCurrentView('editor');
-    }
+    const checkRoute = () => {
+      const path = window.location.pathname;
+      const hash = window.location.hash;
+      const secretRoute = ADMIN_SECRET_ROUTE;
+
+      // 1. Secret obfuscated admin route (e.g. /app-control-panel-x97)
+      if (path.includes(secretRoute) || hash.includes(secretRoute)) {
+        setCurrentView('admin');
+      } 
+      // 2. Old public /admin route is completely neutralized -> renders 404
+      else if (path.includes('/admin') || hash === '#admin') {
+        setCurrentView('404');
+      } else if (path.includes('/import') || hash === '#import') {
+        setCurrentView('import');
+      } else if (path.includes('/editor') || hash === '#editor') {
+        setCurrentView('editor');
+      }
+    };
+
+    checkRoute();
+    window.addEventListener('popstate', checkRoute);
+    window.addEventListener('hashchange', checkRoute);
+    return () => {
+      window.removeEventListener('popstate', checkRoute);
+      window.removeEventListener('hashchange', checkRoute);
+    };
   }, []);
 
   // Initialize Auth & Load CVs
@@ -263,7 +283,7 @@ export const App: React.FC = () => {
       <CareerBackground />
 
       {/* Top Navbar */}
-      {currentView !== 'builder' && currentView !== 'admin' && currentView !== 'editor' && (
+      {currentView !== 'builder' && currentView !== 'admin' && currentView !== 'editor' && currentView !== '404' && (
         <Navbar
           currentView={currentView}
           onNavigate={(view) => setCurrentView(view)}
@@ -338,15 +358,27 @@ export const App: React.FC = () => {
         )}
 
         {currentView === 'admin' && (
-          <AdminPortal
-            onBackToSite={() => setCurrentView('landing')}
+          <AdminRouteGuard
+            onBackToSite={() => {
+              setCurrentView('landing');
+              window.history.pushState({}, '', '/');
+            }}
             currentUser={user}
+          />
+        )}
+
+        {currentView === '404' && (
+          <NotFoundPage
+            onGoHome={() => {
+              setCurrentView('landing');
+              window.history.pushState({}, '', '/');
+            }}
           />
         )}
       </main>
 
       {/* Footer */}
-      {currentView !== 'builder' && currentView !== 'admin' && currentView !== 'editor' && (
+      {currentView !== 'builder' && currentView !== 'admin' && currentView !== 'editor' && currentView !== '404' && (
         <Footer lang={lang} onNavigate={(view) => setCurrentView(view)} />
       )}
 

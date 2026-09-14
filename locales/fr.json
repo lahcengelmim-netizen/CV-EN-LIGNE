@@ -1,7 +1,7 @@
 {
   "brand": {
-    "name": "VITAREY",
-    "tagline": "Votre CV professionnel créé en quelques minutes",
+    "name": "SIRATI-Ai",
+    "tagline": "AI-Powered Career Intelligence",
     "badge": "IA",
     "atsBadge": "Générateur de CV certifié ATS & Assistant IA"
   },
@@ -179,12 +179,12 @@
     "guarantee3Sub": "Export sans filigrane"
   },
   "comparison": {
-    "title": "Pourquoi choisir VITAREY ?",
+    "title": "Pourquoi choisir SIRATI-Ai ?",
     "subtitle": "Comparez notre solution transparente avec les méthodes classiques et les abonnements mensuels coûteux.",
     "criteria": "Critères",
     "manualWord": "Word / Modèle manuel",
     "subscriptions": "Sites à abonnement ($29/mois)",
-    "vitarey": "VITAREY",
+    "vitarey": "SIRATI-Ai",
     "recommended": "Recommandé",
     "priceTitle": "Prix transparent",
     "priceManual": "Gratuit mais chronophage",
@@ -233,7 +233,7 @@
     "submit": "Envoyer le message",
     "submitting": "Envoi en cours...",
     "success": "Votre message a été transmis avec succès à notre équipe support. Nous vous répondrons dans les plus brefs délais.",
-    "directEmail": "vitareysupport@gmail.com",
+    "directEmail": "support@sirati-ai.com",
     "supportHours": "Support disponible du lundi au dimanche",
     "badge": "Support & Contact direct",
     "formTitle": "Envoyez-nous un message",
@@ -445,8 +445,8 @@
   "auth": {
     "newAccountBadge": "Nouveau compte",
     "userSpaceBadge": "Espace Utilisateur",
-    "loginTitle": "Connexion à VITAREY",
-    "signUpTitle": "Créer mon compte VITAREY",
+    "loginTitle": "Connexion à SIRATI-Ai",
+    "signUpTitle": "Créer mon compte SIRATI-Ai",
     "loginSubtitle": "Retrouvez vos CVs en cours et vos téléchargements",
     "signUpSubtitle": "Sauvegardez vos CVs et accédez-y depuis tous vos appareils",
     "fullName": "Nom & Prénom",
@@ -482,7 +482,7 @@
     "backToSite": "Retour au site"
   },
   "footer": {
-    "brandDesc": "La plateforme intelligente VITAREY pour concevoir un CV professionnel d'exception et une lettre de motivation sur-mesure prêts pour l'embauche.",
+    "brandDesc": "La plateforme intelligente SIRATI-Ai pour concevoir un CV professionnel d'exception et une lettre de motivation sur-mesure prêts pour l'embauche.",
     "atsCompliance": "Conforme ATS & Protection des données",
     "navigation": "Navigation",
     "templates21": "Nos Modèles de CV",
@@ -497,8 +497,8 @@
     "exportHd": "Export PDF A4 Haute Définition",
     "multilingualRtl": "Traduction FR, EN et Arabe RTL",
     "supportContact": "Support & Contact",
-    "supportPrompt": "Une question ou besoin d'assistance ? L'équipe VITAREY est à votre écoute.",
-    "copyright": "VITAREY - Créateur de CV & Lettre de Motivation. Tous droits réservés.",
+    "supportPrompt": "Une question ou besoin d'assistance ? L'équipe SIRATI-Ai est à votre écoute.",
+    "copyright": "SIRATI-Ai - Créateur de CV & Lettre de Motivation. Tous droits réservés.",
     "terms": "Conditions Générales",
     "privacy": "Politique de Confidentialité",
     "legal": "Mentions Légales",
@@ -532,7 +532,7 @@
   },
   "testimonials": {
     "badge": "Note moyenne de 4.9/5 basée sur +12 000 recrutements",
-    "title": "Ils ont décroché leur job avec VITAREY",
+    "title": "Ils ont décroché leur job avec SIRATI-Ai",
     "subtitle": "Découvrez comment notre outil a aidé des étudiants, des diplômés et des professionnels en reconversion.",
     "sarahRole": "Étudiante en Master Marketing",
     "sarahReview": "« J’ai décroché mon stage de fin d’études en seulement deux semaines ! L’IA a parfaitement formulé mes expériences universitaires avec des verbes valorisants. »",
@@ -574,13 +574,5 @@
       "minimalist": "Minimaliste",
       "executive": "Exécutif"
     }
-  },
-  "preview": {
-    "liveTitle": "Aperçu en direct (A4)",
-    "customColor": "Couleur personnalisée"
-  },
-  "buttons": {
-    "downloadPdf": "Télécharger PDF",
-    "exporting": "Export en cours..."
   }
 }

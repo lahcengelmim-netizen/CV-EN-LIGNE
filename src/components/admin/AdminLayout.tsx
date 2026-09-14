@@ -21,6 +21,7 @@ import {
   UserCheck
 } from 'lucide-react';
 import { adminService } from '../../lib/adminService';
+import { Logo } from '../common/Logo';
 
 export type AdminTab =
   | 'dashboard'
@@ -52,7 +53,7 @@ export const AdminLayout: React.FC<AdminLayoutProps> = ({
 }) => {
   const [sidebarOpen, setSidebarOpen] = useState(false);
   const [showProfileMenu, setShowProfileMenu] = useState(false);
-  const adminEmail = adminService.getStoredAdminEmail() || 'vitareysupport@gmail.com';
+  const adminEmail = adminService.getStoredAdminEmail() || 'support@sirati-ai.com';
 
   const navItems: Array<{ id: AdminTab; label: string; icon: React.ReactNode; badge?: number | string }> = [
     { id: 'dashboard', label: 'Tableau de bord', icon: <LayoutDashboard className="w-4 h-4" /> },
@@ -86,13 +87,8 @@ export const AdminLayout: React.FC<AdminLayoutProps> = ({
           </button>
 
           <div className="flex items-center gap-3">
-            <div className="bg-white px-2 py-1 rounded-xl shadow-md inline-flex items-center">
-              <img
-                src="/images/logo.jpg"
-                alt="VITAREY"
-                className="h-6 sm:h-7 w-auto object-contain"
-                referrerPolicy="no-referrer"
-              />
+            <div className="bg-white/10 px-2 py-1 rounded-xl shadow-xs inline-flex items-center">
+              <Logo size="sm" variant="light" />
             </div>
             <span className="px-2 py-0.5 bg-blue-500/20 border border-blue-500/40 text-blue-400 text-[10px] font-bold rounded-full uppercase tracking-wider">
               ADMIN

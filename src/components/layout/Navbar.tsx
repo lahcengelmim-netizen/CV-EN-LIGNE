@@ -3,6 +3,7 @@ import { useLanguage } from '../../context/LanguageContext';
 import { Sparkles, LogOut, Plus, LayoutDashboard, Shield, UploadCloud } from 'lucide-react';
 import { adminService } from '../../lib/adminService';
 import { LanguageSelector } from '../common/LanguageSelector';
+import { Logo } from '../common/Logo';
 import { ENABLE_PAYMENTS } from '../../config/features';
 
 interface NavbarProps {
@@ -34,18 +35,11 @@ export const Navbar: React.FC<NavbarProps> = ({
     <header className="sticky top-0 z-40 bg-white/95 backdrop-blur-md border-b border-slate-200/80 transition-all shadow-2xs">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 h-18 sm:h-20 flex items-center justify-between gap-4">
         {/* Brand Logo */}
-        <div 
+        <Logo
+          size="md"
           onClick={() => onNavigate('landing')}
-          className="flex items-center cursor-pointer group select-none py-1 shrink-0"
-          title={`${t('brand.name')} - ${t('brand.tagline')}`}
-        >
-          <img
-            src="/images/logo.jpg"
-            alt={`${t('brand.name')} - ${t('brand.tagline')}`}
-            className="h-12 sm:h-14 md:h-15 w-auto max-w-[190px] sm:max-w-[240px] md:max-w-[280px] object-contain group-hover:scale-[1.02] transition-transform duration-200"
-            referrerPolicy="no-referrer"
-          />
-        </div>
+          className="shrink-0 py-1"
+        />
 
         {/* Navigation Links */}
         <nav className="hidden md:flex items-center gap-6 text-xs font-semibold text-slate-600">
@@ -141,16 +135,6 @@ export const Navbar: React.FC<NavbarProps> = ({
           {/* User Auth or CTA */}
           {user ? (
             <div className="flex items-center gap-2">
-              {isAdmin && (
-                <button
-                  onClick={() => onNavigate('admin')}
-                  className="px-3 py-2 bg-gradient-to-r from-purple-600 to-indigo-600 hover:from-purple-700 hover:to-indigo-700 text-white rounded-xl text-xs font-extrabold shadow-sm transition-all flex items-center gap-1.5 border border-purple-400/30"
-                  title="Accéder au panneau d'administration"
-                >
-                  <Shield className="w-3.5 h-3.5" />
-                  <span>{t('nav.adminBadge', 'ADMIN')}</span>
-                </button>
-              )}
               <button
                 onClick={() => onNavigate('dashboard')}
                 className="px-3 py-2 bg-slate-100 hover:bg-slate-200 text-slate-800 rounded-xl text-xs font-bold transition-colors flex items-center gap-1.5"

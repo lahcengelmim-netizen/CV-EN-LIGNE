@@ -1,6 +1,6 @@
 {
-  "name": "VITAREY",
-  "description": "VITAREY — Créateur de CV & Lettre de Motivation professionnel avec assistance IA, modèles modernes ATS et export PDF.",
+  "name": "SIRATI-Ai",
+  "description": "SIRATI-Ai — AI-Powered Resume & Cover Letter Builder. AI-Powered Career Intelligence with modern ATS templates, intelligent drafting, and professional PDF export.",
   "requestFramePermissions": [],
   "majorCapabilities": ["MAJOR_CAPABILITY_SERVER_SIDE_GEMINI_API"]
 }

@@ -1,6 +1,7 @@
 import { CVData, TemplateId } from '../types';
 import { getTemplateById } from './templatesData';
 import { getProfilePhoto } from './defaultAvatar';
+import { sortExperiencesByDate } from './dateSorter';
 
 /**
  * Returns effective CVData for live rendering and preview.
@@ -64,25 +65,27 @@ export function getEffectiveCVData(cv: CVData): CVData {
   // 2. Summary
   const effectiveSummary = cv.summary !== undefined ? cv.summary : (sample.summary || '');
 
-  // 3. Experiences
+  // 3. Experiences (automatically sorted reverse-chronologically: newest first)
   let effectiveExperiences: any[] = [];
   if (Array.isArray(cv.experiences)) {
     if (cv.experiences.length > 0) {
-      effectiveExperiences = cv.experiences.map((exp) => ({
-        ...exp,
-        position: exp.position || (exp as any).jobTitle || 'Intitulé du poste',
-        company: exp.company || (exp as any).employer || 'Entreprise',
-        startDate: exp.startDate || '2022',
-        endDate: exp.endDate || '',
-        current: exp.current || false,
-        description: exp.description || '',
-        tasks: Array.isArray(exp.tasks) ? exp.tasks.filter((t) => t && t.trim()) : []
-      }));
+      effectiveExperiences = sortExperiencesByDate(
+        cv.experiences.map((exp) => ({
+          ...exp,
+          position: exp.position || (exp as any).jobTitle || 'Intitulé du poste',
+          company: exp.company || (exp as any).employer || 'Entreprise',
+          startDate: exp.startDate || '2022',
+          endDate: exp.endDate || '',
+          current: exp.current || false,
+          description: exp.description || '',
+          tasks: Array.isArray(exp.tasks) ? exp.tasks.filter((t) => t && t.trim()) : []
+        }))
+      );
     } else {
       effectiveExperiences = [];
     }
   } else {
-    effectiveExperiences = sample.experiences || [];
+    effectiveExperiences = sortExperiencesByDate(sample.experiences || []);
   }
 
   // 4. Educations

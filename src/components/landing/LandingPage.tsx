@@ -182,7 +182,7 @@ export const LandingPage: React.FC<LandingPageProps> = ({ onStartCV, onImportCV,
       {/* 5. COMPARISON TABLE */}
       <section className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <div className="text-center space-y-3 mb-12">
-          <h2 className="text-3xl font-black text-slate-900 tracking-tight">{t('comparison.title', 'Pourquoi choisir VITAREY ?')}</h2>
+          <h2 className="text-3xl font-black text-slate-900 tracking-tight">{t('comparison.title', 'Pourquoi choisir SIRATI-Ai ?')}</h2>
           <p className="text-xs sm:text-sm text-slate-500 max-w-xl mx-auto">
             {t('comparison.subtitle', 'Comparez notre solution transparente avec les méthodes classiques et les abonnements mensuels coûteux.')}
           </p>
@@ -197,7 +197,7 @@ export const LandingPage: React.FC<LandingPageProps> = ({ onStartCV, onImportCV,
                 <th className="p-4 sm:p-5 font-bold text-slate-700 w-1/4">{t('comparison.subscriptionSites', 'Sites à abonnement ($29/mois)')}</th>
                 <th className="p-4 sm:p-5 font-bold bg-blue-50/90 border-x-2 border-t-2 border-blue-300 w-1/4">
                   <div className="flex flex-wrap items-center gap-2">
-                    <span className="text-base font-black text-blue-900 tracking-tight">VITAREY</span>
+                    <span className="text-base font-black text-blue-900 tracking-tight">SIRATI-Ai</span>
                     <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded-full bg-blue-600 text-white text-[10px] font-black uppercase tracking-wider shadow-2xs">
                       <Sparkles className="w-3 h-3 text-amber-300" />
                       {t('comparison.recommended', 'Recommandé')}
@@ -309,7 +309,7 @@ export const LandingPage: React.FC<LandingPageProps> = ({ onStartCV, onImportCV,
             <Star className="w-3.5 h-3.5 fill-emerald-600 text-emerald-600" />
             <span>{t('testimonials.badge', 'Note moyenne de 4.9/5 basée sur +12 000 recrutements')}</span>
           </div>
-          <h2 className="text-3xl font-black text-slate-900 tracking-tight">{t('testimonials.title', 'Ils ont décroché leur job avec VITAREY')}</h2>
+          <h2 className="text-3xl font-black text-slate-900 tracking-tight">{t('testimonials.title', 'Ils ont décroché leur job avec SIRATI-Ai')}</h2>
           <p className="text-xs sm:text-sm text-slate-500 max-w-xl mx-auto">
             {t('testimonials.subtitle', 'Découvrez comment notre outil a aidé des étudiants, des diplômés et des professionnels en reconversion.')}
           </p>

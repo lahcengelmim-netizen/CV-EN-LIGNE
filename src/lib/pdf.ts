@@ -317,13 +317,13 @@ export function showPDFExportErrorNotification(options: {
   onRetry?: () => void;
 }): void {
   // Check if an existing notification is already mounted
-  const existing = document.getElementById('vitarey-pdf-error-toast');
+  const existing = document.getElementById('sirati-pdf-error-toast');
   if (existing && existing.parentElement) {
     existing.parentElement.removeChild(existing);
   }
 
   const container = document.createElement('div');
-  container.id = 'vitarey-pdf-error-toast';
+  container.id = 'sirati-pdf-error-toast';
   container.setAttribute('role', 'alert');
   container.style.cssText = `
     position: fixed;
@@ -340,15 +340,15 @@ export function showPDFExportErrorNotification(options: {
     z-index: 999999;
     font-family: system-ui, -apple-system, sans-serif;
     color: #1e293b;
-    animation: vitareyToastSlideIn 0.25s ease-out;
+    animation: siratiToastSlideIn 0.25s ease-out;
   `;
 
   // Inject animation style if not already present
-  if (!document.getElementById('vitarey-pdf-toast-style')) {
+  if (!document.getElementById('sirati-pdf-toast-style')) {
     const style = document.createElement('style');
-    style.id = 'vitarey-pdf-toast-style';
+    style.id = 'sirati-pdf-toast-style';
     style.textContent = `
-      @keyframes vitareyToastSlideIn {
+      @keyframes siratiToastSlideIn {
         from { transform: translateY(20px); opacity: 0; }
         to { transform: translateY(0); opacity: 1; }
       }
@@ -376,15 +376,15 @@ export function showPDFExportErrorNotification(options: {
           ${detailsHtml}
         </div>
       </div>
-      <button id="vitarey-pdf-toast-close" style="background: transparent; border: none; font-size: 18px; line-height: 1; color: #94a3b8; cursor: pointer; padding: 4px;">&times;</button>
+      <button id="sirati-pdf-toast-close" style="background: transparent; border: none; font-size: 18px; line-height: 1; color: #94a3b8; cursor: pointer; padding: 4px;">&times;</button>
     </div>
     <div style="margin-top: 12px; display: flex; align-items: center; justify-content: flex-end; gap: 8px;">
-      <button id="vitarey-pdf-toast-dismiss" style="padding: 6px 12px; background: #f1f5f9; hover: background: #e2e8f0; border: 1px solid #cbd5e1; border-radius: 8px; font-size: 12px; font-weight: 600; color: #475569; cursor: pointer;">
+      <button id="sirati-pdf-toast-dismiss" style="padding: 6px 12px; background: #f1f5f9; hover: background: #e2e8f0; border: 1px solid #cbd5e1; border-radius: 8px; font-size: 12px; font-weight: 600; color: #475569; cursor: pointer;">
         Fermer
       </button>
       ${
         options.onRetry
-          ? `<button id="vitarey-pdf-toast-retry" style="padding: 6px 14px; background: #2563eb; border: none; border-radius: 8px; font-size: 12px; font-weight: 600; color: #ffffff; cursor: pointer;">
+          ? `<button id="sirati-pdf-toast-retry" style="padding: 6px 14px; background: #2563eb; border: none; border-radius: 8px; font-size: 12px; font-weight: 600; color: #ffffff; cursor: pointer;">
               Réessayer
              </button>`
           : ''
@@ -394,9 +394,9 @@ export function showPDFExportErrorNotification(options: {
 
   document.body.appendChild(container);
 
-  const closeBtn = container.querySelector('#vitarey-pdf-toast-close');
-  const dismissBtn = container.querySelector('#vitarey-pdf-toast-dismiss');
-  const retryBtn = container.querySelector('#vitarey-pdf-toast-retry');
+  const closeBtn = container.querySelector('#sirati-pdf-toast-close');
+  const dismissBtn = container.querySelector('#sirati-pdf-toast-dismiss');
+  const retryBtn = container.querySelector('#sirati-pdf-toast-retry');
 
   const removeToast = () => {
     if (container.parentElement) {
@@ -418,12 +418,12 @@ export function showPDFExportErrorNotification(options: {
 }
 
 /**
- * Primary PDF exporter for VITAREY CVs and Cover Letters using html2pdf.js.
+ * Primary PDF exporter for SIRATI-Ai CVs and Cover Letters using html2pdf.js.
  * Configured for genuine A4 PDF file generation with Base64 image inlining,
  * strict allowTaint: false, detailed step-by-step logs, and explicit user-visible errors.
  */
 export const exportCVToPDF = async ({
-  fileName = 'VITAREY_Document.pdf',
+  fileName = 'SIRATI_Document.pdf',
   elementId = 'cv-printable-document',
   targetElement = null,
   cv,
@@ -458,7 +458,7 @@ export const exportCVToPDF = async ({
     console.log('[PDF Export Step 2 - Staging] Création du conteneur A4 étalonné (794px × 1123px à 96 DPI)...');
 
     stagingContainer = document.createElement('div');
-    stagingContainer.id = 'vitarey-pdf-export-staging';
+    stagingContainer.id = 'sirati-pdf-export-staging';
     stagingContainer.style.cssText = `
       position: fixed;
       top: 0;
@@ -1164,7 +1164,7 @@ export const exportATSTemplateToPDF = async (
     // -------------------------------------------------------------
     onProgress?.('Téléchargement du PDF ATS...');
     const safeCandidateName = `${firstName || ''}_${lastName || ''}`.trim().replace(/\s+/g, '_') || 'Candidat';
-    const finalFileName = options?.fileName || `VITAREY_CV_ATS_${safeCandidateName}.pdf`;
+    const finalFileName = options?.fileName || `SIRATI_CV_ATS_${safeCandidateName}.pdf`;
 
     const blob = doc.output('blob');
     downloadBlob(blob, finalFileName);

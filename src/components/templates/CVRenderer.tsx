@@ -1,5 +1,5 @@
 import React from 'react';
-import { CVData, TemplateId } from '../../types';
+import { CVData, TemplateId, Experience } from '../../types';
 import { ENABLE_PAYMENTS } from '../../config/features';
 import { ModernTemplate } from './ModernTemplate';
 import { MinimalTemplate } from './MinimalTemplate';
@@ -23,6 +23,7 @@ import { SiliconTemplate } from './SiliconTemplate';
 import { ModernSidebarTemplate } from './ModernSidebarTemplate';
 import { ATSClassicTemplate } from './ATSClassicTemplate';
 import { getEffectiveCVData } from '../../lib/cvDataUtils';
+import { sortExperiencesByDate } from '../../lib/dateSorter';
 import { A4FitWrapper } from '../A4FitWrapper';
 
 export interface CVRendererProps {
@@ -55,7 +56,14 @@ export const CVRenderer: React.FC<CVRendererProps> = ({
     return null;
   }
 
-  const activeData = disableAutoFallback ? rawData : getEffectiveCVData(rawData);
+  const baseActiveData = disableAutoFallback ? rawData : getEffectiveCVData(rawData);
+  const rawList = (baseActiveData.experiences || (baseActiveData as any).experience || []) as Experience[];
+  const sortedExperiences = sortExperiencesByDate<Experience>(rawList);
+  const activeData: CVData = {
+    ...baseActiveData,
+    experiences: sortedExperiences,
+    experience: sortedExperiences,
+  };
 
   const templateMap: Record<TemplateId, React.FC<{ data: CVData }>> = {
     modern: ModernSidebarTemplate,
@@ -101,7 +109,7 @@ export const CVRenderer: React.FC<CVRendererProps> = ({
       {isWatermarked && (
         <div className="absolute inset-0 pointer-events-none z-30 flex items-center justify-center overflow-hidden no-print">
           <div className="transform -rotate-45 text-slate-400/20 font-black text-6xl tracking-widest uppercase select-none border-8 border-slate-400/20 p-8 rounded-3xl">
-            VITAREY • APERÇU
+            SIRATI-Ai • APERÇU
           </div>
         </div>
       )}
