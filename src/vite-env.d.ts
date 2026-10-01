@@ -1,5 +1,12 @@
 /// <reference types="vite/client" />
 
+declare module 'next/server' {
+  export class NextRequest extends Request {}
+  export class NextResponse extends Response {
+    static json<T = any>(data: T, init?: ResponseInit): NextResponse;
+  }
+}
+
 /**
  * PayPal JS SDK Global Types and Interfaces
  */

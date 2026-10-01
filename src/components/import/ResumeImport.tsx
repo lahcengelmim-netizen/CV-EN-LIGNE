@@ -101,19 +101,66 @@ export const ResumeImport: React.FC<ResumeImportProps> = ({ onSuccess, onNavigat
         setLoadingStep('Structuration JSON et validation des données...');
       }, 4200);
 
-      // Appel de l'API /api/parse-cv
-      const response = await fetch('/api/parse-cv', {
+      // Appel de l'API backend (/api/parse-pdf avec fallback vers /api/parse-cv)
+      let endpoint = '/api/parse-pdf';
+      let response = await fetch(endpoint, {
         method: 'POST',
         body: formData,
       });
+
+      // Fallback si /api/parse-pdf n'est pas disponible (404)
+      if (response.status === 404) {
+        endpoint = '/api/parse-cv';
+        response = await fetch(endpoint, {
+          method: 'POST',
+          body: formData,
+        });
+      }
 
       clearTimeout(timer1);
       clearTimeout(timer2);
       clearTimeout(timer3);
 
+      // Vérification stricte du statut HTTP avant d'appeler .json()
+      const contentType = response.headers.get('content-type') || '';
+      const isJson = contentType.includes('application/json');
+
+      if (!response.ok) {
+        let errorMessage = `Erreur du serveur (${response.status} ${response.statusText})`;
+
+        if (isJson) {
+          try {
+            const errorData = await response.json();
+            errorMessage = errorData.error || errorData.message || errorMessage;
+          } catch {
+            // Échec du parsing du JSON d'erreur, conservation du message par défaut
+          }
+        } else {
+          // La réponse est une page d'erreur HTML ou du texte brut (ex: 404/500 "The page could not be found...")
+          try {
+            const textResponse = await response.text();
+            console.error('Réponse non-JSON reçue du serveur:', textResponse.slice(0, 300));
+
+            if (response.status === 404) {
+              errorMessage = 'Le point de terminaison API (/api/parse-pdf) est introuvable. Veuillez vérifier que la route est déployée.';
+            } else if (response.status >= 500) {
+              errorMessage = 'Le serveur a rencontré une erreur interne lors du traitement du document. Veuillez réessayer ultérieurement.';
+            }
+          } catch {
+            // Ignorer
+          }
+        }
+
+        throw new Error(errorMessage);
+      }
+
+      if (!isJson) {
+        throw new Error('Le serveur a renvoyé une réponse inattendue au lieu d\'un objet JSON valide.');
+      }
+
       const result: ParseCvApiResponse = await response.json();
 
-      if (!response.ok || !result.success || !result.data) {
+      if (!result.success || !result.data) {
         throw new Error(result.error || 'Impossible d\'extraire les données du CV. Veuillez vérifier votre document ou réessayer.');
       }
 

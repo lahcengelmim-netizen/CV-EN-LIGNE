@@ -64,13 +64,14 @@ export const App: React.FC = () => {
       const hash = window.location.hash;
       const secretRoute = ADMIN_SECRET_ROUTE;
 
-      // 1. Secret obfuscated admin route (e.g. /app-control-panel-x97)
-      if (path.includes(secretRoute) || hash.includes(secretRoute)) {
+      // 1. Admin Portal routes (/admin, /admin/dashboard, /admin/login, or secret route)
+      if (
+        path.includes(secretRoute) || 
+        hash.includes(secretRoute) || 
+        path.startsWith('/admin') || 
+        hash.startsWith('#admin')
+      ) {
         setCurrentView('admin');
-      } 
-      // 2. Old public /admin route is completely neutralized -> renders 404
-      else if (path.includes('/admin') || hash === '#admin') {
-        setCurrentView('404');
       } else if (path.includes('/import') || hash === '#import') {
         setCurrentView('import');
       } else if (path.includes('/editor') || hash === '#editor') {

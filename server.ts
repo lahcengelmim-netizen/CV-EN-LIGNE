@@ -571,7 +571,7 @@ const resumeResponseSchema = {
   required: ['personalInfo', 'workExperience', 'education', 'skills', 'languages'],
 };
 
-app.post('/api/parse-cv', upload.single('file'), async (req: Request, res: Response) => {
+app.post(['/api/parse-cv', '/api/parse-pdf'], upload.single('file'), async (req: Request, res: Response) => {
   try {
     let pdfBuffer: Buffer | null = null;
     let fileName = 'resume.pdf';
@@ -2431,6 +2431,14 @@ app.post('/api/admin/settings', (req: Request, res: Response) => {
   return res.json({
     success: true,
     settings: serverSettings
+  });
+});
+
+// Ensure any unhandled /api/* endpoint returns structured JSON 404 rather than an HTML page
+app.all('/api/*', (req: Request, res: Response) => {
+  return res.status(404).json({
+    success: false,
+    error: `API route not found: ${req.method} ${req.originalUrl}. Please verify endpoint URL.`,
   });
 });
 
