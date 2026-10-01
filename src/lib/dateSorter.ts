@@ -139,8 +139,12 @@ export function parseDateToTimestamp(
     return isEndDate ? -Infinity : -Infinity;
   }
 
-  const raw = dateStr.trim();
+  let raw = dateStr.trim();
   if (!raw) return -Infinity;
+
+  // Normalize Eastern Arabic numerals (٠-٩) to Western Arabic (0-9)
+  const easternDigits = ['٠','١','٢','٣','٤','٥','٦','٧','٨','٩'];
+  raw = raw.replace(/[٠-٩]/g, (w) => String(easternDigits.indexOf(w)));
 
   // If the date string is a range like "2021 - 2023", "2020 – Présent", "01/2020 à 06/2022"
   const rangeSeparators = /\s*(?:-|–|—|\bto\b|\bà\b|\bau\b)\s*/i;
@@ -303,6 +307,121 @@ export function sortExperiencesByDate<T extends ExperienceLike>(
     }
 
     // 3. Fallback: preserve original order
+    return 0;
+  });
+}
+
+export interface EducationLike {
+  id?: string;
+  degree?: string;
+  institution?: string;
+  school?: string;
+  startDate?: string;
+  endDate?: string;
+  year?: string;
+  graduationYear?: string;
+  period?: string;
+  current?: boolean;
+  [key: string]: any;
+}
+
+/**
+ * Extracts timestamps for an education/degree item to evaluate its chronological rank.
+ */
+function getEducationDates(edu: EducationLike): {
+  endTimestamp: number;
+  startTimestamp: number;
+} {
+  const isCurrent =
+    edu.current === true ||
+    isCurrentDate(edu.endDate) ||
+    isCurrentDate(edu.period);
+
+  let endTimestamp: number;
+  if (isCurrent) {
+    endTimestamp = Infinity;
+  } else if (edu.endDate && edu.endDate.trim()) {
+    endTimestamp = parseDateToTimestamp(edu.endDate, true);
+  } else if (edu.year && edu.year.trim()) {
+    endTimestamp = parseDateToTimestamp(edu.year, true);
+  } else if (edu.graduationYear && edu.graduationYear.trim()) {
+    endTimestamp = parseDateToTimestamp(edu.graduationYear, true);
+  } else if (edu.period && edu.period.trim()) {
+    endTimestamp = parseDateToTimestamp(edu.period, true);
+  } else if (edu.startDate && edu.startDate.trim()) {
+    endTimestamp = parseDateToTimestamp(edu.startDate, true);
+  } else {
+    endTimestamp = -Infinity;
+  }
+
+  let startTimestamp: number;
+  if (edu.startDate && edu.startDate.trim()) {
+    startTimestamp = parseDateToTimestamp(edu.startDate, false);
+  } else if (edu.period && edu.period.trim()) {
+    startTimestamp = parseDateToTimestamp(edu.period, false);
+  } else {
+    startTimestamp = -Infinity;
+  }
+
+  return { endTimestamp, startTimestamp };
+}
+
+/**
+ * Sorts an array of education / diplomas / certifications in strict reverse chronological order:
+ * 1. Most recent degrees/studies first (jdad lowlin)
+ * 2. Ongoing studies ("En cours", "Present", current: true) always at the very top
+ * 3. Ties in end dates are broken by start date descending
+ * 4. Oldest degrees at the bottom (ancien ltaht)
+ *
+ * @param educations - Array of education / degree objects
+ * @returns New sorted array (does not mutate original array)
+ */
+export function sortEducationByDate<T extends EducationLike>(
+  educations?: T[] | null
+): T[] {
+  if (!Array.isArray(educations) || educations.length <= 1) {
+    return Array.isArray(educations) ? [...educations] : [];
+  }
+
+  return [...educations].sort((a, b) => {
+    const dateA = getEducationDates(a);
+    const dateB = getEducationDates(b);
+
+    // 1. Compare End Dates / Graduation Years (Descending: newer first)
+    if (dateA.endTimestamp !== dateB.endTimestamp) {
+      return dateB.endTimestamp - dateA.endTimestamp;
+    }
+
+    // 2. Tie-break: Compare Start Dates (Descending: started more recently first)
+    if (dateA.startTimestamp !== dateB.startTimestamp) {
+      return dateB.startTimestamp - dateA.startTimestamp;
+    }
+
+    // 3. Fallback: preserve original order
+    return 0;
+  });
+}
+
+/**
+ * Universal helper that sorts any array of resume items (experiences, educations, projects)
+ * in strict reverse chronological order (newest on top, oldest at the bottom).
+ */
+export function sortResumeItemsByDate<T extends Record<string, any>>(
+  items?: T[] | null
+): T[] {
+  if (!Array.isArray(items) || items.length <= 1) {
+    return Array.isArray(items) ? [...items] : [];
+  }
+  // Try experience dates first, fallback to education dates
+  return [...items].sort((a, b) => {
+    const dateA = getExperienceDates(a);
+    const dateB = getExperienceDates(b);
+    if (dateA.endTimestamp !== dateB.endTimestamp) {
+      return dateB.endTimestamp - dateA.endTimestamp;
+    }
+    if (dateA.startTimestamp !== dateB.startTimestamp) {
+      return dateB.startTimestamp - dateA.startTimestamp;
+    }
     return 0;
   });
 }

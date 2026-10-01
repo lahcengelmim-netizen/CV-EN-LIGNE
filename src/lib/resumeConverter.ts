@@ -1,6 +1,6 @@
 import { CVData, Experience, Education, Skill, LanguageSkill } from '../types';
 import type { ParsedResumeData } from '../types/resumeParser';
-import { sortExperiencesByDate } from './dateSorter';
+import { sortExperiencesByDate, sortEducationByDate } from './dateSorter';
 
 export function convertParsedToCVData(parsed: ParsedResumeData): Partial<CVData> {
   // Split fullName into firstName and lastName
@@ -8,7 +8,7 @@ export function convertParsedToCVData(parsed: ParsedResumeData): Partial<CVData>
   const firstName = nameParts[0] || '';
   const lastName = nameParts.slice(1).join(' ') || '';
 
-  // Parse and automatically sort experiences in reverse chronological order (newest first)
+  // Parse and automatically sort experiences in reverse chronological order (newest first, oldest at bottom)
   const rawExperiences: Experience[] = (parsed.workExperience || []).map((exp, index) => ({
     id: exp.id || `exp_${Date.now()}_${index}`,
     title: exp.jobTitle || '',
@@ -25,8 +25,8 @@ export function convertParsedToCVData(parsed: ParsedResumeData): Partial<CVData>
 
   const experiences = sortExperiencesByDate(rawExperiences);
 
-  // Parse educations
-  const educations: Education[] = (parsed.education || []).map((edu, index) => ({
+  // Parse and automatically sort educations in reverse chronological order (newest first, oldest at bottom)
+  const rawEducations: Education[] = (parsed.education || []).map((edu, index) => ({
     id: edu.id || `edu_${Date.now()}_${index}`,
     degree: edu.degree || '',
     institution: edu.institution || '',
@@ -36,6 +36,8 @@ export function convertParsedToCVData(parsed: ParsedResumeData): Partial<CVData>
     current: /présent|present|actuel|en cours/i.test(edu.endDate || ''),
     description: '',
   }));
+
+  const educations = sortEducationByDate(rawEducations);
 
   // Parse skills
   const skills: Skill[] = (parsed.skills || []).map((skillName, index) => ({

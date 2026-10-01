@@ -13,6 +13,7 @@ import {
   RefreshCw
 } from 'lucide-react';
 import type { ParsedResumeData, ParseCvApiResponse } from '../../types/resumeParser';
+import { sortExperiencesByDate, sortEducationByDate } from '../../lib/dateSorter';
 
 interface ResumeImportProps {
   onSuccess?: (data: ParsedResumeData) => void;
@@ -61,9 +62,13 @@ export const ResumeImport: React.FC<ResumeImportProps> = ({ onSuccess, onNavigat
   const validateAndUpload = async (file: File) => {
     setError(null);
 
-    // Validation PDF
-    if (!file.name.toLowerCase().endsWith('.pdf') && file.type !== 'application/pdf') {
-      setError('Format invalide. Seuls les documents PDF (.pdf) sont acceptés pour l\'importation automatique.');
+    // Validation PDF & Images
+    const validExtensions = ['.pdf', '.png', '.jpg', '.jpeg', '.webp'];
+    const hasValidExt = validExtensions.some((ext) => file.name.toLowerCase().endsWith(ext));
+    const isValidMime = file.type.startsWith('image/') || file.type === 'application/pdf';
+
+    if (!hasValidExt && !isValidMime) {
+      setError('Format non supporté. Veuillez sélectionner un document PDF (.pdf) ou une image (.png, .jpg, .webp).');
       return;
     }
 
@@ -101,16 +106,16 @@ export const ResumeImport: React.FC<ResumeImportProps> = ({ onSuccess, onNavigat
         setLoadingStep('Structuration JSON et validation des données...');
       }, 4200);
 
-      // Appel de l'API backend (/api/parse-pdf avec fallback vers /api/parse-cv)
-      let endpoint = '/api/parse-pdf';
+      // Appel de l'API backend (/api/parse-cv en priorité, ou /api/parse-pdf)
+      let endpoint = '/api/parse-cv';
       let response = await fetch(endpoint, {
         method: 'POST',
         body: formData,
       });
 
-      // Fallback si /api/parse-pdf n'est pas disponible (404)
+      // Fallback si l'endpoint principal retourne 404
       if (response.status === 404) {
-        endpoint = '/api/parse-cv';
+        endpoint = '/api/parse-pdf';
         response = await fetch(endpoint, {
           method: 'POST',
           body: formData,
@@ -126,25 +131,33 @@ export const ResumeImport: React.FC<ResumeImportProps> = ({ onSuccess, onNavigat
       const isJson = contentType.includes('application/json');
 
       if (!response.ok) {
-        let errorMessage = `Erreur du serveur (${response.status} ${response.statusText})`;
+        let errorMessage = `Erreur lors de l'analyse du document (${response.status})`;
 
         if (isJson) {
           try {
             const errorData = await response.json();
-            errorMessage = errorData.error || errorData.message || errorMessage;
+            const rawErr = errorData.error || errorData.message;
+            if (typeof rawErr === 'string') {
+              try {
+                const nested = JSON.parse(rawErr);
+                errorMessage = nested?.error?.message || rawErr;
+              } catch {
+                errorMessage = rawErr;
+              }
+            } else if (rawErr) {
+              errorMessage = String(rawErr);
+            }
           } catch {
             // Échec du parsing du JSON d'erreur, conservation du message par défaut
           }
         } else {
-          // La réponse est une page d'erreur HTML ou du texte brut (ex: 404/500 "The page could not be found...")
           try {
             const textResponse = await response.text();
             console.error('Réponse non-JSON reçue du serveur:', textResponse.slice(0, 300));
-
             if (response.status === 404) {
-              errorMessage = 'Le point de terminaison API (/api/parse-pdf) est introuvable. Veuillez vérifier que la route est déployée.';
+              errorMessage = 'Le service d\'analyse du CV est en cours de redémarrage. Veuillez réessayer dans quelques instants.';
             } else if (response.status >= 500) {
-              errorMessage = 'Le serveur a rencontré une erreur interne lors du traitement du document. Veuillez réessayer ultérieurement.';
+              errorMessage = 'Le serveur a rencontré une difficulté lors du traitement du document. Veuillez réessayer ou vérifier le PDF.';
             }
           } catch {
             // Ignorer
@@ -164,7 +177,12 @@ export const ResumeImport: React.FC<ResumeImportProps> = ({ onSuccess, onNavigat
         throw new Error(result.error || 'Impossible d\'extraire les données du CV. Veuillez vérifier votre document ou réessayer.');
       }
 
-      const extracted = result.data;
+      const extracted: ParsedResumeData = {
+        ...result.data,
+        workExperience: sortExperiencesByDate(result.data.workExperience),
+        education: sortEducationByDate(result.data.education),
+      };
+
       setSuccessData(extracted);
       setLoadingStep('Données extraites avec succès ! Redirection...');
 
@@ -176,14 +194,11 @@ export const ResumeImport: React.FC<ResumeImportProps> = ({ onSuccess, onNavigat
         console.warn('Erreur lors de la sauvegarde locale:', storageErr);
       }
 
-      // 2. Notification au parent si présent
-      if (onSuccess) {
-        onSuccess(extracted);
-      }
-
-      // 3. Redirection vers /editor après un court délai visuel
+      // 2. Redirection fluide après un court délai visuel (pour voir l'état de validation)
       setTimeout(() => {
-        if (onNavigate) {
+        if (onSuccess) {
+          onSuccess(extracted);
+        } else if (onNavigate) {
           onNavigate('editor');
         } else {
           // Fallback redirection de routage standard
@@ -196,7 +211,7 @@ export const ResumeImport: React.FC<ResumeImportProps> = ({ onSuccess, onNavigat
             }
           }
         }
-      }, 1000);
+      }, 800);
 
     } catch (err: any) {
       console.error('Erreur import CV:', err);
@@ -291,7 +306,7 @@ export const ResumeImport: React.FC<ResumeImportProps> = ({ onSuccess, onNavigat
           <input
             ref={fileInputRef}
             type="file"
-            accept="application/pdf,.pdf"
+            accept="application/pdf,.pdf,image/png,image/jpeg,image/webp,.png,.jpg,.jpeg,.webp"
             onChange={handleFileChange}
             className="hidden"
             id="pdf-upload-input"
@@ -376,19 +391,19 @@ export const ResumeImport: React.FC<ResumeImportProps> = ({ onSuccess, onNavigat
                     className="px-5 py-2.5 rounded-xl bg-blue-600 hover:bg-blue-700 text-white text-xs sm:text-sm font-bold shadow-sm transition-all flex items-center gap-2 cursor-pointer active:scale-98"
                   >
                     <FileText className="w-4 h-4" />
-                    <span>Choisir un fichier PDF</span>
+                    <span>Choisir un fichier (PDF ou Image)</span>
                   </button>
                 </div>
 
-                <div className="pt-2 flex items-center justify-center gap-4 text-xs text-slate-400">
-                  <span className="flex items-center gap-1">
-                    <FileCheck className="w-3.5 h-3.5 text-slate-400" />
-                    PDF uniquement
+                <div className="pt-2 flex items-center justify-center gap-3 sm:gap-4 text-xs text-slate-400 flex-wrap">
+                  <span className="flex items-center gap-1 font-medium text-slate-500">
+                    <FileCheck className="w-3.5 h-3.5 text-blue-500" />
+                    PDF, PNG, JPG, WEBP
                   </span>
                   <span>•</span>
                   <span>Jusqu'à 15 Mo</span>
                   <span>•</span>
-                  <span className="flex items-center gap-1">
+                  <span className="flex items-center gap-1 text-slate-500">
                     <ShieldCheck className="w-3.5 h-3.5 text-emerald-500" />
                     Données 100% confidentielles
                   </span>

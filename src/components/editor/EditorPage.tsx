@@ -24,7 +24,7 @@ import {
   ArrowDownUp
 } from 'lucide-react';
 import type { ParsedResumeData, ParsedWorkExperience, ParsedEducation } from '../../types/resumeParser';
-import { sortExperiencesByDate } from '../../lib/dateSorter';
+import { sortExperiencesByDate, sortEducationByDate } from '../../lib/dateSorter';
 
 interface EditorPageProps {
   initialData?: ParsedResumeData | null;
@@ -39,18 +39,26 @@ export const EditorPage: React.FC<EditorPageProps> = ({
 }) => {
   // 1. Initialisation de l'état avec les données parsées par Gemini
   const [resumeData, setResumeData] = useState<ParsedResumeData>(() => {
-    if (initialData) return initialData;
+    let source: ParsedResumeData | null = initialData || null;
 
-    // Lecture depuis le localStorage
-    if (typeof window !== 'undefined') {
+    // Lecture depuis le localStorage si non fourni
+    if (!source && typeof window !== 'undefined') {
       try {
         const saved = localStorage.getItem('parsed_cv_data');
         if (saved) {
-          return JSON.parse(saved);
+          source = JSON.parse(saved);
         }
       } catch (err) {
         console.error('Erreur lecture parsed_cv_data:', err);
       }
+    }
+
+    if (source) {
+      return {
+        ...source,
+        workExperience: sortExperiencesByDate(source.workExperience || []),
+        education: sortEducationByDate(source.education || []),
+      };
     }
 
     // État par défaut si aucun CV n'a été importé
@@ -78,7 +86,11 @@ export const EditorPage: React.FC<EditorPageProps> = ({
   // Synchronisation si initialData change
   useEffect(() => {
     if (initialData) {
-      setResumeData(initialData);
+      setResumeData({
+        ...initialData,
+        workExperience: sortExperiencesByDate(initialData.workExperience || []),
+        education: sortEducationByDate(initialData.education || []),
+      });
     }
   }, [initialData]);
 
@@ -110,6 +122,8 @@ export const EditorPage: React.FC<EditorPageProps> = ({
   // GESTION DES EXPÉRIENCES PROFESSIONNELLES
   // ----------------------------------------------------
   const [sortedNotice, setSortedNotice] = useState(false);
+  const [eduSortedNotice, setEduSortedNotice] = useState(false);
+  const [allSortedNotice, setAllSortedNotice] = useState(false);
 
   const handleSortExperiences = () => {
     setResumeData((prev) => ({
@@ -118,6 +132,31 @@ export const EditorPage: React.FC<EditorPageProps> = ({
     }));
     setSortedNotice(true);
     setTimeout(() => setSortedNotice(false), 2500);
+  };
+
+  const handleSortEducation = () => {
+    setResumeData((prev) => ({
+      ...prev,
+      education: sortEducationByDate(prev.education),
+    }));
+    setEduSortedNotice(true);
+    setTimeout(() => setEduSortedNotice(false), 2500);
+  };
+
+  const handleSortAll = () => {
+    setResumeData((prev) => ({
+      ...prev,
+      workExperience: sortExperiencesByDate(prev.workExperience),
+      education: sortEducationByDate(prev.education),
+    }));
+    setSortedNotice(true);
+    setEduSortedNotice(true);
+    setAllSortedNotice(true);
+    setTimeout(() => {
+      setSortedNotice(false);
+      setEduSortedNotice(false);
+      setAllSortedNotice(false);
+    }, 2500);
   };
   const handleExperienceChange = (
     index: number,
@@ -294,6 +333,16 @@ export const EditorPage: React.FC<EditorPageProps> = ({
                 Aperçu
               </button>
             </div>
+
+            {/* Sort All Button */}
+            <button
+              onClick={handleSortAll}
+              className="hidden sm:flex px-3 py-2 rounded-xl bg-slate-100 hover:bg-slate-200 text-slate-700 text-xs font-bold transition-all items-center gap-1.5 cursor-pointer border border-slate-200"
+              title="Trier chronologiquement toutes les expériences et formations : les plus récentes en haut, les plus anciennes en bas (ancien ltaht o jdad lowlin)"
+            >
+              <ArrowDownUp className="w-3.5 h-3.5 text-blue-600" />
+              <span>{allSortedNotice ? 'Tout trié (récent → ancien) ✓' : 'Trier tout par date'}</span>
+            </button>
 
             {/* Save Button */}
             <button
@@ -597,14 +646,28 @@ export const EditorPage: React.FC<EditorPageProps> = ({
                   </div>
                 </div>
 
-                <button
-                  type="button"
-                  onClick={handleAddEducation}
-                  className="px-3 py-1.5 rounded-xl bg-emerald-50 hover:bg-emerald-100 text-emerald-700 text-xs font-bold transition-colors flex items-center gap-1.5 cursor-pointer"
-                >
-                  <Plus className="w-3.5 h-3.5" />
-                  <span>Ajouter une formation</span>
-                </button>
+                <div className="flex items-center gap-2 flex-wrap">
+                  {resumeData.education.length > 1 && (
+                    <button
+                      type="button"
+                      onClick={handleSortEducation}
+                      className="px-3 py-1.5 rounded-xl bg-slate-100 hover:bg-slate-200 text-slate-700 text-xs font-bold transition-colors flex items-center gap-1.5 cursor-pointer border border-slate-200"
+                      title="Trier chronologiquement : formations récentes / en cours en haut, plus anciennes en bas (ancien ltaht o jdad lowlin)"
+                    >
+                      <ArrowDownUp className="w-3.5 h-3.5 text-emerald-600" />
+                      <span>{eduSortedNotice ? 'Trié (récent → ancien) ✓' : 'Trier par date'}</span>
+                    </button>
+                  )}
+
+                  <button
+                    type="button"
+                    onClick={handleAddEducation}
+                    className="px-3 py-1.5 rounded-xl bg-emerald-50 hover:bg-emerald-100 text-emerald-700 text-xs font-bold transition-colors flex items-center gap-1.5 cursor-pointer"
+                  >
+                    <Plus className="w-3.5 h-3.5" />
+                    <span>Ajouter une formation</span>
+                  </button>
+                </div>
               </div>
 
               {resumeData.education.length === 0 ? (

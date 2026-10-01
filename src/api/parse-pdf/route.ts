@@ -1,5 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { GoogleGenerativeAI } from '@google/generative-ai';
+import { sortExperiencesByDate, sortEducationByDate } from '../../lib/dateSorter';
 
 /**
  * Expected Structured JSON Output Interface for Parsed CV Details
@@ -72,7 +73,13 @@ function cleanStr(val: unknown): string {
   if (typeof val !== 'string') return '';
   const trimmed = val.trim();
   const lower = trimmed.toLowerCase();
-  if (lower === 'null' || lower === 'undefined' || lower === 'n/a' || lower === 'none') {
+  const placeholders = [
+    'null', 'undefined', 'n/a', 'na', 'none', 'aucun', 'aucune',
+    'not provided', 'not specified', 'unknown', 'inconnu',
+    'non renseigné', 'non renseigne', 'non fourni', 'non spécifié',
+    'non specifie', 'n/d', 'n.d.', '-', '--', '...', 'sans objet'
+  ];
+  if (placeholders.includes(lower)) {
     return '';
   }
   return trimmed;
@@ -201,10 +208,10 @@ export async function POST(req: NextRequest) {
       );
     }
 
-    // 4. Initialize Google Generative AI SDK with Gemini 1.5 Flash
+    // 4. Initialize Google Generative AI SDK with modern Gemini model
     const genAI = new GoogleGenerativeAI(apiKey);
     const model = genAI.getGenerativeModel({
-      model: 'gemini-1.5-flash',
+      model: 'gemini-2.5-flash',
       generationConfig: {
         responseMimeType: 'application/json',
         temperature: 0.1,
@@ -250,8 +257,8 @@ Follow these strict extraction guidelines:
   "languages": ["Language 1", "Language 2"],
   "certifications": ["Certification 1"]
 }
-3. Sort workExperience in reverse chronological order (most recent first).
-4. If a field is not present in the document, use an empty string "" or empty array []. Do not output "null" or "N/A".
+3. MANDATORY REVERSE CHRONOLOGICAL ORDER: Sort BOTH "workExperience" AND "education" in strict reverse chronological order (newest first, oldest at the bottom). Any current/ongoing job or study must be at the very top.
+4. If a field is not present in the document, use an empty string "" or empty array []. Do not output "null", "N/A", or "Not provided".
 5. Return strictly the JSON object.`;
 
     // 5. Call Gemini 1.5 Flash with the PDF base64 inline data
@@ -303,6 +310,31 @@ Follow these strict extraction guidelines:
     }
 
     // 8. Sanitize and structure final result
+    const rawWorkExperience = Array.isArray(parsedData?.workExperience)
+      ? parsedData.workExperience
+          .map((exp: any) => ({
+            jobTitle: cleanStr(exp?.jobTitle),
+            company: cleanStr(exp?.company),
+            location: cleanStr(exp?.location),
+            startDate: cleanStr(exp?.startDate),
+            endDate: cleanStr(exp?.endDate),
+            description: cleanStr(exp?.description),
+          }))
+          .filter((exp: any) => Boolean(exp.jobTitle || exp.company || exp.description))
+      : [];
+
+    const rawEducation = Array.isArray(parsedData?.education)
+      ? parsedData.education
+          .map((edu: any) => ({
+            degree: cleanStr(edu?.degree),
+            institution: cleanStr(edu?.institution),
+            location: cleanStr(edu?.location),
+            startDate: cleanStr(edu?.startDate),
+            endDate: cleanStr(edu?.endDate),
+          }))
+          .filter((edu: any) => Boolean(edu.degree || edu.institution))
+      : [];
+
     const sanitizedResult: ParsedCVData = {
       personalInfo: {
         fullName: cleanStr(parsedData?.personalInfo?.fullName),
@@ -315,29 +347,8 @@ Follow these strict extraction guidelines:
           ? parsedData.personalInfo.links.map(cleanStr).filter(Boolean)
           : [],
       },
-      workExperience: Array.isArray(parsedData?.workExperience)
-        ? parsedData.workExperience
-            .map((exp: any) => ({
-              jobTitle: cleanStr(exp?.jobTitle),
-              company: cleanStr(exp?.company),
-              location: cleanStr(exp?.location),
-              startDate: cleanStr(exp?.startDate),
-              endDate: cleanStr(exp?.endDate),
-              description: cleanStr(exp?.description),
-            }))
-            .filter((exp: any) => Boolean(exp.jobTitle || exp.company || exp.description))
-        : [],
-      education: Array.isArray(parsedData?.education)
-        ? parsedData.education
-            .map((edu: any) => ({
-              degree: cleanStr(edu?.degree),
-              institution: cleanStr(edu?.institution),
-              location: cleanStr(edu?.location),
-              startDate: cleanStr(edu?.startDate),
-              endDate: cleanStr(edu?.endDate),
-            }))
-            .filter((edu: any) => Boolean(edu.degree || edu.institution))
-        : [],
+      workExperience: sortExperiencesByDate(rawWorkExperience),
+      education: sortEducationByDate(rawEducation),
       skills: Array.isArray(parsedData?.skills)
         ? Array.from(new Set(parsedData.skills.map(cleanStr).filter(Boolean)))
         : [],

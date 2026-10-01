@@ -8,7 +8,7 @@ import multer from 'multer';
 import { GoogleGenAI, Type } from '@google/genai';
 import { GoogleGenerativeAI, SchemaType } from '@google/generative-ai';
 import { createServer as createViteServer } from 'vite';
-import { sortExperiencesByDate } from './src/lib/dateSorter';
+import { sortExperiencesByDate, sortEducationByDate } from './src/lib/dateSorter';
 
 // ==============================================================================
 // 1. ROBUST ENVIRONMENT VARIABLE LOADING
@@ -571,40 +571,72 @@ const resumeResponseSchema = {
   required: ['personalInfo', 'workExperience', 'education', 'skills', 'languages'],
 };
 
-app.post(['/api/parse-cv', '/api/parse-pdf'], upload.single('file'), async (req: Request, res: Response) => {
+const handleParseCvPdf = async (req: Request, res: Response) => {
   try {
-    let pdfBuffer: Buffer | null = null;
+    let fileBuffer: Buffer | null = null;
     let fileName = 'resume.pdf';
+    let mimeType = 'application/pdf';
 
     // Check if uploaded via multer multipart/form-data
     if (req.file && req.file.buffer) {
-      pdfBuffer = req.file.buffer;
+      fileBuffer = req.file.buffer;
       fileName = req.file.originalname || fileName;
+      if (req.file.mimetype) {
+        mimeType = req.file.mimetype;
+      }
     } 
     // Or if uploaded via JSON body with base64
     else if (req.body && (req.body.fileBase64 || req.body.pdfBase64)) {
-      const base64Str = (req.body.fileBase64 || req.body.pdfBase64).replace(/^data:application\/pdf;base64,/, '');
-      pdfBuffer = Buffer.from(base64Str, 'base64');
+      const rawBase64 = (req.body.fileBase64 || req.body.pdfBase64);
+      // Extract data URL mime type if present (e.g. data:image/png;base64, or data:application/pdf;base64,)
+      const mimeMatch = rawBase64.match(/^data:([^;]+);base64,/);
+      if (mimeMatch) {
+        mimeType = mimeMatch[1];
+      }
+      const base64Str = rawBase64.replace(/^data:[^;]+;base64,/, '');
+      fileBuffer = Buffer.from(base64Str, 'base64');
       if (req.body.fileName) fileName = req.body.fileName;
     }
 
-    if (!pdfBuffer || pdfBuffer.length === 0) {
+    if (!fileBuffer || fileBuffer.length === 0) {
       return res.status(400).json({
         success: false,
-        error: 'Aucun fichier PDF valide n\'a été reçu. Veuillez sélectionner un fichier PDF.'
+        error: 'Aucun document valide n\'a été reçu. Veuillez sélectionner un fichier PDF ou une image de votre CV.'
       });
     }
 
-    // Verify PDF magic header '%PDF'
-    const pdfMagicHeader = pdfBuffer.slice(0, 5).toString('ascii');
-    if (!pdfMagicHeader.includes('%PDF')) {
+    // Determine mimeType if generic application/octet-stream
+    const lowerName = fileName.toLowerCase();
+    if (lowerName.endsWith('.pdf')) {
+      mimeType = 'application/pdf';
+    } else if (lowerName.endsWith('.png')) {
+      mimeType = 'image/png';
+    } else if (lowerName.endsWith('.jpg') || lowerName.endsWith('.jpeg')) {
+      mimeType = 'image/jpeg';
+    } else if (lowerName.endsWith('.webp')) {
+      mimeType = 'image/webp';
+    }
+
+    // Validate file header (PDF or Image)
+    const headerPrefix = fileBuffer.slice(0, 32).toString('latin1');
+    const isPdf = headerPrefix.includes('%PDF');
+    const isPng = fileBuffer.slice(0, 8).toString('hex') === '89504e470d0a1a0a';
+    const isJpeg = fileBuffer[0] === 0xff && fileBuffer[1] === 0xd8;
+    const isWebp = headerPrefix.includes('WEBP') || headerPrefix.includes('RIFF');
+
+    if (!isPdf && !isPng && !isJpeg && !isWebp && mimeType !== 'application/pdf') {
       return res.status(400).json({
         success: false,
-        error: 'Le fichier envoyé n\'est pas un document PDF valide.'
+        error: 'Format de document non supporté. Veuillez envoyer un fichier PDF (.pdf) ou une image (.png, .jpg, .webp).'
       });
     }
 
-    console.log(`[API /api/parse-cv] Parsing multi-page resume "${fileName}" (${(pdfBuffer.length / 1024).toFixed(1)} KB)...`);
+    if (isPdf) mimeType = 'application/pdf';
+    else if (isPng) mimeType = 'image/png';
+    else if (isJpeg) mimeType = 'image/jpeg';
+    else if (isWebp) mimeType = 'image/webp';
+
+    console.log(`[API parse-cv/pdf] Parsing candidate resume "${fileName}" (${(fileBuffer.length / 1024).toFixed(1)} KB, mime: ${mimeType})...`);
 
     const apiKey = getGeminiApiKey('/api/parse-cv');
     const ai = new GoogleGenAI({
@@ -616,48 +648,49 @@ app.post(['/api/parse-cv', '/api/parse-pdf'], upload.single('file'), async (req:
       },
     });
 
-    const pdfBase64 = pdfBuffer.toString('base64');
+    const fileBase64 = fileBuffer.toString('base64');
 
-    const prompt = `You are a world-class HR and recruitment document parser specializing in multi-page resumes and CVs.
-Analyze the attached multi-page PDF resume thoroughly with the following strict instructions:
+    const prompt = `You are a world-class recruitment expert and multilingual resume parser.
+Analyze this resume/CV document thoroughly and extract all information with maximum accuracy.
 
-1. MULTI-PAGE & BLANK PAGE FILTERING:
-- Process all pages of the document, but extract data ONLY from pages containing actual relevant resume content.
-- Completely ignore and skip any blank pages, decorative pages, cover sheets, separator pages, overflow margins, or trailing empty pages with no substantive candidate data.
-- Seamlessly combine and synthesize work history, education, skills, and languages across all legitimate content pages into a single chronological timeline.
+CRITICAL INSTRUCTIONS:
+1. MULTI-PAGE & CONTENT FILTERING:
+- Process all pages of the document, extracting data exclusively from pages with relevant candidate details.
+- Skip blank pages, decorative pages, covers, margins, or trailing empty pages.
 
-2. MANDATORY REVERSE CHRONOLOGICAL ORDER FOR WORK EXPERIENCE:
-- CRITICAL: Automatically sort the extracted "workExperience" array in strict reverse chronological order (most recent job first at index 0, oldest job at the bottom).
-- Any current or ongoing job ("Present", "Current", "En cours", "Actuel", or open end date) MUST always be placed at the very top of the list.
-- Followed by past jobs ordered from newest end date to oldest end date.
+2. STRICT REVERSE CHRONOLOGICAL ORDER (NEWEST FIRST, OLDEST AT THE BOTTOM):
+- For "workExperience": Sort strictly in reverse chronological order (most recent job at index 0 / top, oldest at the bottom). Any current/ongoing job ("Présent", "En cours", "Current", "Actuel", "حاليا", "مستمر") MUST be at the very top.
+- For "education": Sort strictly in reverse chronological order (most recent degree/diploma at index 0 / top, oldest at the bottom). Ongoing studies must be at the very top.
 
-3. STRICT CLEAN OUTPUT (NO EMPTY / NULL VALUES):
-- Extract factual details without inventing or hallucinating information.
-- Strip out any empty strings, null values, placeholder markers ("N/A", "None", "Unknown"), or empty entries.
-- If any workExperience item has no jobTitle and no company, omit that item completely.
-- If any education item has no degree and no institution, omit that item completely.
+3. STRICT CLEAN OUTPUT (NO PLACEHOLDERS OR HALLUCINATIONS):
+- Strip out any placeholders such as "N/A", "None", "Not provided", "Not specified", "Non renseigné", "Non fourni", "Inconnu", "Unknown", or "-".
+- If a value was not mentioned in the resume, leave it as an empty string "". Never output "Not provided" or "N/A".
 - Return only non-empty, distinct skills and languages.
 
-4. STRICT RESPONSE SCHEMA:
+4. RESPONSE SCHEMA:
 - personalInfo: fullName, email, phone, address, jobTitle, summary
-- workExperience: array of { jobTitle, company, startDate, endDate, description } (MUST be ordered from newest to oldest)
-- education: array of { degree, institution, startDate, endDate }
+- workExperience: array of { jobTitle, company, startDate, endDate, description } (newest first, oldest last)
+- education: array of { degree, institution, startDate, endDate } (newest first, oldest last)
 - skills: array of strings
 - languages: array of strings`;
 
     let responseText = '{}';
     try {
       const response = await ai.models.generateContent({
-        model: 'gemini-3.6-flash',
-        contents: [
-          {
-            inlineData: {
-              data: pdfBase64,
-              mimeType: 'application/pdf',
+        model: 'gemini-3.8-flash',
+        contents: {
+          parts: [
+            {
+              inlineData: {
+                data: fileBase64,
+                mimeType,
+              },
             },
-          },
-          prompt,
-        ],
+            {
+              text: prompt,
+            },
+          ],
+        },
         config: {
           responseMimeType: 'application/json',
           responseSchema: resumeResponseSchema,
@@ -666,21 +699,24 @@ Analyze the attached multi-page PDF resume thoroughly with the following strict 
       });
       responseText = response.text || '{}';
     } catch (primaryErr: any) {
-      console.warn('[API /api/parse-cv] Retrying with gemini-3.8-flash fallback...', primaryErr?.message);
+      console.warn('[API parse-cv/pdf] Retrying with fallback model...', primaryErr?.message);
       const fallbackRes = await ai.models.generateContent({
-        model: 'gemini-3.8-flash',
-        contents: [
-          {
-            inlineData: {
-              data: pdfBase64,
-              mimeType: 'application/pdf',
+        model: 'gemini-3.1-flash-lite',
+        contents: {
+          parts: [
+            {
+              inlineData: {
+                data: fileBase64,
+                mimeType,
+              },
             },
-          },
-          prompt,
-        ],
+            {
+              text: prompt + '\nReturn ONLY a valid JSON object matching the requested fields.',
+            },
+          ],
+        },
         config: {
           responseMimeType: 'application/json',
-          responseSchema: resumeResponseSchema,
           temperature: 0.1,
         },
       });
@@ -691,7 +727,7 @@ Analyze the attached multi-page PDF resume thoroughly with the following strict 
     try {
       parsedData = JSON.parse(responseText);
     } catch (parseError) {
-      console.warn('[API /api/parse-cv] JSON parse error, cleaning string:', parseError);
+      console.warn('[API parse-cv/pdf] JSON parse error, cleaning string:', parseError);
       const cleaned = responseText.replace(/```json/gi, '').replace(/```/g, '').trim();
       parsedData = JSON.parse(cleaned);
     }
@@ -700,11 +736,45 @@ Analyze the attached multi-page PDF resume thoroughly with the following strict 
     const cleanStr = (val: any): string => {
       if (typeof val !== 'string') return '';
       const t = val.trim();
-      if (t.toLowerCase() === 'null' || t.toLowerCase() === 'n/a' || t.toLowerCase() === 'none') return '';
+      const lower = t.toLowerCase();
+      const placeholders = [
+        'null', 'undefined', 'n/a', 'na', 'none', 'aucun', 'aucune',
+        'not provided', 'not specified', 'unknown', 'inconnu',
+        'non renseigné', 'non renseigne', 'non fourni', 'non spécifié',
+        'non specifie', 'n/d', 'n.d.', '-', '--', '...', 'sans objet'
+      ];
+      if (placeholders.includes(lower)) return '';
       return t;
     };
 
-    // Filter out blank pages artifacts, empty arrays, null values, or blank items
+    // Filter and strictly sort both experiences and education reverse chronologically
+    const rawExperiences = Array.isArray(parsedData?.workExperience) 
+      ? parsedData.workExperience
+          .map((exp: any) => ({
+            jobTitle: cleanStr(exp?.jobTitle),
+            company: cleanStr(exp?.company),
+            startDate: cleanStr(exp?.startDate),
+            endDate: cleanStr(exp?.endDate),
+            description: cleanStr(exp?.description),
+          }))
+          .filter((exp: any) => Boolean(exp.jobTitle || exp.company || exp.description))
+      : [];
+
+    const rawEducation = Array.isArray(parsedData?.education)
+      ? parsedData.education
+          .map((edu: any) => ({
+            degree: cleanStr(edu?.degree),
+            institution: cleanStr(edu?.institution),
+            startDate: cleanStr(edu?.startDate),
+            endDate: cleanStr(edu?.endDate),
+          }))
+          .filter((edu: any) => Boolean(edu.degree || edu.institution))
+      : [];
+
+    // Reverse chronological sorting: newest on top, oldest at the bottom (ancien ltaht o jdad lowlin)
+    const sortedExperiences = sortExperiencesByDate(rawExperiences);
+    const sortedEducation = sortEducationByDate(rawEducation);
+
     const sanitizedData = {
       personalInfo: {
         fullName: cleanStr(parsedData?.personalInfo?.fullName),
@@ -714,29 +784,8 @@ Analyze the attached multi-page PDF resume thoroughly with the following strict 
         jobTitle: cleanStr(parsedData?.personalInfo?.jobTitle),
         summary: cleanStr(parsedData?.personalInfo?.summary),
       },
-      workExperience: sortExperiencesByDate(
-        Array.isArray(parsedData?.workExperience) 
-          ? parsedData.workExperience
-              .map((exp: any) => ({
-                jobTitle: cleanStr(exp?.jobTitle),
-                company: cleanStr(exp?.company),
-                startDate: cleanStr(exp?.startDate),
-                endDate: cleanStr(exp?.endDate),
-                description: cleanStr(exp?.description),
-              }))
-              .filter((exp: any) => Boolean(exp.jobTitle || exp.company || exp.description))
-          : []
-      ),
-      education: Array.isArray(parsedData?.education)
-        ? parsedData.education
-            .map((edu: any) => ({
-              degree: cleanStr(edu?.degree),
-              institution: cleanStr(edu?.institution),
-              startDate: cleanStr(edu?.startDate),
-              endDate: cleanStr(edu?.endDate),
-            }))
-            .filter((edu: any) => Boolean(edu.degree || edu.institution))
-        : [],
+      workExperience: sortedExperiences,
+      education: sortedEducation,
       skills: Array.isArray(parsedData?.skills) 
         ? Array.from(new Set(
             parsedData.skills
@@ -755,7 +804,7 @@ Analyze the attached multi-page PDF resume thoroughly with the following strict 
       sourceFileName: fileName
     };
 
-    console.log(`[API /api/parse-cv] Successfully extracted: ${sanitizedData.personalInfo.fullName || 'Candidate'} (${sanitizedData.workExperience.length} exp, ${sanitizedData.education.length} edu, ${sanitizedData.skills.length} skills)`);
+    console.log(`[API parse-cv/pdf] Successfully extracted: ${sanitizedData.personalInfo.fullName || 'Candidate'} (${sanitizedData.workExperience.length} exp, ${sanitizedData.education.length} edu, ${sanitizedData.skills.length} skills)`);
 
     // Log AI action
     const userId = req.body?.userId || 'guest';
@@ -774,19 +823,22 @@ Analyze the attached multi-page PDF resume thoroughly with the following strict 
       data: sanitizedData,
       metadata: {
         fileName,
-        sizeBytes: pdfBuffer.length,
-        model: 'gemini-3.6-flash'
+        sizeBytes: fileBuffer.length,
+        model: 'gemini-3.8-flash'
       }
     });
   } catch (err: any) {
-    console.error('❌ [API /api/parse-cv] Error:', err);
+    console.error('❌ [API parse-cv/pdf] Error:', err);
     return res.status(500).json({
       success: false,
       error: err?.message || 'Erreur lors de l\'extraction du CV par l\'IA.',
       details: String(err)
     });
   }
-});
+};
+
+app.post('/api/parse-cv', upload.single('file'), handleParseCvPdf);
+app.post('/api/parse-pdf', upload.single('file'), handleParseCvPdf);
 
 // 1. AI: Enhance Experience
 // Strictly improves user's real input without inventing fake companies, titles, dates, or results
