@@ -146,7 +146,7 @@ export const App: React.FC = () => {
 
   // Load CV list
   const refreshCVList = async () => {
-    const list = await storageService.getCVs();
+    const list = await storageService.getCVs(user?.id);
     setCvList(list);
   };
 

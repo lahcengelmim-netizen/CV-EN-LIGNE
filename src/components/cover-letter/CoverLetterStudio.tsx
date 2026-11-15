@@ -211,14 +211,14 @@ export const CoverLetterStudio: React.FC<CoverLetterStudioProps> = ({
     } catch (err: any) {
       console.warn('Fallback vers /api/ai/cover-letter...', err);
       try {
-        const res = await fetch('/api/ai/cover-letter', {
+        const res = await fetch('/api/ai/generate-cover-letter', {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
           body: JSON.stringify({
             jobTitle: targetJob,
             companyName: targetCompany,
             skills: [variables['Compétence Clé']],
-            experienceSummary: userExperienceText,
+            cvSummary: userExperienceText,
             lang,
           }),
         });

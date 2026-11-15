@@ -53,6 +53,14 @@ export const CareerBackground: React.FC = () => {
           </linearGradient>
         </defs>
       </svg>
+      {/* 4. Subtle Transparent Logo Watermark Pattern */}
+      <div className="absolute inset-0 flex items-center justify-center opacity-[0.018] pointer-events-none">
+        <img
+          src="/logo.png"
+          alt="SIRATI-Ai Watermark"
+          className="w-[600px] sm:w-[900px] max-w-none object-contain blur-[0.5px]"
+        />
+      </div>
     </div>
   );
 };

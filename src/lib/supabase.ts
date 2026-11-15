@@ -429,7 +429,20 @@ export const storageService = {
           .order('updated_at', { ascending: false });
 
         if (!error && data && data.length > 0) {
-          return data;
+          return data.map((item: any) => ({
+            id: item.id,
+            userId: item.user_id,
+            cvId: item.cv_id,
+            title: item.title,
+            jobTitle: item.job_title,
+            companyName: item.company,
+            recipientName: item.recipient,
+            subject: item.subject,
+            content: item.content,
+            templateId: item.template_id,
+            createdAt: item.created_at,
+            updatedAt: item.updated_at
+          }));
         }
       } catch (err) {
         console.warn('Supabase cover letters fetch failed:', err);
@@ -484,9 +497,11 @@ export const storageService = {
           user_id: userId,
           title: letter.title,
           job_title: letter.jobTitle,
-          company_name: letter.companyName,
-          recipient_name: letter.recipientName,
+          company: letter.companyName,
+          recipient: letter.recipientName,
+          subject: letter.subject,
           content: letter.content,
+          template_id: letter.templateId || 'classic',
           updated_at: new Date().toISOString(),
         });
       } catch (err) {

@@ -203,7 +203,9 @@ export interface CoverLetterData {
   recipientTitle?: string;
   companyName: string;
   jobTitle: string;
+  subject?: string;
   content: string;
+  templateId?: string;
   createdAt: string;
   updatedAt: string;
 }

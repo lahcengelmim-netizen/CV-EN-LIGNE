@@ -478,6 +478,22 @@ app.get('/api/proxy-image', async (req: Request, res: Response) => {
   }
 
   try {
+    const parsedUrl = new URL(imageUrl);
+    const hostname = parsedUrl.hostname.toLowerCase();
+    if (
+      hostname === 'localhost' ||
+      hostname === '127.0.0.1' ||
+      hostname === '0.0.0.0' ||
+      hostname.startsWith('192.168.') ||
+      hostname.startsWith('10.') ||
+      hostname.startsWith('172.') ||
+      hostname === '169.254.169.254' ||
+      hostname.endsWith('.internal') ||
+      hostname.endsWith('.local')
+    ) {
+      return res.status(403).json({ error: 'Accès interdit vers cette adresse réseau.' });
+    }
+
     const response = await fetch(imageUrl, {
       headers: {
         'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36',
@@ -573,6 +589,19 @@ const resumeResponseSchema = {
 
 const handleParseCvPdf = async (req: Request, res: Response) => {
   try {
+    const userId = req.body?.userId || 'guest';
+    const userEmail = req.body?.userEmail;
+
+    const rateCheck = checkAIRateLimit(req, userId, 10);
+    if (!rateCheck.allowed) {
+      return res.status(429).json({
+        success: false,
+        error: `Limite de requêtes IA atteinte (10 requêtes/heure). Veuillez réessayer dans ${rateCheck.resetInMinutes} minute(s).`,
+        limitReached: true,
+        resetInMinutes: rateCheck.resetInMinutes
+      });
+    }
+
     let fileBuffer: Buffer | null = null;
     let fileName = 'resume.pdf';
     let mimeType = 'application/pdf';
@@ -807,13 +836,11 @@ CRITICAL INSTRUCTIONS:
     console.log(`[API parse-cv/pdf] Successfully extracted: ${sanitizedData.personalInfo.fullName || 'Candidate'} (${sanitizedData.workExperience.length} exp, ${sanitizedData.education.length} edu, ${sanitizedData.skills.length} skills)`);
 
     // Log AI action
-    const userId = req.body?.userId || 'guest';
-    const userEmail = req.body?.userEmail || sanitizedData.personalInfo.email;
-    db.addAILog({
+    await db.addAILog({
       id: 'ai_' + Math.random().toString(36).substring(2, 9),
       endpoint: 'parse-cv',
       userId,
-      userEmail,
+      userEmail: userEmail || sanitizedData.personalInfo.email,
       timestamp: new Date().toISOString(),
       success: true
     });
@@ -1594,7 +1621,7 @@ app.post('/api/user/pass-status', (req: Request, res: Response) => {
 });
 
 // 5.c Consume Download Credit Endpoint (Strict Backend Permission & Consumption)
-app.post('/api/user/consume-download', (req: Request, res: Response) => {
+app.post('/api/user/consume-download', async (req: Request, res: Response) => {
   try {
     const { userId, userEmail, currentPassType } = req.body;
     const now = new Date().getTime();
@@ -1647,6 +1674,7 @@ app.post('/api/user/consume-download', (req: Request, res: Response) => {
       }
 
       userRecord.totalDownloads = (userRecord.totalDownloads || 0) + 1;
+      await db.updateUser(userRecord.id, { totalDownloads: userRecord.totalDownloads });
       return res.json({
         success: true,
         remainingCredits: 999999,
@@ -1665,6 +1693,13 @@ app.post('/api/user/consume-download', (req: Request, res: Response) => {
         userRecord.activePass = 'none'; // Pass is fully consumed
         userRecord.canEdit = false; // Block further edits without new pass
         userRecord.totalDownloads = (userRecord.totalDownloads || 0) + 1;
+
+        await db.updateUser(userRecord.id, {
+          downloadCredits: userRecord.downloadCredits,
+          activePass: userRecord.activePass,
+          canEdit: userRecord.canEdit,
+          totalDownloads: userRecord.totalDownloads
+        });
 
         return res.json({
           success: true,
@@ -1696,7 +1731,7 @@ app.post('/api/user/consume-download', (req: Request, res: Response) => {
 });
 
 // 6. Contact Form Notification Endpoint -> support@sirati-ai.com & Saved to Admin Inbox
-app.post('/api/contact', (req: Request, res: Response) => {
+app.post('/api/contact', async (req: Request, res: Response) => {
   try {
     const { name, email, subject, message } = req.body;
 
@@ -1715,18 +1750,19 @@ app.post('/api/contact', (req: Request, res: Response) => {
     };
 
     serverMessages.unshift(newMessage);
+    await db.addMessage(newMessage);
 
     const supportRecipient = serverSettings.supportNotificationEmail || process.env.SUPPORT_EMAIL || 'support@sirati-ai.com';
     console.log(`[CONTACT NOTIFICATION] New message for ${supportRecipient} from ${name} (${email}) - Subject: ${subject}`);
     console.log(`[MESSAGE BODY]: ${message}`);
 
-    res.json({
+    return res.json({
       success: true,
       messageId: newMessage.id,
       message: `Votre message a été transmis avec succès à l'équipe support (${supportRecipient}).`
     });
   } catch (error: any) {
-    res.status(500).json({ error: 'Erreur lors de l\'envoi du message.' });
+    return res.status(500).json({ error: 'Erreur lors de l\'envoi du message.' });
   }
 });
 
@@ -2497,6 +2533,12 @@ app.all('/api/*', (req: Request, res: Response) => {
 // --- SERVER SETUP & VITE MIDDLEWARE ---
 
 async function start() {
+  try {
+    await db.init();
+  } catch (err) {
+    console.warn('⚠️ [DATABASE] Échec de l\'initialisation Supabase au démarrage:', err);
+  }
+
   if (process.env.NODE_ENV !== 'production') {
     const vite = await createViteServer({
       server: { middlewareMode: true },
